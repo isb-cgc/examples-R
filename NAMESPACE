@@ -1,0 +1,7 @@
+import(dplyr)
+import(bigrquery)
+import(scales)
+import(ggplot2)
+import(knitr)
+
+exportPattern("^[[:alpha:]]+")

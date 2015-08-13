@@ -1,0 +1,47 @@
+<!--
+%% \VignetteEngine{knitr::rmarkdown}
+%% \VignetteIndexEntry{ISB Cancer Genomics Cloud}
+-->
+
+# ISB Cancer Genomics Cloud
+
+If you have not yet setup for Google Cloud Platform, please follow [these instructions](http://googlegenomics.readthedocs.org/en/latest/workshops/bioc-2015.html) to get setup and then come back to this vignette.
+
+This workshop consists of two parts:
+
+ * Part 1: Use the [bigrquery](http://cran.r-project.org/web/packages/bigrquery/index.html) package to analyze Variants via [Google BigQuery](https://cloud.google.com/bigquery/what-is-bigquery) 
+ * Part 2: Analyze correlation between expression and methylation data.
+ 
+Part 1: Analyze Variants with BigQuery
+======================================
+
+Open the code and the rendered vignette in separate windows:
+
+* Open the vignette to run it line-by-line via:
+```{r eval=FALSE}
+file.edit(file.path(system.file(package = "ISBCGCExamples"), "doc", "BigQueryIntroduction.Rmd"))
+```
+
+* View the rendered vignette 
+```{r eval=FALSE}
+file.show(file.path(system.file(package = "ISBCGCExamples"), "doc", "BigQueryIntroduction.html"))
+```
+
+Alternatively, you can view the documentation for the [ISBCGCExamples](https://github.com/isb-cgc/examples-R) package by running `help(package="ISBCGCExamples")` and clicking on *"User guides, package vignettes and other documentation."*.
+
+Part 2: Expression and Methylation Correlation
+=======================================================
+
+Open the code and the rendered vignette in separate windows:
+
+* Open the vignette to run it line-by-line via:
+```{r eval=FALSE}
+file.edit(file.path(system.file(package = "ISBCGCExamples"), "doc", "ExpressionAndMethylationCorrelation.Rmd"))
+```
+
+* View the rendered vignette 
+```{r eval=FALSE}
+file.show(file.path(system.file(package = "ISBCGCExamples"), "doc", "ExpressionAndMethylationCorrelation.html"))
+```
+
+Alternatively, you can view the documentation for the [ISBCGCExamples](https://github.com/isb-cgc/examples-R) package by running `help(package="ISBCGCExamples")` and clicking on *"User guides, package vignettes and other documentation."*.
