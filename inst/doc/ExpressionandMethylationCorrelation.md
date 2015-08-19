@@ -6,7 +6,6 @@ Reproduces some of the analyses in http://watson.nci.nih.gov/~sdavis/tutorials/T
 
 
 ```r
-require(ggplot2)
 require(ISBCGCExamples)
 
 # The directory in which the files containing SQL reside.
@@ -26,6 +25,8 @@ sqlDir <- file.path(system.file(package = "ISBCGCExamples"),
 # project <- "YOUR-PROJECT-ID"
 #####################################################################
 ```
+
+# Pearson Correlation
 
 
 ```r
@@ -94,6 +95,92 @@ ggplot(result, aes(x=correlation)) +
 
 <img src="figure/density-1.png" title="plot of chunk density" alt="plot of chunk density" style="display: block; margin: auto;" />
 
+# Spearman Correlation
+
+
+```r
+result <- DisplayAndDispatchQuery(file.path(sqlDir, "protein-mrna-spearman-correlation.sql"),
+                                  project=project,
+                                  replacements=list("_COHORT_"="isb-cgc:test.cohort_14jun2015"))
+```
+
+```
+SELECT
+  feat1.gene AS gene,
+  CORR(feat1.exp_rank, feat2.exp_rank) AS spearman_corr
+FROM (
+  SELECT
+    *,
+    RANK() OVER (PARTITION BY gene ORDER BY protein_expression ASC) AS exp_rank
+  FROM (
+    SELECT
+      SampleBarcode,
+      Gene_Name AS gene,
+      protein_expression
+    FROM
+      [isb-cgc:tcga_data_open.Protein]
+    WHERE
+      SampleBarcode IN (
+      SELECT
+        sample_barcode
+      FROM
+        [isb-cgc:test.cohort_14jun2015] ) ) ) feat1
+JOIN EACH (
+  SELECT
+    *,
+    RANK() OVER (PARTITION BY gene ORDER BY log2_normalized_count ASC) AS exp_rank
+  FROM (
+    SELECT
+      SampleBarcode,
+      HGNC_gene_symbol AS gene,
+      IF(0 = normalized_count, 0, LOG2(normalized_count)) AS log2_normalized_count
+    FROM
+      [isb-cgc:tcga_data_open.mRNA_UNC_HiSeq_RSEM]
+    WHERE
+      SampleBarcode IN (
+      SELECT
+        sample_barcode
+      FROM
+        [isb-cgc:test.cohort_14jun2015] ) ) )feat2
+ON
+  feat1.SampleBarcode = feat2.SampleBarcode
+  AND feat1.gene = feat2.gene
+GROUP BY
+  gene
+ORDER BY
+  spearman_corr
+```
+Number of rows returned by this query: 187.
+
+The result is one correlation value per row of data, each of which corresponds to . . .
+
+```r
+head(result)
+```
+
+```
+##     gene spearman_corr
+## 1 NFE2L2    -0.9770990
+## 2   E2F1    -0.8063829
+## 3    RET    -0.7865162
+## 4   TP63    -0.6226925
+## 5    SYP    -0.5138228
+## 6   TFF1    -0.4943634
+```
+
+
+```r
+# Histogram overlaid with kernel density curve
+ggplot(result, aes(x=spearman_corr)) + 
+    geom_histogram(aes(y=..density..),      # Histogram with density instead of count on y-axis
+                   binwidth=.05,
+                   colour="black", fill="white") +
+    geom_density(alpha=.2, fill="#FF6666")  # Overlay with transparent density plot
+```
+
+<img src="figure/spearman_density-1.png" title="plot of chunk spearman_density" alt="plot of chunk spearman_density" style="display: block; margin: auto;" />
+
+
 ## Provenance
 
 ```r
@@ -118,8 +205,8 @@ other attached packages:
 
 loaded via a namespace (and not attached):
  [1] Rcpp_0.11.6      formatR_1.2      git2r_0.10.1     plyr_1.8.2      
- [5] tools_3.2.0      digest_0.6.8     jsonlite_0.9.16  evaluate_0.7    
- [9] memoise_0.2.1    gtable_0.1.2     lattice_0.20-31  Matrix_1.2-0    
+ [5] tools_3.2.0      digest_0.6.8     jsonlite_0.9.16  memoise_0.2.1   
+ [9] evaluate_0.7.2   gtable_0.1.2     lattice_0.20-31  Matrix_1.2-0    
 [13] DBI_0.3.1        rstudioapi_0.3.1 curl_0.9.2       parallel_3.2.0  
 [17] proto_0.3-10     dplyr_0.4.1      httr_1.0.0       stringr_1.0.0   
 [21] xml2_0.1.1       rversions_1.0.1  grid_3.2.0       R6_2.1.0        

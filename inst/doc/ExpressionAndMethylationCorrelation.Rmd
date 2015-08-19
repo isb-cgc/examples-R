@@ -5,7 +5,6 @@ TODO introduction, talk about the tables we will use, etc...
 Reproduces some of the analyses in http://watson.nci.nih.gov/~sdavis/tutorials/TCGA_data_integration/
 
 ```{r message=FALSE}
-require(ggplot2)
 require(ISBCGCExamples)
 
 # The directory in which the files containing SQL reside.
@@ -24,6 +23,8 @@ sqlDir <- file.path(system.file(package = "ISBCGCExamples"),
 # project <- "YOUR-PROJECT-ID"
 #####################################################################
 ```
+
+# Pearson Correlation
 
 ```{r comment=NA}
 result <- DisplayAndDispatchQuery(file.path(sqlDir, "expression-methylation-correlation.sql"),
@@ -47,6 +48,30 @@ ggplot(result, aes(x=correlation)) +
                    colour="black", fill="white") +
     geom_density(alpha=.2, fill="#FF6666")  # Overlay with transparent density plot
 ```
+
+# Spearman Correlation
+
+```{r comment=NA}
+result <- DisplayAndDispatchQuery(file.path(sqlDir, "protein-mrna-spearman-correlation.sql"),
+                                  project=project,
+                                  replacements=list("_COHORT_"="isb-cgc:test.cohort_14jun2015"))
+```
+Number of rows returned by this query: `r nrow(result)`.
+
+The result is one correlation value per row of data, each of which corresponds to . . .
+```{r}
+head(result)
+```
+
+```{r spearman_density, fig.align="center", fig.width=10, message=FALSE, warning=FALSE, comment=NA}
+# Histogram overlaid with kernel density curve
+ggplot(result, aes(x=spearman_corr)) + 
+    geom_histogram(aes(y=..density..),      # Histogram with density instead of count on y-axis
+                   binwidth=.05,
+                   colour="black", fill="white") +
+    geom_density(alpha=.2, fill="#FF6666")  # Overlay with transparent density plot
+```
+
 
 ## Provenance
 ```{r provenance, comment=NA}
