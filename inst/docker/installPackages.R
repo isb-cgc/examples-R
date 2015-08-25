@@ -1,8 +1,9 @@
 # Modelled after https://github.com/Bioconductor/bioc_docker/blob/master/out/devel_sequencing/installFromBiocViews.R
 library(BiocInstaller)
 
-pkgs_to_install <- c("bigrquery")
-github_pkgs_to_install <- c("isb-cgc/examples-R", "googlegenomics/bioconductor-workshop-r")
+pkgs_to_install <- c("devtools")
+github_pkgs_to_install <- c("googlegenomics/bioconductor-workshop-r")
+#github_pkgs_to_install <- c("isb-cgc/examples-R", "googlegenomics/bioconductor-workshop-r")
 
 cores <- max(2, parallel::detectCores()-2)
 if (parallel::detectCores() == 1)
@@ -27,3 +28,7 @@ if (!is.null(warnings()))
      "is not available|had non-zero exit status|installation of one or more packages failed", w)))
         quit("no", 1L)
 }
+
+# TODO remove these line after examples-R is public.
+require(devtools)
+install_local("/tmp/ISBCGCExamples_0.1.tar.gz", build_vignettes=TRUE, dependencies=TRUE)
