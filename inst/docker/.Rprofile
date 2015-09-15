@@ -1,7 +1,3 @@
-# Turn off caching of credentials in this docker image.
-options("google_auth_cache_httr"=FALSE)
-options("httr_oauth_cache"=FALSE)
-
 # Use an out-of-band OAuth flow since the redirect will not work in this dockerized environment.
 options(httr_oob_default = TRUE)
 
@@ -18,4 +14,3 @@ setHook(packageEvent("GoogleGenomics", "attach"),
                           "authenticate(apiKey='YOUR_PUBLIC_API_KEY')", sep="\n"))
           }
         })
-
