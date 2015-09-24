@@ -1,4 +1,4 @@
-# TODO needs a comment
+# Correlate the protein quantification data with the mRNA expression data.
 SELECT
   feat1.gene AS gene,
   CORR(feat1.exp_rank, feat2.exp_rank) AS spearman_corr
@@ -12,13 +12,13 @@ FROM (
       Gene_Name AS gene,
       protein_expression
     FROM
-      [isb-cgc:tcga_data_open.Protein]
+      [_PROTEIN_TABLE_]
     WHERE
       SampleBarcode IN (
       SELECT
         sample_barcode
       FROM
-        [_COHORT_] ) ) ) feat1
+        [_COHORT_TABLE_] ) ) ) feat1
 JOIN EACH (
   SELECT
     *,
@@ -29,13 +29,13 @@ JOIN EACH (
       HGNC_gene_symbol AS gene,
       IF(0 = normalized_count, 0, LOG2(normalized_count)) AS log2_normalized_count
     FROM
-      [isb-cgc:tcga_data_open.mRNA_UNC_HiSeq_RSEM]
+      [_EXPRESSION_TABLE_]
     WHERE
       SampleBarcode IN (
       SELECT
         sample_barcode
       FROM
-        [_COHORT_] ) ) )feat2
+        [_COHORT_TABLE_] ) ) )feat2
 ON
   feat1.SampleBarcode = feat2.SampleBarcode
   AND feat1.gene = feat2.gene

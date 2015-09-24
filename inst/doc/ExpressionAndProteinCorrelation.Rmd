@@ -1,4 +1,4 @@
-# Expression and Methylation Correlation
+# Expression and Protein Correlation
 
 TODO introduction, talk about the tables we will use, etc...
 
@@ -24,40 +24,38 @@ sqlDir <- file.path(system.file(package = "ISBCGCExamples"),
 #####################################################################
 ```
 
-## Pearson Correlation in BigQuery
+## Spearman Correlation in BigQuery
 
 ```{r comment=NA}
 # Set the desired tables to query.
 expressionTable = "isb-cgc:tcga_data_open.mRNA_UNC_HiSeq_RSEM"
-methylationTable = "isb-cgc:tcga_data_open.Methylation_chr9"
-# Add any additional clauses to be applied in WHERE to limit the methylation data further.
-andWhere = "AND SampleTypeLetterCode = 'TP' AND Study = 'CESC'"
+proteinTable = "isb-cgc:tcga_data_open.Protein"
+cohortTable = "isb-cgc:test.cohort_14jun2015"
 
 # Now we are ready to run the query.
-result <- DisplayAndDispatchQuery(file.path(sqlDir, "expression-methylation-correlation.sql"),
+result <- DisplayAndDispatchQuery(file.path(sqlDir, "protein-mrna-spearman-correlation.sql"),
                                   project=project,
                                   replacements=list("_EXPRESSION_TABLE_"=expressionTable,
-                                                    "_METHYLATION_TABLE_"=methylationTable,
-                                                    "#_AND_WHERE_"=andWhere))
+                                                    "_PROTEIN_TABLE_"=proteinTable,
+                                                    "_COHORT_TABLE_"=cohortTable))
 ```
 Number of rows returned by this query: `r nrow(result)`.
 
-The result is one correlation value per row of data, each of which corresponds to a methylation probe and
-its associated expression probe. Note that each expression probe may map to several methylation probes.
+The result is one correlation value per row of data, each of which corresponds to  . . . MORE HERE
 ```{r}
 head(result)
 ```
 
-```{r density, fig.align="center", fig.width=10, message=FALSE, warning=FALSE, comment=NA}
+```{r spearman_density, fig.align="center", fig.width=10, message=FALSE, warning=FALSE, comment=NA}
 # Histogram overlaid with kernel density curve
-ggplot(result, aes(x=correlation)) + 
+ggplot(result, aes(x=spearman_corr)) + 
     geom_histogram(aes(y=..density..),      # Histogram with density instead of count on y-axis
                    binwidth=.05,
                    colour="black", fill="white") +
     geom_density(alpha=.2, fill="#FF6666")  # Overlay with transparent density plot
 ```
 
-## Pearson Correlation in R
+## Spearman Correlation in R
 
 Now let's reproduce one of the results directly in R.
 
@@ -66,11 +64,12 @@ Now let's reproduce one of the results directly in R.
 First we retrieve the expression data for a particular gene.
 ```{r comment=NA}
 # Set the desired gene to query.
-gene = "GPSM1"
+gene = "NFE2L2"
 
-expressionData <- DisplayAndDispatchQuery(file.path(sqlDir, "expression-data.sql"),
+expressionData <- DisplayAndDispatchQuery(file.path(sqlDir, "expression-data-by-cohort.sql"),
                                   project=project,
                                   replacements=list("_EXPRESSION_TABLE_"=expressionTable,
+                                                    "_COHORT_TABLE_"=cohortTable,
                                                     "_GENE_"=gene))
 ```
 Number of rows returned by this query: `r nrow(expressionData)`.
@@ -79,42 +78,36 @@ Number of rows returned by this query: `r nrow(expressionData)`.
 head(expressionData)
 ```
 
-### Retrieve Methylation Data
+### Retrieve Protein Data
 
-Then we retrieve the methylation data for a particular probe.
+Then we retrieve the protein data for a particular gene.
 
 ```{r comment=NA}
-# Set the desired probe to query.
-probe = "cg04305913"
-
-# Be sure to apply the same additional clauses to the WHERE to limit the methylation data further.
-
-methylationData <- DisplayAndDispatchQuery(file.path(sqlDir, "methylation-data.sql"),
+proteinData <- DisplayAndDispatchQuery(file.path(sqlDir, "protein-data-by-cohort.sql"),
                                   project=project,
-                                  replacements=list("_METHYLATION_TABLE_"=methylationTable,
-                                                    "#_AND_WHERE_"=andWhere,
-                                                    "_PROBE_"=probe))
+                                  replacements=list("_PROTEIN_TABLE_"=proteinTable,
+                                                    "_COHORT_TABLE_"=cohortTable,
+                                                    "_GENE_"=gene))
 ```
 
-Number of rows returned by this query: `r nrow(methylationData)`.
+Number of rows returned by this query: `r nrow(proteinData)`.
 
 ```{r}
-head(methylationData)
+head(proteinData)
 ```
 
 ### Perform the correlation
 
 ```{r}
 # TODO: fix package imports so that we can require(dplyr) and drop the package prefix on these calls.
-data = dplyr::inner_join(expressionData, methylationData)
+data = dplyr::inner_join(expressionData, proteinData)
 head(data)
 ```
 
 ```{r}
-cor(x=data$normalized_count, y=data$Beta_Value, method="pearson")
+# TODO: This isn't quite right, needs a review.
+cor(x=data$normalized_count, y=data$protein_expression, method="spearman")
 ```
-
-And we can see that we have reproduced one of our results from BigQuery.
 
 ## Provenance
 ```{r provenance, comment=NA}
