@@ -11,3 +11,7 @@ WHERE
   # Optionally add clause here to limit the query to a particular
   # sample types and/or studies.
   #_AND_WHERE_
+ORDER BY
+  SampleBarcode,
+  SampleTypeLetterCode,
+  Study

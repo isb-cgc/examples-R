@@ -66,7 +66,7 @@ Now let's reproduce one of the results directly in R.
 First we retrieve the expression data for a particular gene.
 ```{r comment=NA}
 # Set the desired gene to query.
-gene = "NFE2L2"
+gene = "ERBB3"
 
 expressionData = DisplayAndDispatchQuery(file.path(sqlDir, "expression-data-by-cohort.sql"),
                                          project=project,
@@ -85,11 +85,14 @@ head(expressionData)
 Then we retrieve the protein data for a particular gene.
 
 ```{r comment=NA}
+protein = "HER3_pY1298"
+
 proteinData = DisplayAndDispatchQuery(file.path(sqlDir, "protein-data-by-cohort.sql"),
                                       project=project,
                                       replacements=list("_PROTEIN_TABLE_"=proteinTable,
                                                         "_COHORT_TABLE_"=cohortTable,
-                                                        "_GENE_"=gene))
+                                                        "_GENE_"=gene,
+                                                        "_PROTEIN_"=protein))
 ```
 
 Number of rows returned by this query: `r nrow(proteinData)`.

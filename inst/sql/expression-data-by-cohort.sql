@@ -11,3 +11,5 @@ WHERE
     sample_barcode
   FROM
     [_COHORT_TABLE_] )
+ORDER BY
+  SampleBarcode
