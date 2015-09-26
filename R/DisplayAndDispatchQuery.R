@@ -8,6 +8,7 @@
 #' @param replacements A list of key/value pairs.  For each pair the key, if found in the
 #'  SQL, will be replaced with the value.
 #' @return The dataframe of query results.
+#' @export
 DisplayAndDispatchQuery <- function(queryUri, project, replacements=list()) {
   if (missing(queryUri)) {
     stop("Pass the file path or url to the file containing the query.")
@@ -18,7 +19,7 @@ DisplayAndDispatchQuery <- function(queryUri, project, replacements=list()) {
 
   if (grepl("^https.*", queryUri)) {
     # Read the query from a remote location.
-    querySql <- getURL(queryUri, ssl.verifypeer=FALSE)
+    querySql <- RCurl::getURL(queryUri, ssl.verifypeer=FALSE)
   } else {
     # Read the query from the local filesystem.
     querySql <- readChar(queryUri, nchars=1e6)
@@ -33,5 +34,5 @@ DisplayAndDispatchQuery <- function(queryUri, project, replacements=list()) {
   cat(querySql)
 
   # Dispatch the query to BigQuery.
-  query_exec(querySql, project)
+  bigrquery::query_exec(querySql, project)
 }

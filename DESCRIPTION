@@ -1,6 +1,6 @@
 Package: ISBCGCExamples
 Type: Package
-Title: Vignettes for ISB Cancer Genomics Cloud examples.
+Title: Vignettes for ISB Cancer Genomics Cloud
 Version: 0.1
 Date: 2015-08-13
 Authors@R: c(person("Sheila", "Reynolds", role = c("aut", "cre"),
@@ -8,9 +8,11 @@ Authors@R: c(person("Sheila", "Reynolds", role = c("aut", "cre"),
              person("Nicole", "Deflaux", role = c("aut"),
                     email="deflaux@google.com"))
 Depends:
-    R (>= 3.1.0), bigrquery, ggplot2, knitr
+    R (>= 3.1.0)
+Imports:
+    bigrquery, RCurl
 Suggests:
-    httpuv, rmarkdown
+    ggplot2, httpuv, knitr, rmarkdown
 Description: Provides several vignettes for analysis examples on the ISB-CGC hosted TCGA data.
 VignetteBuilder: knitr
 License: Apache License (== 2.0) | file LICENSE

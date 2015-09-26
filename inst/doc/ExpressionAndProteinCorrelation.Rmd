@@ -5,11 +5,11 @@ TODO introduction, talk about the tables we will use, etc...
 Reproduces some of the analyses in http://watson.nci.nih.gov/~sdavis/tutorials/TCGA_data_integration/
 
 ```{r message=FALSE}
-require(ISBCGCExamples)
+library(ISBCGCExamples)
 
 # The directory in which the files containing SQL reside.
-#sqlDir <- file.path("/PATH/TO/GIT/CLONE/OF/examples-R/inst/", 
-sqlDir <- file.path(system.file(package = "ISBCGCExamples"),
+#sqlDir = file.path("/PATH/TO/GIT/CLONE/OF/examples-R/inst/", 
+sqlDir = file.path(system.file(package = "ISBCGCExamples"),
                     "sql")
 ```
 
@@ -20,7 +20,7 @@ sqlDir <- file.path(system.file(package = "ISBCGCExamples"),
 ## If you are using the workshop docker image, this is already
 ## set for you in your .Rprofile and you can skip this step.
 
-# project <- "YOUR-PROJECT-ID"
+# project = "YOUR-PROJECT-ID"
 #####################################################################
 ```
 
@@ -33,11 +33,11 @@ proteinTable = "isb-cgc:tcga_data_open.Protein"
 cohortTable = "isb-cgc:test.cohort_14jun2015"
 
 # Now we are ready to run the query.
-result <- DisplayAndDispatchQuery(file.path(sqlDir, "protein-mrna-spearman-correlation.sql"),
-                                  project=project,
-                                  replacements=list("_EXPRESSION_TABLE_"=expressionTable,
-                                                    "_PROTEIN_TABLE_"=proteinTable,
-                                                    "_COHORT_TABLE_"=cohortTable))
+result = DisplayAndDispatchQuery(file.path(sqlDir, "protein-mrna-spearman-correlation.sql"),
+                                 project=project,
+                                 replacements=list("_EXPRESSION_TABLE_"=expressionTable,
+                                                   "_PROTEIN_TABLE_"=proteinTable,
+                                                   "_COHORT_TABLE_"=cohortTable))
 ```
 Number of rows returned by this query: `r nrow(result)`.
 
@@ -47,6 +47,8 @@ head(result)
 ```
 
 ```{r spearman_density, fig.align="center", fig.width=10, message=FALSE, warning=FALSE, comment=NA}
+library(bigrquery)
+
 # Histogram overlaid with kernel density curve
 ggplot(result, aes(x=spearman_corr)) + 
     geom_histogram(aes(y=..density..),      # Histogram with density instead of count on y-axis
@@ -66,11 +68,11 @@ First we retrieve the expression data for a particular gene.
 # Set the desired gene to query.
 gene = "NFE2L2"
 
-expressionData <- DisplayAndDispatchQuery(file.path(sqlDir, "expression-data-by-cohort.sql"),
-                                  project=project,
-                                  replacements=list("_EXPRESSION_TABLE_"=expressionTable,
-                                                    "_COHORT_TABLE_"=cohortTable,
-                                                    "_GENE_"=gene))
+expressionData = DisplayAndDispatchQuery(file.path(sqlDir, "expression-data-by-cohort.sql"),
+                                         project=project,
+                                         replacements=list("_EXPRESSION_TABLE_"=expressionTable,
+                                                           "_COHORT_TABLE_"=cohortTable,
+                                                           "_GENE_"=gene))
 ```
 Number of rows returned by this query: `r nrow(expressionData)`.
 
@@ -83,11 +85,11 @@ head(expressionData)
 Then we retrieve the protein data for a particular gene.
 
 ```{r comment=NA}
-proteinData <- DisplayAndDispatchQuery(file.path(sqlDir, "protein-data-by-cohort.sql"),
-                                  project=project,
-                                  replacements=list("_PROTEIN_TABLE_"=proteinTable,
-                                                    "_COHORT_TABLE_"=cohortTable,
-                                                    "_GENE_"=gene))
+proteinData = DisplayAndDispatchQuery(file.path(sqlDir, "protein-data-by-cohort.sql"),
+                                      project=project,
+                                      replacements=list("_PROTEIN_TABLE_"=proteinTable,
+                                                        "_COHORT_TABLE_"=cohortTable,
+                                                        "_GENE_"=gene))
 ```
 
 Number of rows returned by this query: `r nrow(proteinData)`.
@@ -99,8 +101,9 @@ head(proteinData)
 ### Perform the correlation
 
 ```{r}
-# TODO: fix package imports so that we can require(dplyr) and drop the package prefix on these calls.
-data = dplyr::inner_join(expressionData, proteinData)
+library(dplyr)
+
+data = inner_join(expressionData, proteinData)
 head(data)
 ```
 
