@@ -5,12 +5,12 @@
 #' Reproduces some of the analyses in http://watson.nci.nih.gov/~sdavis/tutorials/TCGA_data_integration/
 #' 
 ## ----message=FALSE-------------------------------------------------------
-require(ISBCGCExamples)
+library(ISBCGCExamples)
 
 # The directory in which the files containing SQL reside.
-#sqlDir <- file.path("/PATH/TO/GIT/CLONE/OF/examples-R/inst/", 
-sqlDir <- file.path(system.file(package = "ISBCGCExamples"),
-                    "sql")
+#sqlDir = file.path("/PATH/TO/GIT/CLONE/OF/examples-R/inst/", 
+sqlDir = file.path(system.file(package = "ISBCGCExamples"),
+                   "sql")
 
 #' 
 ## ----eval=FALSE----------------------------------------------------------
@@ -20,7 +20,7 @@ sqlDir <- file.path(system.file(package = "ISBCGCExamples"),
 ## ## If you are using the workshop docker image, this is already
 ## ## set for you in your .Rprofile and you can skip this step.
 ## 
-## # project <- "YOUR-PROJECT-ID"
+## # project = "YOUR-PROJECT-ID"
 ## #####################################################################
 
 #' 
@@ -34,11 +34,11 @@ methylationTable = "isb-cgc:tcga_data_open.Methylation_chr9"
 andWhere = "AND SampleTypeLetterCode = 'TP' AND Study = 'CESC'"
 
 # Now we are ready to run the query.
-result <- DisplayAndDispatchQuery(file.path(sqlDir, "expression-methylation-correlation.sql"),
-                                  project=project,
-                                  replacements=list("_EXPRESSION_TABLE_"=expressionTable,
-                                                    "_METHYLATION_TABLE_"=methylationTable,
-                                                    "#_AND_WHERE_"=andWhere))
+result = DisplayAndDispatchQuery(file.path(sqlDir, "expression-methylation-correlation.sql"),
+                                 project=project,
+                                 replacements=list("_EXPRESSION_TABLE_"=expressionTable,
+                                                   "_METHYLATION_TABLE_"=methylationTable,
+                                                   "#_AND_WHERE_"=andWhere))
 
 #' Number of rows returned by this query: `r nrow(result)`.
 #' 
@@ -49,6 +49,8 @@ head(result)
 
 #' 
 ## ----density, fig.align="center", fig.width=10, message=FALSE, warning=FALSE, comment=NA----
+library(bigrquery)
+
 # Histogram overlaid with kernel density curve
 ggplot(result, aes(x=correlation)) + 
     geom_histogram(aes(y=..density..),      # Histogram with density instead of count on y-axis
@@ -68,10 +70,10 @@ ggplot(result, aes(x=correlation)) +
 # Set the desired gene to query.
 gene = "GPSM1"
 
-expressionData <- DisplayAndDispatchQuery(file.path(sqlDir, "expression-data.sql"),
-                                  project=project,
-                                  replacements=list("_EXPRESSION_TABLE_"=expressionTable,
-                                                    "_GENE_"=gene))
+expressionData = DisplayAndDispatchQuery(file.path(sqlDir, "expression-data.sql"),
+                                         project=project,
+                                         replacements=list("_EXPRESSION_TABLE_"=expressionTable,
+                                                           "_GENE_"=gene))
 
 #' Number of rows returned by this query: `r nrow(expressionData)`.
 #' 
@@ -89,11 +91,11 @@ probe = "cg04305913"
 
 # Be sure to apply the same additional clauses to the WHERE to limit the methylation data further.
 
-methylationData <- DisplayAndDispatchQuery(file.path(sqlDir, "methylation-data.sql"),
-                                  project=project,
-                                  replacements=list("_METHYLATION_TABLE_"=methylationTable,
-                                                    "#_AND_WHERE_"=andWhere,
-                                                    "_PROBE_"=probe))
+methylationData = DisplayAndDispatchQuery(file.path(sqlDir, "methylation-data.sql"),
+                                          project=project,
+                                          replacements=list("_METHYLATION_TABLE_"=methylationTable,
+                                                            "#_AND_WHERE_"=andWhere,
+                                                            "_PROBE_"=probe))
 
 #' 
 #' Number of rows returned by this query: `r nrow(methylationData)`.
@@ -105,8 +107,9 @@ head(methylationData)
 #' ### Perform the correlation
 #' 
 ## ------------------------------------------------------------------------
-# TODO: fix package imports so that we can require(dplyr) and drop the package prefix on these calls.
-data = dplyr::inner_join(expressionData, methylationData)
+library(dplyr)
+
+data = inner_join(expressionData, methylationData)
 head(data)
 
 #' 

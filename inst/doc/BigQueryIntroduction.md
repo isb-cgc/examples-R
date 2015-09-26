@@ -17,7 +17,8 @@ The [bigrquery](https://github.com/hadley/bigrquery) package written by Hadley W
 
 
 ```r
-require(bigrquery)
+library(dplyr)
+library(bigrquery)
 ```
 
 
@@ -98,31 +99,37 @@ We can also run the exact same query using the BigQuery web user interface.  In 
 Instead of typing SQL directly into our R code, we can use a convenience function to read SQL from a file.
 
 ```r
-require(ISBCGCExamples)
+library(ISBCGCExamples)
 DisplayAndDispatchQuery
 ```
 
 ```
-## function (queryUri, project, replacements = list()) 
-## {
-##     if (missing(queryUri)) {
-##         stop("Pass the file path or url to the file containing the query.")
-##     }
-##     if (missing(project)) {
-##         stop("Pass the project id of your Google Cloud Platform project.")
-##     }
-##     if (grepl("^https.*", queryUri)) {
-##         querySql <- getURL(queryUri, ssl.verifypeer = FALSE)
-##     }
-##     else {
-##         querySql <- readChar(queryUri, nchars = 1e+06)
-##     }
-##     for (replacement in names(replacements)) {
-##         querySql <- gsub(replacement, replacements[[replacement]], 
-##             querySql, fixed = TRUE)
-##     }
-##     cat(querySql)
-##     query_exec(querySql, project)
+## function(queryUri, project, replacements=list()) {
+##   if (missing(queryUri)) {
+##     stop("Pass the file path or url to the file containing the query.")
+##   }
+##   if(missing(project)) {
+##     stop("Pass the project id of your Google Cloud Platform project.")
+##   }
+## 
+##   if (grepl("^https.*", queryUri)) {
+##     # Read the query from a remote location.
+##     querySql <- RCurl::getURL(queryUri, ssl.verifypeer=FALSE)
+##   } else {
+##     # Read the query from the local filesystem.
+##     querySql <- readChar(queryUri, nchars=1e6)
+##   }
+## 
+##   # If applicable, substitute values in the query template.
+##   for(replacement in names(replacements)) {
+##     querySql <- gsub(replacement, replacements[[replacement]], querySql, fixed=TRUE)
+##   }
+## 
+##   # Display the query to the terminal.
+##   cat(querySql)
+## 
+##   # Dispatch the query to BigQuery.
+##   bigrquery::query_exec(querySql, project)
 ## }
 ## <environment: namespace:ISBCGCExamples>
 ```
@@ -295,7 +302,7 @@ FROM (
 ORDER BY
   reference_name,
   window_start
-Retrieving data:  3.1s
+Retrieving data:  3.2s
 ```
 Number of rows returned by this query: 28734.
 
@@ -344,12 +351,7 @@ head(result)
 ## 6                    283
 ```
 
-Since [bigrquery](https://github.com/hadley/bigrquery) results are dataframes, we can make use of all sorts of other great R packages to do our downstream work.  Here we use a few more packages from the Hadleyverse for data filtering and visualization.
-
-
-```r
-require(dplyr)
-```
+Since [bigrquery](https://github.com/hadley/bigrquery) results are dataframes, we can make use of all sorts of other great R packages to do our downstream work.  Here we use a few more packages from the Hadleyverse: dplyr for data filtering and ggplot2 for visualization.
 
 
 ```r
@@ -359,8 +361,8 @@ chromosomeOneResults <- filter(result, reference_name == "chr1" | reference_name
 
 
 ```r
-require(scales)
-require(ggplot2)
+library(scales)
+library(ggplot2)
 ```
 
 
@@ -385,7 +387,7 @@ sessionInfo()
 ```
 R version 3.2.0 (2015-04-16)
 Platform: x86_64-apple-darwin13.4.0 (64-bit)
-Running under: OS X 10.10.4 (Yosemite)
+Running under: OS X 10.10.5 (Yosemite)
 
 locale:
 [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
@@ -394,18 +396,17 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] mgcv_1.8-6         nlme_3.1-120       ISBCGCExamples_0.1
-[4] devtools_1.8.0     knitr_1.10.5       ggplot2_1.0.1     
-[7] bigrquery_0.1.0   
+[1] mgcv_1.8-6         nlme_3.1-120       ggplot2_1.0.1     
+[4] scales_0.2.5       ISBCGCExamples_0.1 bigrquery_0.1.0   
+[7] dplyr_0.4.2       
 
 loaded via a namespace (and not attached):
- [1] Rcpp_0.11.6      formatR_1.2      git2r_0.10.1     plyr_1.8.2      
- [5] tools_3.2.0      digest_0.6.8     jsonlite_0.9.16  memoise_0.2.1   
- [9] evaluate_0.7.2   gtable_0.1.2     lattice_0.20-31  Matrix_1.2-0    
-[13] DBI_0.3.1        rstudioapi_0.3.1 curl_0.9.2       parallel_3.2.0  
-[17] proto_0.3-10     dplyr_0.4.1      httr_1.0.0       stringr_1.0.0   
-[21] xml2_0.1.1       rversions_1.0.1  grid_3.2.0       R6_2.1.0        
-[25] reshape2_1.4.1   magrittr_1.5     scales_0.2.4     MASS_7.3-40     
-[29] assertthat_0.1   mime_0.3         colorspace_1.2-6 labeling_0.3    
-[33] stringi_0.5-5    lazyeval_0.1.10  munsell_0.4.2    markdown_0.7.7  
+ [1] Rcpp_0.12.0      rstudioapi_0.3.1 knitr_1.10.5     magrittr_1.5    
+ [5] MASS_7.3-40      munsell_0.4.2    colorspace_1.2-6 lattice_0.20-31 
+ [9] R6_2.1.1         stringr_1.0.0    httr_1.0.0       plyr_1.8.3      
+[13] tools_3.2.0      parallel_3.2.0   grid_3.2.0       gtable_0.1.2    
+[17] DBI_0.3.1        htmltools_0.2.6  lazyeval_0.1.10  assertthat_0.1  
+[21] digest_0.6.8     Matrix_1.2-0     formatR_1.2      reshape2_1.4.1  
+[25] curl_0.9.3       evaluate_0.7.2   rmarkdown_0.7    labeling_0.3    
+[29] stringi_0.5-5    jsonlite_0.9.17  proto_0.3-10    
 ```

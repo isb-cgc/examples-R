@@ -6,12 +6,12 @@ Reproduces some of the analyses in http://watson.nci.nih.gov/~sdavis/tutorials/T
 
 
 ```r
-require(ISBCGCExamples)
+library(ISBCGCExamples)
 
 # The directory in which the files containing SQL reside.
-#sqlDir <- file.path("/PATH/TO/GIT/CLONE/OF/examples-R/inst/", 
-sqlDir <- file.path(system.file(package = "ISBCGCExamples"),
-                    "sql")
+#sqlDir = file.path("/PATH/TO/GIT/CLONE/OF/examples-R/inst/", 
+sqlDir = file.path(system.file(package = "ISBCGCExamples"),
+                   "sql")
 ```
 
 
@@ -22,7 +22,7 @@ sqlDir <- file.path(system.file(package = "ISBCGCExamples"),
 ## If you are using the workshop docker image, this is already
 ## set for you in your .Rprofile and you can skip this step.
 
-# project <- "YOUR-PROJECT-ID"
+# project = "YOUR-PROJECT-ID"
 #####################################################################
 ```
 
@@ -37,11 +37,11 @@ methylationTable = "isb-cgc:tcga_data_open.Methylation_chr9"
 andWhere = "AND SampleTypeLetterCode = 'TP' AND Study = 'CESC'"
 
 # Now we are ready to run the query.
-result <- DisplayAndDispatchQuery(file.path(sqlDir, "expression-methylation-correlation.sql"),
-                                  project=project,
-                                  replacements=list("_EXPRESSION_TABLE_"=expressionTable,
-                                                    "_METHYLATION_TABLE_"=methylationTable,
-                                                    "#_AND_WHERE_"=andWhere))
+result = DisplayAndDispatchQuery(file.path(sqlDir, "expression-methylation-correlation.sql"),
+                                 project=project,
+                                 replacements=list("_EXPRESSION_TABLE_"=expressionTable,
+                                                   "_METHYLATION_TABLE_"=methylationTable,
+                                                   "#_AND_WHERE_"=andWhere))
 ```
 
 ```
@@ -95,6 +95,8 @@ head(result)
 
 
 ```r
+library(bigrquery)
+
 # Histogram overlaid with kernel density curve
 ggplot(result, aes(x=correlation)) + 
     geom_histogram(aes(y=..density..),      # Histogram with density instead of count on y-axis
@@ -117,10 +119,10 @@ First we retrieve the expression data for a particular gene.
 # Set the desired gene to query.
 gene = "GPSM1"
 
-expressionData <- DisplayAndDispatchQuery(file.path(sqlDir, "expression-data.sql"),
-                                  project=project,
-                                  replacements=list("_EXPRESSION_TABLE_"=expressionTable,
-                                                    "_GENE_"=gene))
+expressionData = DisplayAndDispatchQuery(file.path(sqlDir, "expression-data.sql"),
+                                         project=project,
+                                         replacements=list("_EXPRESSION_TABLE_"=expressionTable,
+                                                           "_GENE_"=gene))
 ```
 
 ```
@@ -132,6 +134,8 @@ SELECT
 FROM [isb-cgc:tcga_data_open.mRNA_UNC_HiSeq_RSEM]
 WHERE
   HGNC_gene_symbol = 'GPSM1'
+ORDER BY
+  SampleBarcode
 ```
 Number of rows returned by this query: 10252.
 
@@ -142,12 +146,12 @@ head(expressionData)
 
 ```
 ##      SampleBarcode HGNC_gene_symbol normalized_count
-## 1 TCGA-GM-A2DD-01A            GPSM1         224.8186
-## 2 TCGA-SQ-A6I4-11A            GPSM1         472.6918
-## 3 TCGA-SQ-A6I4-01A            GPSM1         661.3882
-## 4 TCGA-DD-A1EL-01A            GPSM1          54.2662
-## 5 TCGA-DD-A1EL-11A            GPSM1          78.4641
-## 6 TCGA-IW-A3M5-01A            GPSM1        2611.8053
+## 1 TCGA-02-0047-01A            GPSM1        1217.0011
+## 2 TCGA-02-0055-01A            GPSM1         719.2712
+## 3 TCGA-02-2483-01A            GPSM1        4626.0686
+## 4 TCGA-02-2485-01A            GPSM1        1257.1429
+## 5 TCGA-02-2486-01A            GPSM1         392.6829
+## 6 TCGA-04-1348-01A            GPSM1          98.4136
 ```
 
 ### Retrieve Methylation Data
@@ -161,11 +165,11 @@ probe = "cg04305913"
 
 # Be sure to apply the same additional clauses to the WHERE to limit the methylation data further.
 
-methylationData <- DisplayAndDispatchQuery(file.path(sqlDir, "methylation-data.sql"),
-                                  project=project,
-                                  replacements=list("_METHYLATION_TABLE_"=methylationTable,
-                                                    "#_AND_WHERE_"=andWhere,
-                                                    "_PROBE_"=probe))
+methylationData = DisplayAndDispatchQuery(file.path(sqlDir, "methylation-data.sql"),
+                                          project=project,
+                                          replacements=list("_METHYLATION_TABLE_"=methylationTable,
+                                                            "#_AND_WHERE_"=andWhere,
+                                                            "_PROBE_"=probe))
 ```
 
 ```
@@ -182,6 +186,10 @@ WHERE
   # Optionally add clause here to limit the query to a particular
   # sample types and/or studies.
   AND SampleTypeLetterCode = 'TP' AND Study = 'CESC'
+ORDER BY
+  SampleBarcode,
+  SampleTypeLetterCode,
+  Study
 ```
 
 Number of rows returned by this query: 303.
@@ -193,20 +201,21 @@ head(methylationData)
 
 ```
 ##      SampleBarcode SampleTypeLetterCode Study   Probe_ID Beta_Value
-## 1 TCGA-C5-A1MQ-01A                   TP  CESC cg04305913       0.83
-## 2 TCGA-MU-A5YI-01A                   TP  CESC cg04305913       0.50
-## 3 TCGA-VS-A9UJ-01A                   TP  CESC cg04305913       0.79
-## 4 TCGA-JW-A852-01A                   TP  CESC cg04305913       0.52
-## 5 TCGA-FU-A3HY-01A                   TP  CESC cg04305913       0.31
-## 6 TCGA-C5-A7UI-01A                   TP  CESC cg04305913       0.45
+## 1 TCGA-2W-A8YY-01A                   TP  CESC cg04305913       0.76
+## 2 TCGA-4J-AA1J-01A                   TP  CESC cg04305913       0.26
+## 3 TCGA-BI-A0VR-01A                   TP  CESC cg04305913       0.50
+## 4 TCGA-BI-A0VS-01A                   TP  CESC cg04305913       0.40
+## 5 TCGA-BI-A20A-01A                   TP  CESC cg04305913       0.75
+## 6 TCGA-C5-A0TN-01A                   TP  CESC cg04305913       0.81
 ```
 
 ### Perform the correlation
 
 
 ```r
-# TODO: fix package imports so that we can require(dplyr) and drop the package prefix on these calls.
-data = dplyr::inner_join(expressionData, methylationData)
+library(dplyr)
+
+data = inner_join(expressionData, methylationData)
 ```
 
 ```
@@ -219,19 +228,19 @@ head(data)
 
 ```
 ##      SampleBarcode HGNC_gene_symbol normalized_count SampleTypeLetterCode
-## 1 TCGA-VS-A9UH-01A            GPSM1         419.5329                   TP
-## 2 TCGA-IR-A3LA-01A            GPSM1         437.9900                   TP
-## 3 TCGA-FU-A23K-01A            GPSM1         224.8253                   TP
-## 4 TCGA-WL-A834-01A            GPSM1          55.8795                   TP
-## 5 TCGA-VS-A9UU-01A            GPSM1         271.3057                   TP
-## 6 TCGA-UC-A7PF-01A            GPSM1         251.5625                   TP
+## 1 TCGA-2W-A8YY-01A            GPSM1         277.5393                   TP
+## 2 TCGA-4J-AA1J-01A            GPSM1         119.6070                   TP
+## 3 TCGA-BI-A0VR-01A            GPSM1          86.0595                   TP
+## 4 TCGA-BI-A0VS-01A            GPSM1          91.6372                   TP
+## 5 TCGA-BI-A20A-01A            GPSM1         256.8048                   TP
+## 6 TCGA-C5-A0TN-01A            GPSM1         439.5386                   TP
 ##   Study   Probe_ID Beta_Value
 ## 1  CESC cg04305913       0.76
-## 2  CESC cg04305913       0.85
+## 2  CESC cg04305913       0.26
 ## 3  CESC cg04305913       0.50
-## 4  CESC cg04305913       0.30
-## 5  CESC cg04305913       0.49
-## 6  CESC cg04305913       0.61
+## 4  CESC cg04305913       0.40
+## 5  CESC cg04305913       0.75
+## 6  CESC cg04305913       0.81
 ```
 
 
@@ -263,15 +272,18 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] ISBCGCExamples_0.1 knitr_1.10.5       ggplot2_1.0.1     
-[4] bigrquery_0.1.0   
+[1] mgcv_1.8-6         nlme_3.1-120       ggplot2_1.0.1     
+[4] scales_0.2.5       ISBCGCExamples_0.1 bigrquery_0.1.0   
+[7] dplyr_0.4.2       
 
 loaded via a namespace (and not attached):
- [1] Rcpp_0.11.6      rstudioapi_0.3.1 magrittr_1.5     MASS_7.3-40     
- [5] munsell_0.4.2    colorspace_1.2-6 R6_2.1.0         stringr_1.0.0   
- [9] httr_1.0.0       plyr_1.8.2       dplyr_0.4.1      tools_3.2.0     
-[13] parallel_3.2.0   grid_3.2.0       gtable_0.1.2     DBI_0.3.1       
-[17] assertthat_0.1   digest_0.6.8     reshape2_1.4.1   formatR_1.2     
-[21] curl_0.9.3       evaluate_0.7.2   labeling_0.3     stringi_0.5-5   
-[25] scales_0.2.4     jsonlite_0.9.17  markdown_0.7.7   proto_0.3-10    
+ [1] Rcpp_0.12.0      rstudioapi_0.3.1 knitr_1.10.5     magrittr_1.5    
+ [5] MASS_7.3-40      munsell_0.4.2    colorspace_1.2-6 lattice_0.20-31 
+ [9] R6_2.1.1         stringr_1.0.0    httr_1.0.0       plyr_1.8.3      
+[13] tools_3.2.0      parallel_3.2.0   grid_3.2.0       gtable_0.1.2    
+[17] DBI_0.3.1        htmltools_0.2.6  lazyeval_0.1.10  assertthat_0.1  
+[21] digest_0.6.8     Matrix_1.2-0     formatR_1.2      reshape2_1.4.1  
+[25] curl_0.9.3       mime_0.4         evaluate_0.7.2   rmarkdown_0.7   
+[29] labeling_0.3     stringi_0.5-5    jsonlite_0.9.17  markdown_0.7.7  
+[33] proto_0.3-10    
 ```
