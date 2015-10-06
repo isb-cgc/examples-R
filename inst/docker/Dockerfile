@@ -1,5 +1,5 @@
-B### Start from Bioconductor devel core ######
-FROM bioconductor/devel_core
+### Start from Bioconductor devel core ######
+FROM bioconductor/release_core
 MAINTAINER deflaux@google.com
 
 ### Add training material packages #####################################
