@@ -302,7 +302,7 @@ FROM (
 ORDER BY
   reference_name,
   window_start
-Retrieving data:  3.2s
+Retrieving data:  3.1s
 ```
 Number of rows returned by this query: 28734.
 
@@ -397,16 +397,16 @@ attached base packages:
 
 other attached packages:
 [1] mgcv_1.8-6         nlme_3.1-120       ggplot2_1.0.1     
-[4] scales_0.2.5       ISBCGCExamples_0.1 bigrquery_0.1.0   
-[7] dplyr_0.4.2       
+[4] scales_0.2.5       bigrquery_0.1.0    dplyr_0.4.2       
+[7] ISBCGCExamples_0.1
 
 loaded via a namespace (and not attached):
  [1] Rcpp_0.12.0      rstudioapi_0.3.1 knitr_1.10.5     magrittr_1.5    
- [5] MASS_7.3-40      munsell_0.4.2    colorspace_1.2-6 lattice_0.20-31 
+ [5] MASS_7.3-40      munsell_0.4.2    lattice_0.20-31  colorspace_1.2-6
  [9] R6_2.1.1         stringr_1.0.0    httr_1.0.0       plyr_1.8.3      
 [13] tools_3.2.0      parallel_3.2.0   grid_3.2.0       gtable_0.1.2    
-[17] DBI_0.3.1        htmltools_0.2.6  lazyeval_0.1.10  assertthat_0.1  
-[21] digest_0.6.8     Matrix_1.2-0     formatR_1.2      reshape2_1.4.1  
-[25] curl_0.9.3       evaluate_0.7.2   rmarkdown_0.7    labeling_0.3    
-[29] stringi_0.5-5    jsonlite_0.9.17  proto_0.3-10    
+[17] DBI_0.3.1        lazyeval_0.1.10  assertthat_0.1   digest_0.6.8    
+[21] Matrix_1.2-0     reshape2_1.4.1   formatR_1.2      curl_0.9.3      
+[25] evaluate_0.7.2   labeling_0.3     stringi_0.5-5    jsonlite_0.9.17 
+[29] proto_0.3-10    
 ```

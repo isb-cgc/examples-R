@@ -120,50 +120,21 @@ cor(x=data$normalized_count, y=data$protein_expression, method="spearman")
 
 #' Notice that the value does not match the result from BigQuery.
 #' 
-#' The reason for this is that the RANK in the BigQuery method is run over all the observations, not just those with a matching observation in both tables.  So let's redo this in R.
+#' The reason for this is ????  Let's redo this in R to match exactly what we are doing in BigQuery.
 #' 
-#' First we perform the RANK operation before doing the inner join.
-## ------------------------------------------------------------------------
-expressionData = mutate(expressionData, expr_rank=rank(normalized_count))
-proteinData = mutate(proteinData, prot_rank=rank(protein_expression))
-
-#' 
-#' Then we do the join and run a spearman correlation on the ranked values.
+#' First we do the inner join, then rank the columns to be correlated, and then run a spearman correlation on the ranks.
 ## ------------------------------------------------------------------------
 data = inner_join(expressionData, proteinData)
 dim(data)
 head(data)
+
+data = mutate(data, expr_rank=rank(normalized_count))
+data = mutate(data, prot_rank=rank(protein_expression))
+
+
 cor(x=data$expr_rank, y=data$prot_rank, method="pearson")
 
 #' Now the results match those for BigQuery.
-#' 
-#' But perhaps the BigQuery query should be running the RANK operation only after data has been removed per the inner join.
-## ----comment=NA----------------------------------------------------------
-resultV2 = DisplayAndDispatchQuery(file.path(sqlDir, "protein-mrna-spearman-correlation-V2.sql"),
-                                 project=project,
-                                 replacements=list("_EXPRESSION_TABLE_"=expressionTable,
-                                                   "_PROTEIN_TABLE_"=proteinTable,
-                                                   "_COHORT_TABLE_"=cohortTable,
-                                                   "_MINIMUM_NUMBER_OF_OBSERVATIONS_"=minimumNumberOfObservations))
-
-#' Number of rows returned by this query: `r nrow(result)`.
-#' 
-#' TODO This result does not yet match our earlier spearman correlation via R.
-## ------------------------------------------------------------------------
-head(resultV2, n=12)
-
-#' 
-## ----spearman_density2, fig.align="center", fig.width=10, message=FALSE, warning=FALSE, comment=NA----
-library(ggplot2)
-
-# Histogram overlaid with kernel density curve
-ggplot(resultV2, aes(x=spearman_corr)) + 
-    geom_histogram(aes(y=..density..),      # Histogram with density instead of count on y-axis
-                   binwidth=.05,
-                   colour="black", fill="white") +
-    geom_density(alpha=.2, fill="#FF6666")  # Overlay with transparent density plot
-
-#' 
 #' 
 #' ## Provenance
 ## ----provenance, comment=NA----------------------------------------------
