@@ -2,6 +2,7 @@
 SELECT
   feat1.gene AS gene,
   feat1.protein AS protein,
+  COUNT(1) AS num_observations,
   CORR(feat1.exp_rank, feat2.exp_rank) AS spearman_corr
 FROM (
   SELECT
@@ -44,5 +45,7 @@ ON
 GROUP BY
   gene,
   protein
+HAVING
+  num_observations >= _MINIMUM_NUMBER_OF_OBSERVATIONS_
 ORDER BY
-  spearman_corr
+  spearman_corr DESC
