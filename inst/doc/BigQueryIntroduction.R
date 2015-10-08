@@ -16,7 +16,8 @@
 #' The [bigrquery](https://github.com/hadley/bigrquery) package written by Hadley Wickham implements an R interface to [Google BigQuery](https://cloud.google.com/bigquery/).
 #' 
 ## ----message=FALSE-------------------------------------------------------
-require(bigrquery)
+library(dplyr)
+library(bigrquery)
 
 #' 
 ## ----eval=FALSE----------------------------------------------------------
@@ -81,7 +82,7 @@ result
 #' 
 #' Instead of typing SQL directly into our R code, we can use a convenience function to read SQL from a file.
 ## ------------------------------------------------------------------------
-require(ISBCGCExamples)
+library(ISBCGCExamples)
 DisplayAndDispatchQuery
 
 #' 
@@ -132,11 +133,7 @@ summary(result)
 head(result)
 
 #' 
-#' Since [bigrquery](https://github.com/hadley/bigrquery) results are dataframes, we can make use of all sorts of other great R packages to do our downstream work.  Here we use a few more packages from the Hadleyverse for data filtering and visualization.
-#' 
-## ----message=FALSE-------------------------------------------------------
-require(dplyr)
-
+#' Since [bigrquery](https://github.com/hadley/bigrquery) results are dataframes, we can make use of all sorts of other great R packages to do our downstream work.  Here we use a few more packages from the Hadleyverse: dplyr for data filtering and ggplot2 for visualization.
 #' 
 ## ------------------------------------------------------------------------
 # Change this filter if you want to visualize the result of this analysis for a different chromosome.
@@ -144,8 +141,8 @@ chromosomeOneResults <- filter(result, reference_name == "chr1" | reference_name
 
 #' 
 ## ----message=FALSE-------------------------------------------------------
-require(scales)
-require(ggplot2)
+library(scales)
+library(ggplot2)
 
 #' 
 ## ----titv, fig.align="center", fig.width=10, message=FALSE, warning=FALSE, comment=NA----

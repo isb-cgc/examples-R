@@ -10,7 +10,8 @@ If you have not yet setup for Google Cloud Platform, please follow [these instru
 This workshop consists of two parts:
 
  * Part 1: Use the [bigrquery](http://cran.r-project.org/web/packages/bigrquery/index.html) package to analyze Variants via [Google BigQuery](https://cloud.google.com/bigquery/what-is-bigquery) 
- * Part 2: Analyze correlation between expression and methylation data.
+ * Part 2: Analyze pearson correlation between expression and methylation data.
+ * Part 3: Analyze spearman correlation between expression and protein data.
  
 Part 1: Analyze Variants with BigQuery
 ======================================
@@ -42,6 +43,23 @@ file.edit(file.path(system.file(package = "ISBCGCExamples"), "doc", "ExpressionA
 * View the rendered vignette 
 ```{r eval=FALSE}
 file.show(file.path(system.file(package = "ISBCGCExamples"), "doc", "ExpressionAndMethylationCorrelation.html"))
+```
+
+Alternatively, you can view the documentation for the [ISBCGCExamples](https://github.com/isb-cgc/examples-R) package by running `help(package="ISBCGCExamples")` and clicking on *"User guides, package vignettes and other documentation."*.
+
+Part 3: Expression and Protein Correlation
+=======================================================
+
+Open the code and the rendered vignette in separate windows:
+
+* Open the vignette to run it line-by-line via:
+```{r eval=FALSE}
+file.edit(file.path(system.file(package = "ISBCGCExamples"), "doc", "ExpressionAndProteinCorrelation.Rmd"))
+```
+
+* View the rendered vignette 
+```{r eval=FALSE}
+file.show(file.path(system.file(package = "ISBCGCExamples"), "doc", "ExpressionAndProteinCorrelation.html"))
 ```
 
 Alternatively, you can view the documentation for the [ISBCGCExamples](https://github.com/isb-cgc/examples-R) package by running `help(package="ISBCGCExamples")` and clicking on *"User guides, package vignettes and other documentation."*.

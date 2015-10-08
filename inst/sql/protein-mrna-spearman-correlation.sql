@@ -1,45 +1,57 @@
-# TODO needs a comment
+# Correlate the protein quantification data with the mRNA expression data.
 SELECT
-  feat1.gene AS gene,
-  CORR(feat1.exp_rank, feat2.exp_rank) AS spearman_corr
+  gene,
+  protein,
+  COUNT(1) AS num_observations,
+  CORR(expr_rank, prot_rank) AS spearman_corr
 FROM (
   SELECT
-    *,
-    RANK() OVER (PARTITION BY gene ORDER BY protein_expression ASC) AS exp_rank
+    barcode,
+    gene,
+    protein,
+    RANK() OVER (PARTITION BY gene, protein ORDER BY log2_count ASC) AS expr_rank,
+    RANK() OVER (PARTITION BY gene, protein ORDER BY protein_expression ASC) AS prot_rank,
   FROM (
     SELECT
-      SampleBarcode,
+      feat1.SampleBarcode AS barcode,
       Gene_Name AS gene,
-      protein_expression
-    FROM
-      [isb-cgc:tcga_data_open.Protein]
-    WHERE
-      SampleBarcode IN (
+      Protein_Name AS protein,
+      protein_expression,
+      log2_count,
+    FROM (
       SELECT
-        sample_barcode
+        SampleBarcode,
+        Gene_Name,
+        Protein_Name,
+        protein_expression
       FROM
-        [_COHORT_] ) ) ) feat1
-JOIN EACH (
-  SELECT
-    *,
-    RANK() OVER (PARTITION BY gene ORDER BY log2_normalized_count ASC) AS exp_rank
-  FROM (
-    SELECT
-      SampleBarcode,
-      HGNC_gene_symbol AS gene,
-      IF(0 = normalized_count, 0, LOG2(normalized_count)) AS log2_normalized_count
-    FROM
-      [isb-cgc:tcga_data_open.mRNA_UNC_HiSeq_RSEM]
-    WHERE
-      SampleBarcode IN (
+        [isb-cgc:tcga_data_open.Protein]
+      WHERE
+        SampleBarcode IN (
+        SELECT
+          sample_barcode
+        FROM
+          [isb-cgc:test.cohort_14jun2015] ) ) feat1
+    JOIN EACH (
       SELECT
-        sample_barcode
+        SampleBarcode,
+        HGNC_gene_symbol,
+        LOG2(normalized_count+1) AS log2_count
       FROM
-        [_COHORT_] ) ) )feat2
-ON
-  feat1.SampleBarcode = feat2.SampleBarcode
-  AND feat1.gene = feat2.gene
+        [isb-cgc:tcga_data_open.mRNA_UNC_HiSeq_RSEM]
+      WHERE
+        SampleBarcode IN (
+        SELECT
+          sample_barcode
+        FROM
+          [isb-cgc:test.cohort_14jun2015] ) ) feat2
+    ON
+      feat1.SampleBarcode = feat2.SampleBarcode
+      AND feat1.Gene_Name = feat2.HGNC_gene_symbol))
 GROUP BY
-  gene
+  gene,
+  protein
+HAVING
+  num_observations >= _MINIMUM_NUMBER_OF_OBSERVATIONS_
 ORDER BY
-  spearman_corr
+  spearman_corr DESC
