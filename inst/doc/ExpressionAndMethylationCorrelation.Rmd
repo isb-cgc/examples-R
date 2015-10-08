@@ -109,13 +109,14 @@ head(methylationData)
 
 ### Perform the correlation
 
+First we take the inner join of this data:
 ```{r}
 library(dplyr)
-
 data = inner_join(expressionData, methylationData)
 head(data)
 ```
 
+And run a pearson correlation on it:
 ```{r}
 cor(x=data$normalized_count, y=data$Beta_Value, method="pearson")
 ```
