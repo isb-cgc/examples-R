@@ -35,44 +35,70 @@ expressionTable = "isb-cgc:tcga_data_open.mRNA_UNC_HiSeq_RSEM"
 methylationTable = "isb-cgc:tcga_data_open.Methylation_chr9"
 # Add any additional clauses to be applied in WHERE to limit the methylation data further.
 andWhere = "AND SampleTypeLetterCode = 'TP' AND Study = 'CESC'"
+# Do not correlate unless there are at least this many observations available
+minimumNumberOfObservations = 30
 
 # Now we are ready to run the query.
 result = DisplayAndDispatchQuery(file.path(sqlDir, "expression-methylation-correlation.sql"),
                                  project=project,
                                  replacements=list("_EXPRESSION_TABLE_"=expressionTable,
                                                    "_METHYLATION_TABLE_"=methylationTable,
-                                                   "#_AND_WHERE_"=andWhere))
+                                                   "#_AND_WHERE_"=andWhere,
+                                                   "_MINIMUM_NUMBER_OF_OBSERVATIONS_"=minimumNumberOfObservations))
 ```
 
 ```
-# Compute the correlation between expression and methylation data.
-SELECT HGNC_gene_symbol, Probe_ID, CORR(normalized_count, Beta_Value) AS correlation,
+  # Compute the correlation between expression and methylation data.
+SELECT
+  HGNC_gene_symbol,
+  Probe_ID,
+  COUNT(1) AS num_observations,
+  CORR(normalized_count, Beta_Value) AS correlation,
 FROM (
-  # We select the sample-barcode, gene-symbol, gene-expression, probe-id, and beta-value
-  # from a "JOIN" of the gene expression data and the methylation data.
-  SELECT expr.SampleBarcode, HGNC_gene_symbol, normalized_count, Probe_ID, Beta_value
-  FROM [isb-cgc:tcga_data_open.mRNA_UNC_HiSeq_RSEM] AS expr
-  JOIN EACH (
-    FLATTEN ( (
-      # We select the sample-barcode, sample-type, study-name, probe-id, beta-value, and gene-symbol
-      # from a "JOIN" of the methylation data and the methylation annotation tables
-      # which are joined on the CpG probe id that exists in both tables.
-      # ( for speed we are only working with chr9 for now )
-      SELECT SampleBarcode, SampleTypeLetterCode, Study, Probe_ID, Beta_Value, UCSC.RefGene_Name
-      FROM [isb-cgc:tcga_data_open.Methylation_chr9] AS methData
-      JOIN EACH [isb-cgc:platform_reference.methylation_annotation] AS methAnnot
-      ON methData.Probe_ID = methAnnot.Name
-      # We require that the gene-symbol not be null.
-      WHERE
-        UCSC.RefGene_Name IS NOT null
-        # Optionally add clause here to limit the query to a particular
-        # sample types and/or studies.
-        AND SampleTypeLetterCode = 'TP' AND Study = 'CESC'
-    ), UCSC.RefGene_Name ) ) AS methyl
+    # We select the sample-barcode, gene-symbol, gene-expression, probe-id, and beta-value
+    # from a "JOIN" of the gene expression data and the methylation data.
+  SELECT
+    expr.SampleBarcode,
+    HGNC_gene_symbol,
+    normalized_count,
+    Probe_ID,
+    Beta_value
+  FROM
+    [isb-cgc:tcga_data_open.mRNA_UNC_HiSeq_RSEM] AS expr
+  JOIN EACH ( FLATTEN ( (
+          # We select the sample-barcode, sample-type, study-name, probe-id, beta-value, and gene-symbol
+          # from a "JOIN" of the methylation data and the methylation annotation tables
+          # which are joined on the CpG probe id that exists in both tables.
+          # ( for speed we are only working with chr9 for now )
+        SELECT
+          SampleBarcode,
+          SampleTypeLetterCode,
+          Study,
+          Probe_ID,
+          Beta_Value,
+          UCSC.RefGene_Name
+        FROM
+          [isb-cgc:tcga_data_open.Methylation_chr9] AS methData
+        JOIN EACH [isb-cgc:platform_reference.methylation_annotation] AS methAnnot
+        ON
+          methData.Probe_ID = methAnnot.Name
+          # We require that the gene-symbol not be null.
+        WHERE
+          UCSC.RefGene_Name IS NOT NULL
+          # Optionally add clause here to limit the query to a particular
+          # sample types and/or studies.
+          AND SampleTypeLetterCode = 'TP' AND Study = 'CESC'
+          ), UCSC.RefGene_Name ) ) AS methyl
   ON
-    methyl.UCSC.RefGene_Name = expr.HGNC_gene_symbol AND methyl.SampleBarcode = expr.SampleBarcode )
-GROUP BY HGNC_gene_symbol, Probe_ID
-ORDER BY correlation DESC
+    methyl.UCSC.RefGene_Name = expr.HGNC_gene_symbol
+    AND methyl.SampleBarcode = expr.SampleBarcode )
+GROUP BY
+  HGNC_gene_symbol,
+  Probe_ID
+HAVING
+  num_observations >= 30
+ORDER BY
+  correlation DESC
 ```
 Number of rows returned by this query: 6127.
 
@@ -84,13 +110,13 @@ head(result)
 ```
 
 ```
-##   HGNC_gene_symbol   Probe_ID correlation
-## 1            GPSM1 cg04305913   0.6015447
-## 2            GPSM1 cg14934821   0.5881440
-## 3           TMEM8B cg14087413   0.5672279
-## 4         ADAMTS13 cg14206140   0.5471293
-## 5          PIP5K1B cg13867370   0.5430617
-## 6            GPSM1 cg01393841   0.5422848
+##   HGNC_gene_symbol   Probe_ID num_observations correlation
+## 1            GPSM1 cg04305913              602   0.6015447
+## 2            GPSM1 cg14934821              602   0.5881440
+## 3           TMEM8B cg14087413              602   0.5672279
+## 4         ADAMTS13 cg14206140             1204   0.5471293
+## 5          PIP5K1B cg13867370              301   0.5430617
+## 6            GPSM1 cg01393841              602   0.5422848
 ```
 
 
@@ -272,18 +298,15 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] mgcv_1.8-6         nlme_3.1-120       ggplot2_1.0.1     
-[4] scales_0.2.5       ISBCGCExamples_0.1 bigrquery_0.1.0   
-[7] dplyr_0.4.2       
+[1] knitr_1.10.5       ggplot2_1.0.1      bigrquery_0.1.0   
+[4] dplyr_0.4.2        ISBCGCExamples_0.1
 
 loaded via a namespace (and not attached):
- [1] Rcpp_0.12.0      rstudioapi_0.3.1 knitr_1.10.5     magrittr_1.5    
- [5] MASS_7.3-40      munsell_0.4.2    colorspace_1.2-6 lattice_0.20-31 
- [9] R6_2.1.1         stringr_1.0.0    httr_1.0.0       plyr_1.8.3      
-[13] tools_3.2.0      parallel_3.2.0   grid_3.2.0       gtable_0.1.2    
-[17] DBI_0.3.1        htmltools_0.2.6  lazyeval_0.1.10  assertthat_0.1  
-[21] digest_0.6.8     Matrix_1.2-0     formatR_1.2      reshape2_1.4.1  
-[25] curl_0.9.3       mime_0.4         evaluate_0.7.2   rmarkdown_0.7   
-[29] labeling_0.3     stringi_0.5-5    jsonlite_0.9.17  markdown_0.7.7  
-[33] proto_0.3-10    
+ [1] Rcpp_0.12.0      rstudioapi_0.3.1 magrittr_1.5     MASS_7.3-40     
+ [5] munsell_0.4.2    colorspace_1.2-6 R6_2.1.1         stringr_1.0.0   
+ [9] httr_1.0.0       plyr_1.8.2       tools_3.2.0      parallel_3.2.0  
+[13] grid_3.2.0       gtable_0.1.2     DBI_0.3.1        lazyeval_0.1.10 
+[17] assertthat_0.1   digest_0.6.8     reshape2_1.4.1   formatR_1.2     
+[21] curl_0.9.3       evaluate_0.7.2   labeling_0.3     stringi_0.5-5   
+[25] scales_0.2.4     jsonlite_0.9.17  markdown_0.7.7   proto_0.3-10    
 ```

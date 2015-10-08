@@ -32,13 +32,16 @@ expressionTable = "isb-cgc:tcga_data_open.mRNA_UNC_HiSeq_RSEM"
 methylationTable = "isb-cgc:tcga_data_open.Methylation_chr9"
 # Add any additional clauses to be applied in WHERE to limit the methylation data further.
 andWhere = "AND SampleTypeLetterCode = 'TP' AND Study = 'CESC'"
+# Do not correlate unless there are at least this many observations available
+minimumNumberOfObservations = 30
 
 # Now we are ready to run the query.
 result = DisplayAndDispatchQuery(file.path(sqlDir, "expression-methylation-correlation.sql"),
                                  project=project,
                                  replacements=list("_EXPRESSION_TABLE_"=expressionTable,
                                                    "_METHYLATION_TABLE_"=methylationTable,
-                                                   "#_AND_WHERE_"=andWhere))
+                                                   "#_AND_WHERE_"=andWhere,
+                                                   "_MINIMUM_NUMBER_OF_OBSERVATIONS_"=minimumNumberOfObservations))
 
 #' Number of rows returned by this query: `r nrow(result)`.
 #' 
