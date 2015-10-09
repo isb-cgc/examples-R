@@ -31,9 +31,9 @@ sqlDir = file.path(system.file(package = "ISBCGCExamples"),
 
 ```r
 # Set the desired tables to query.
-expressionTable = "isb-cgc:tcga_data_open.mRNA_UNC_HiSeq_RSEM"
-proteinTable = "isb-cgc:tcga_data_open.Protein"
-cohortTable = "isb-cgc:test.cohort_14jun2015"
+expressionTable = "isb-cgc:tcga_201507_alpha.mRNA_UNC_HiSeq_RSEM"
+proteinTable = "isb-cgc:tcga_201507_alpha.Protein_RPPA_data"
+cohortTable = "isb-cgc:tcga_cohorts.BRCA"
 
 # Do not correlate unless there are at least this many observations available
 minimumNumberOfObservations = 30
@@ -75,26 +75,26 @@ FROM (
         Protein_Name,
         protein_expression
       FROM
-        [isb-cgc:tcga_data_open.Protein]
+        [isb-cgc:tcga_201507_alpha.Protein_RPPA_data]
       WHERE
         SampleBarcode IN (
         SELECT
-          sample_barcode
+          SampleBarcode
         FROM
-          [isb-cgc:test.cohort_14jun2015] ) ) feat1
+          [isb-cgc:tcga_cohorts.BRCA] ) ) feat1
     JOIN EACH (
       SELECT
         SampleBarcode,
         HGNC_gene_symbol,
         LOG2(normalized_count+1) AS log2_count
       FROM
-        [isb-cgc:tcga_data_open.mRNA_UNC_HiSeq_RSEM]
+        [isb-cgc:tcga_201507_alpha.mRNA_UNC_HiSeq_RSEM]
       WHERE
         SampleBarcode IN (
         SELECT
-          sample_barcode
+          SampleBarcode
         FROM
-          [isb-cgc:test.cohort_14jun2015] ) ) feat2
+          [isb-cgc:tcga_cohorts.BRCA] ) ) feat2
     ON
       feat1.SampleBarcode = feat2.SampleBarcode
       AND feat1.Gene_Name = feat2.HGNC_gene_symbol))
@@ -105,16 +105,8 @@ HAVING
   num_observations >= 30
 ORDER BY
   spearman_corr DESC
-
-Running query:   RUNNING  2.4s
-Running query:   RUNNING  2.9s
-Running query:   RUNNING  3.5s
 ```
-
-```
-6.6 gigabytes processed
-```
-Number of rows returned by this query: 213.
+Number of rows returned by this query: 133.
 
 The result is one correlation value per row of data, each of which corresponds to  . . . MORE HERE
 
@@ -123,13 +115,13 @@ head(result)
 ```
 
 ```
-##     gene         protein num_observations spearman_corr
-## 1    SYK             Syk              180     0.7438830
-## 2   GAB2            GAB2               60     0.7382606
-## 3  ANXA1       Annexin-1               94     0.6976339
-## 4 NOTCH3          Notch3               49     0.6939796
-## 5  PRKCA PKC-alpha_pS657              180     0.6777493
-## 6    SRC             Src              180     0.6746813
+##     gene  protein num_observations spearman_corr
+## 1   ESR1 ER-alpha              403     0.9075414
+## 2    PGR       PR              403     0.8718714
+## 3   BCL2    Bcl-2              403     0.8438356
+## 4  GATA3    GATA3              403     0.8320966
+## 5 IGFBP2   IGFBP2              403     0.7975304
+## 6   ASNS     ASNS              403     0.7523398
 ```
 
 
@@ -156,7 +148,7 @@ First we retrieve the expression data for a particular gene.
 
 ```r
 # Set the desired gene to query.
-gene = "ANXA1"
+gene = "ESR1"
 
 expressionData = DisplayAndDispatchQuery(file.path(sqlDir, "expression-data-by-cohort.sql"),
                                          project=project,
@@ -171,18 +163,18 @@ SELECT
   SampleBarcode,
   HGNC_gene_symbol,
   normalized_count
-FROM [isb-cgc:tcga_data_open.mRNA_UNC_HiSeq_RSEM]
+FROM [isb-cgc:tcga_201507_alpha.mRNA_UNC_HiSeq_RSEM]
 WHERE
-  HGNC_gene_symbol = 'ANXA1'
+  HGNC_gene_symbol = 'ESR1'
   AND SampleBarcode IN (
   SELECT
-    sample_barcode
+    SampleBarcode
   FROM
-    [isb-cgc:test.cohort_14jun2015] )
+    [isb-cgc:tcga_cohorts.BRCA] )
 ORDER BY
   SampleBarcode
 ```
-Number of rows returned by this query: 472.
+Number of rows returned by this query: 1202.
 
 
 ```r
@@ -191,12 +183,12 @@ head(expressionData)
 
 ```
 ##      SampleBarcode HGNC_gene_symbol normalized_count
-## 1 TCGA-02-2485-01A            ANXA1         5974.762
-## 2 TCGA-05-4244-01A            ANXA1        17585.828
-## 3 TCGA-05-4250-01A            ANXA1        10903.424
-## 4 TCGA-06-0138-01A            ANXA1         6590.878
-## 5 TCGA-06-0157-01A            ANXA1         3268.640
-## 6 TCGA-06-0158-01A            ANXA1         6452.934
+## 1 TCGA-3C-AAAU-01A             ESR1        3457.9620
+## 2 TCGA-3C-AALI-01A             ESR1          68.5155
+## 3 TCGA-3C-AALJ-01A             ESR1        7482.3209
+## 4 TCGA-3C-AALK-01A             ESR1        2485.3124
+## 5 TCGA-4H-AAAK-01A             ESR1        5518.2979
+## 6 TCGA-5L-AAT0-01A             ESR1        6592.1689
 ```
 
 ### Retrieve Protein Data
@@ -205,7 +197,7 @@ Then we retrieve the protein data for a particular gene.
 
 
 ```r
-protein = "Annexin-1"
+protein = "ER-alpha"
 
 proteinData = DisplayAndDispatchQuery(file.path(sqlDir, "protein-data-by-cohort.sql"),
                                       project=project,
@@ -223,19 +215,19 @@ SELECT
   Protein_Name,
   protein_expression
 FROM
-  [isb-cgc:tcga_data_open.Protein]
+  [isb-cgc:tcga_201507_alpha.Protein_RPPA_data]
 WHERE
-  Gene_Name = 'ANXA1'
-  AND Protein_Name = 'Annexin-1'
+  Gene_Name = 'ESR1'
+  AND Protein_Name = 'ER-alpha'
   AND SampleBarcode IN (
   SELECT
-    sample_barcode
+    SampleBarcode
   FROM
-    [isb-cgc:test.cohort_14jun2015] )
+    [isb-cgc:tcga_cohorts.BRCA] )
 ORDER BY
   SampleBarcode
 ```
-Number of rows returned by this query: 96.
+Number of rows returned by this query: 404.
 
 
 ```r
@@ -244,15 +236,16 @@ head(proteinData)
 
 ```
 ##      SampleBarcode Gene_Name Protein_Name protein_expression
-## 1 TCGA-2Z-A9J7-01A     ANXA1    Annexin-1         0.12343802
-## 2 TCGA-4A-A93X-01A     ANXA1    Annexin-1        -0.57261007
-## 3 TCGA-A4-8311-01A     ANXA1    Annexin-1         0.04999981
-## 4 TCGA-B9-5155-01A     ANXA1    Annexin-1         0.92203965
-## 5 TCGA-B9-7268-01A     ANXA1    Annexin-1         0.16892302
-## 6 TCGA-B9-A69E-01A     ANXA1    Annexin-1        -0.42145909
+## 1 TCGA-A1-A0SH-01A      ESR1     ER-alpha         -1.6136630
+## 2 TCGA-A1-A0SJ-01A      ESR1     ER-alpha          0.2359291
+## 3 TCGA-A1-A0SK-01A      ESR1     ER-alpha         -3.7201419
+## 4 TCGA-A1-A0SO-01A      ESR1     ER-alpha         -4.0307670
+## 5 TCGA-A2-A04N-01A      ESR1     ER-alpha         -0.7388394
+## 6 TCGA-A2-A04P-01A      ESR1     ER-alpha         -1.3375791
 ```
 
 ### Perform the correlation
+
 First we take the inner join of this data:
 
 ```r
@@ -270,7 +263,7 @@ dim(data)
 ```
 
 ```
-## [1] 94  6
+## [1] 403   6
 ```
 
 ```r
@@ -279,19 +272,19 @@ head(arrange(data, normalized_count))
 
 ```
 ##      SampleBarcode HGNC_gene_symbol normalized_count Gene_Name
-## 1 TCGA-OR-A5LS-01A            ANXA1          71.8279     ANXA1
-## 2 TCGA-OR-A5JS-01A            ANXA1         129.1158     ANXA1
-## 3 TCGA-OR-A5KX-01A            ANXA1         129.5411     ANXA1
-## 4 TCGA-4A-A93X-01A            ANXA1         209.4447     ANXA1
-## 5 TCGA-G7-A8LD-01A            ANXA1         218.1232     ANXA1
-## 6 TCGA-K1-A42X-01A            ANXA1         222.1151     ANXA1
+## 1 TCGA-E2-A158-01A             ESR1           4.4555      ESR1
+## 2 TCGA-AN-A0G0-01A             ESR1           5.8621      ESR1
+## 3 TCGA-AR-A1AH-01A             ESR1           6.0368      ESR1
+## 4 TCGA-AR-A0TP-01A             ESR1           6.1550      ESR1
+## 5 TCGA-A2-A0D0-01A             ESR1           6.1779      ESR1
+## 6 TCGA-A2-A04U-01A             ESR1           6.7541      ESR1
 ##   Protein_Name protein_expression
-## 1    Annexin-1         0.02079437
-## 2    Annexin-1        -0.44906447
-## 3    Annexin-1        -0.15340250
-## 4    Annexin-1        -0.57261007
-## 5    Annexin-1        -1.17919735
-## 6    Annexin-1        -1.18221384
+## 1     ER-alpha          -3.570038
+## 2     ER-alpha          -3.873648
+## 3     ER-alpha          -3.604598
+## 4     ER-alpha          -3.338214
+## 5     ER-alpha          -3.886696
+## 6     ER-alpha          -2.897148
 ```
 
 And run a spearman correlation on it:
@@ -301,55 +294,9 @@ cor(x=data$normalized_count, y=data$protein_expression, method="spearman")
 ```
 
 ```
-## [1] 0.6976339
+## [1] 0.9075414
 ```
-Notice that the value does not match the result from BigQuery.
-
-The reason for this is ????  Let's redo this in R to match exactly what we are doing in BigQuery.
-
-Lets rank the columns to be correlated, and then run a spearman correlation on the ranks.
-
-```r
-data = mutate(data, expr_rank=rank(normalized_count))
-data = mutate(data, prot_rank=rank(protein_expression))
-dim(data)
-```
-
-```
-## [1] 94  8
-```
-
-```r
-head(arrange(data, prot_rank))
-```
-
-```
-##      SampleBarcode HGNC_gene_symbol normalized_count Gene_Name
-## 1 TCGA-HB-A3L4-01A            ANXA1         652.9065     ANXA1
-## 2 TCGA-WP-A9GB-01A            ANXA1        1499.0931     ANXA1
-## 3 TCGA-SG-A6Z7-01A            ANXA1        2082.5397     ANXA1
-## 4 TCGA-K1-A42X-02A            ANXA1         258.3603     ANXA1
-## 5 TCGA-K1-A42X-01A            ANXA1         222.1151     ANXA1
-## 6 TCGA-G7-A8LD-01A            ANXA1         218.1232     ANXA1
-##   Protein_Name protein_expression expr_rank prot_rank
-## 1    Annexin-1          -1.806561        16         1
-## 2    Annexin-1          -1.329489        23         2
-## 3    Annexin-1          -1.285017        28         3
-## 4    Annexin-1          -1.191138        10         4
-## 5    Annexin-1          -1.182214         6         5
-## 6    Annexin-1          -1.179197         5         6
-```
-
-And then run a pearson correlation on the ranks:
-
-```r
-cor(x=data$expr_rank, y=data$prot_rank, method="pearson")
-```
-
-```
-## [1] 0.6976339
-```
-Now the results match those for BigQuery.
+And we can see that we have reproduced one of our results from BigQuery.
 
 ## Provenance
 
@@ -369,16 +316,17 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] knitr_1.10.5       mgcv_1.8-6         nlme_3.1-120      
-[4] ggplot2_1.0.1      scales_0.2.5       bigrquery_0.1.0   
-[7] dplyr_0.4.2        ISBCGCExamples_0.1
+[1] mgcv_1.8-6         nlme_3.1-120       ggplot2_1.0.1     
+[4] scales_0.2.5       bigrquery_0.1.0    dplyr_0.4.2       
+[7] ISBCGCExamples_0.1
 
 loaded via a namespace (and not attached):
- [1] Rcpp_0.12.0      rstudioapi_0.3.1 magrittr_1.5     MASS_7.3-40     
- [5] munsell_0.4.2    colorspace_1.2-6 lattice_0.20-31  R6_2.1.1        
- [9] stringr_1.0.0    httr_1.0.0       plyr_1.8.3       tools_3.2.0     
-[13] parallel_3.2.0   grid_3.2.0       gtable_0.1.2     DBI_0.3.1       
-[17] lazyeval_0.1.10  assertthat_0.1   digest_0.6.8     Matrix_1.2-0    
-[21] formatR_1.2      reshape2_1.4.1   curl_0.9.3       evaluate_0.7.2  
-[25] labeling_0.3     stringi_0.5-5    jsonlite_0.9.17  proto_0.3-10    
+ [1] Rcpp_0.12.0      rstudioapi_0.3.1 knitr_1.10.5     magrittr_1.5    
+ [5] MASS_7.3-40      munsell_0.4.2    colorspace_1.2-6 lattice_0.20-31 
+ [9] R6_2.1.1         stringr_1.0.0    httr_1.0.0       plyr_1.8.3      
+[13] tools_3.2.0      parallel_3.2.0   grid_3.2.0       gtable_0.1.2    
+[17] DBI_0.3.1        lazyeval_0.1.10  assertthat_0.1   digest_0.6.8    
+[21] Matrix_1.2-0     formatR_1.2      reshape2_1.4.1   curl_0.9.3      
+[25] mime_0.4         evaluate_0.7.2   labeling_0.3     stringi_0.5-5   
+[29] jsonlite_0.9.17  markdown_0.7.7   proto_0.3-10    
 ```
