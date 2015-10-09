@@ -11,7 +11,7 @@ WHERE
   AND Protein_Name = '_PROTEIN_'
   AND SampleBarcode IN (
   SELECT
-    sample_barcode
+    SampleBarcode
   FROM
     [_COHORT_TABLE_] )
 ORDER BY

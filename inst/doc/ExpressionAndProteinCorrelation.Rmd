@@ -28,9 +28,9 @@ sqlDir = file.path(system.file(package = "ISBCGCExamples"),
 
 ```{r comment=NA}
 # Set the desired tables to query.
-expressionTable = "isb-cgc:tcga_data_open.mRNA_UNC_HiSeq_RSEM"
-proteinTable = "isb-cgc:tcga_data_open.Protein"
-cohortTable = "isb-cgc:test.cohort_14jun2015"
+expressionTable = "isb-cgc:tcga_201507_alpha.mRNA_UNC_HiSeq_RSEM"
+proteinTable = "isb-cgc:tcga_201507_alpha.Protein_RPPA_data"
+cohortTable = "isb-cgc:tcga_cohorts.BRCA"
 
 # Do not correlate unless there are at least this many observations available
 minimumNumberOfObservations = 30
@@ -70,7 +70,7 @@ Now let's reproduce one of the results directly in R.
 First we retrieve the expression data for a particular gene.
 ```{r comment=NA}
 # Set the desired gene to query.
-gene = "ANXA1"
+gene = "ESR1"
 
 expressionData = DisplayAndDispatchQuery(file.path(sqlDir, "expression-data-by-cohort.sql"),
                                          project=project,
@@ -89,7 +89,7 @@ head(expressionData)
 Then we retrieve the protein data for a particular gene.
 
 ```{r comment=NA}
-protein = "Annexin-1"
+protein = "ER-alpha"
 
 proteinData = DisplayAndDispatchQuery(file.path(sqlDir, "protein-data-by-cohort.sql"),
                                       project=project,
