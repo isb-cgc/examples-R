@@ -28,9 +28,9 @@ sqlDir = file.path(system.file(package = "ISBCGCExamples"),
 #' 
 ## ----comment=NA----------------------------------------------------------
 # Set the desired tables to query.
-expressionTable = "isb-cgc:tcga_data_open.mRNA_UNC_HiSeq_RSEM"
-proteinTable = "isb-cgc:tcga_data_open.Protein"
-cohortTable = "isb-cgc:test.cohort_14jun2015"
+expressionTable = "isb-cgc:tcga_201507_alpha.mRNA_UNC_HiSeq_RSEM"
+proteinTable = "isb-cgc:tcga_201507_alpha.Protein_RPPA_data"
+cohortTable = "isb-cgc:tcga_cohorts.BRCA"
 
 # Do not correlate unless there are at least this many observations available
 minimumNumberOfObservations = 30
@@ -70,7 +70,7 @@ ggplot(result, aes(x=spearman_corr)) +
 #' First we retrieve the expression data for a particular gene.
 ## ----comment=NA----------------------------------------------------------
 # Set the desired gene to query.
-gene = "ANXA1"
+gene = "ESR1"
 
 expressionData = DisplayAndDispatchQuery(file.path(sqlDir, "expression-data-by-cohort.sql"),
                                          project=project,
@@ -89,7 +89,7 @@ head(expressionData)
 #' Then we retrieve the protein data for a particular gene.
 #' 
 ## ----comment=NA----------------------------------------------------------
-protein = "Annexin-1"
+protein = "ER-alpha"
 
 proteinData = DisplayAndDispatchQuery(file.path(sqlDir, "protein-data-by-cohort.sql"),
                                       project=project,
@@ -106,35 +106,20 @@ head(proteinData)
 #' 
 #' ### Perform the correlation
 #' 
+#' First we take the inner join of this data:
 ## ------------------------------------------------------------------------
 library(dplyr)
 
 data = inner_join(expressionData, proteinData)
 dim(data)
-head(data)
+head(arrange(data, normalized_count))
 
 #' 
-#' First we take the inner join of this data and run a spearman correlation on it.
+#' And run a spearman correlation on it:
 ## ------------------------------------------------------------------------
 cor(x=data$normalized_count, y=data$protein_expression, method="spearman")
 
-#' Notice that the value does not match the result from BigQuery.
-#' 
-#' The reason for this is ????  Let's redo this in R to match exactly what we are doing in BigQuery.
-#' 
-#' First we do the inner join, then rank the columns to be correlated, and then run a spearman correlation on the ranks.
-## ------------------------------------------------------------------------
-data = inner_join(expressionData, proteinData)
-dim(data)
-head(data)
-
-data = mutate(data, expr_rank=rank(normalized_count))
-data = mutate(data, prot_rank=rank(protein_expression))
-
-
-cor(x=data$expr_rank, y=data$prot_rank, method="pearson")
-
-#' Now the results match those for BigQuery.
+#' And we can see that we have reproduced one of our results from BigQuery.
 #' 
 #' ## Provenance
 ## ----provenance, comment=NA----------------------------------------------

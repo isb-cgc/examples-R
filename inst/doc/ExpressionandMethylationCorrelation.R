@@ -28,8 +28,8 @@ sqlDir = file.path(system.file(package = "ISBCGCExamples"),
 #' 
 ## ----comment=NA----------------------------------------------------------
 # Set the desired tables to query.
-expressionTable = "isb-cgc:tcga_data_open.mRNA_UNC_HiSeq_RSEM"
-methylationTable = "isb-cgc:tcga_data_open.Methylation_chr9"
+expressionTable = "isb-cgc:tcga_201507_alpha.mRNA_UNC_HiSeq_RSEM"
+methylationTable = "isb-cgc:tcga_201507_alpha.DNA_Methylation_betas"
 # Add any additional clauses to be applied in WHERE to limit the methylation data further.
 andWhere = "AND SampleTypeLetterCode = 'TP' AND Study = 'CESC'"
 # Do not correlate unless there are at least this many observations available
@@ -71,7 +71,7 @@ ggplot(result, aes(x=correlation)) +
 #' First we retrieve the expression data for a particular gene.
 ## ----comment=NA----------------------------------------------------------
 # Set the desired gene to query.
-gene = "GPSM1"
+gene = "LDB3"
 
 expressionData = DisplayAndDispatchQuery(file.path(sqlDir, "expression-data.sql"),
                                          project=project,
@@ -90,7 +90,7 @@ head(expressionData)
 #' 
 ## ----comment=NA----------------------------------------------------------
 # Set the desired probe to query.
-probe = "cg04305913"
+probe = "cg14794936"
 
 # Be sure to apply the same additional clauses to the WHERE to limit the methylation data further.
 
@@ -109,13 +109,14 @@ head(methylationData)
 #' 
 #' ### Perform the correlation
 #' 
+#' First we take the inner join of this data:
 ## ------------------------------------------------------------------------
 library(dplyr)
-
 data = inner_join(expressionData, methylationData)
 head(data)
 
 #' 
+#' And run a pearson correlation on it:
 ## ------------------------------------------------------------------------
 cor(x=data$normalized_count, y=data$Beta_Value, method="pearson")
 

@@ -8,7 +8,7 @@ WHERE
   HGNC_gene_symbol = '_GENE_'
   AND SampleBarcode IN (
   SELECT
-    sample_barcode
+    SampleBarcode
   FROM
     [_COHORT_TABLE_] )
 ORDER BY

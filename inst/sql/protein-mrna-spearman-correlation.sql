@@ -25,26 +25,26 @@ FROM (
         Protein_Name,
         protein_expression
       FROM
-        [isb-cgc:tcga_data_open.Protein]
+        [_PROTEIN_TABLE_]
       WHERE
         SampleBarcode IN (
         SELECT
-          sample_barcode
+          SampleBarcode
         FROM
-          [isb-cgc:test.cohort_14jun2015] ) ) feat1
+          [_COHORT_TABLE_] ) ) feat1
     JOIN EACH (
       SELECT
         SampleBarcode,
         HGNC_gene_symbol,
         LOG2(normalized_count+1) AS log2_count
       FROM
-        [isb-cgc:tcga_data_open.mRNA_UNC_HiSeq_RSEM]
+        [_EXPRESSION_TABLE_]
       WHERE
         SampleBarcode IN (
         SELECT
-          sample_barcode
+          SampleBarcode
         FROM
-          [isb-cgc:test.cohort_14jun2015] ) ) feat2
+          [_COHORT_TABLE_] ) ) feat2
     ON
       feat1.SampleBarcode = feat2.SampleBarcode
       AND feat1.Gene_Name = feat2.HGNC_gene_symbol))

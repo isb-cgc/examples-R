@@ -31,8 +31,8 @@ sqlDir = file.path(system.file(package = "ISBCGCExamples"),
 
 ```r
 # Set the desired tables to query.
-expressionTable = "isb-cgc:tcga_data_open.mRNA_UNC_HiSeq_RSEM"
-methylationTable = "isb-cgc:tcga_data_open.Methylation_chr9"
+expressionTable = "isb-cgc:tcga_201507_alpha.mRNA_UNC_HiSeq_RSEM"
+methylationTable = "isb-cgc:tcga_201507_alpha.DNA_Methylation_betas"
 # Add any additional clauses to be applied in WHERE to limit the methylation data further.
 andWhere = "AND SampleTypeLetterCode = 'TP' AND Study = 'CESC'"
 # Do not correlate unless there are at least this many observations available
@@ -64,7 +64,7 @@ FROM (
     Probe_ID,
     Beta_value
   FROM
-    [isb-cgc:tcga_data_open.mRNA_UNC_HiSeq_RSEM] AS expr
+    [isb-cgc:tcga_201507_alpha.mRNA_UNC_HiSeq_RSEM] AS expr
   JOIN EACH ( FLATTEN ( (
           # We select the sample-barcode, sample-type, study-name, probe-id, beta-value, and gene-symbol
           # from a "JOIN" of the methylation data and the methylation annotation tables
@@ -78,7 +78,7 @@ FROM (
           Beta_Value,
           UCSC.RefGene_Name
         FROM
-          [isb-cgc:tcga_data_open.Methylation_chr9] AS methData
+          [isb-cgc:tcga_201507_alpha.DNA_Methylation_betas] AS methData
         JOIN EACH [isb-cgc:platform_reference.methylation_annotation] AS methAnnot
         ON
           methData.Probe_ID = methAnnot.Name
@@ -99,8 +99,14 @@ HAVING
   num_observations >= 30
 ORDER BY
   correlation DESC
+Retrieving data:  2.9sRetrieving data:  4.0sRetrieving data:  5.2sRetrieving data:  6.2sRetrieving data:  7.3sRetrieving data:  8.6sRetrieving data:  9.7sRetrieving data: 10.8s
 ```
-Number of rows returned by this query: 6127.
+
+```
+Warning: Only first 10 pages of size 10000 retrieved. Use max_pages = Inf
+to retrieve all.
+```
+Number of rows returned by this query: 100000.
 
 The result is one correlation value per row of data, each of which corresponds to a methylation probe and
 its associated expression probe. Note that each expression probe may map to several methylation probes.
@@ -111,12 +117,12 @@ head(result)
 
 ```
 ##   HGNC_gene_symbol   Probe_ID num_observations correlation
-## 1            GPSM1 cg04305913              602   0.6015447
-## 2            GPSM1 cg14934821              602   0.5881440
-## 3           TMEM8B cg14087413              602   0.5672279
-## 4         ADAMTS13 cg14206140             1204   0.5471293
-## 5          PIP5K1B cg13867370              301   0.5430617
-## 6            GPSM1 cg01393841              602   0.5422848
+## 1             LDB3 cg14794936              903   0.9112527
+## 2            HAUS8 cg27506178              602   0.9096991
+## 3             LDB3 cg01657744              903   0.8729802
+## 4             LDB3 cg03568042              903   0.8525912
+## 5            ZBTB1 cg04817113              602   0.8367820
+## 6             LDB3 cg03303359              903   0.8349443
 ```
 
 
@@ -143,7 +149,7 @@ First we retrieve the expression data for a particular gene.
 
 ```r
 # Set the desired gene to query.
-gene = "GPSM1"
+gene = "LDB3"
 
 expressionData = DisplayAndDispatchQuery(file.path(sqlDir, "expression-data.sql"),
                                          project=project,
@@ -157,9 +163,9 @@ SELECT
   SampleBarcode,
   HGNC_gene_symbol,
   normalized_count
-FROM [isb-cgc:tcga_data_open.mRNA_UNC_HiSeq_RSEM]
+FROM [isb-cgc:tcga_201507_alpha.mRNA_UNC_HiSeq_RSEM]
 WHERE
-  HGNC_gene_symbol = 'GPSM1'
+  HGNC_gene_symbol = 'LDB3'
 ORDER BY
   SampleBarcode
 ```
@@ -172,12 +178,12 @@ head(expressionData)
 
 ```
 ##      SampleBarcode HGNC_gene_symbol normalized_count
-## 1 TCGA-02-0047-01A            GPSM1        1217.0011
-## 2 TCGA-02-0055-01A            GPSM1         719.2712
-## 3 TCGA-02-2483-01A            GPSM1        4626.0686
-## 4 TCGA-02-2485-01A            GPSM1        1257.1429
-## 5 TCGA-02-2486-01A            GPSM1         392.6829
-## 6 TCGA-04-1348-01A            GPSM1          98.4136
+## 1 TCGA-02-0047-01A             LDB3          48.5571
+## 2 TCGA-02-0055-01A             LDB3          20.7428
+## 3 TCGA-02-2483-01A             LDB3          21.9525
+## 4 TCGA-02-2485-01A             LDB3          12.3810
+## 5 TCGA-02-2486-01A             LDB3          96.9512
+## 6 TCGA-04-1348-01A             LDB3           6.9911
 ```
 
 ### Retrieve Methylation Data
@@ -187,7 +193,7 @@ Then we retrieve the methylation data for a particular probe.
 
 ```r
 # Set the desired probe to query.
-probe = "cg04305913"
+probe = "cg14794936"
 
 # Be sure to apply the same additional clauses to the WHERE to limit the methylation data further.
 
@@ -206,9 +212,9 @@ SELECT
   Study,
   Probe_ID,
   Beta_Value
-FROM [isb-cgc:tcga_data_open.Methylation_chr9]
+FROM [isb-cgc:tcga_201507_alpha.DNA_Methylation_betas]
 WHERE
-  Probe_ID = 'cg04305913'
+  Probe_ID = 'cg14794936'
   # Optionally add clause here to limit the query to a particular
   # sample types and/or studies.
   AND SampleTypeLetterCode = 'TP' AND Study = 'CESC'
@@ -227,20 +233,20 @@ head(methylationData)
 
 ```
 ##      SampleBarcode SampleTypeLetterCode Study   Probe_ID Beta_Value
-## 1 TCGA-2W-A8YY-01A                   TP  CESC cg04305913       0.76
-## 2 TCGA-4J-AA1J-01A                   TP  CESC cg04305913       0.26
-## 3 TCGA-BI-A0VR-01A                   TP  CESC cg04305913       0.50
-## 4 TCGA-BI-A0VS-01A                   TP  CESC cg04305913       0.40
-## 5 TCGA-BI-A20A-01A                   TP  CESC cg04305913       0.75
-## 6 TCGA-C5-A0TN-01A                   TP  CESC cg04305913       0.81
+## 1 TCGA-2W-A8YY-01A                   TP  CESC cg14794936       0.03
+## 2 TCGA-4J-AA1J-01A                   TP  CESC cg14794936       0.04
+## 3 TCGA-BI-A0VR-01A                   TP  CESC cg14794936       0.04
+## 4 TCGA-BI-A0VS-01A                   TP  CESC cg14794936       0.04
+## 5 TCGA-BI-A20A-01A                   TP  CESC cg14794936       0.03
+## 6 TCGA-C5-A0TN-01A                   TP  CESC cg14794936       0.04
 ```
 
 ### Perform the correlation
 
+First we take the inner join of this data:
 
 ```r
 library(dplyr)
-
 data = inner_join(expressionData, methylationData)
 ```
 
@@ -254,28 +260,29 @@ head(data)
 
 ```
 ##      SampleBarcode HGNC_gene_symbol normalized_count SampleTypeLetterCode
-## 1 TCGA-2W-A8YY-01A            GPSM1         277.5393                   TP
-## 2 TCGA-4J-AA1J-01A            GPSM1         119.6070                   TP
-## 3 TCGA-BI-A0VR-01A            GPSM1          86.0595                   TP
-## 4 TCGA-BI-A0VS-01A            GPSM1          91.6372                   TP
-## 5 TCGA-BI-A20A-01A            GPSM1         256.8048                   TP
-## 6 TCGA-C5-A0TN-01A            GPSM1         439.5386                   TP
+## 1 TCGA-2W-A8YY-01A             LDB3           3.2189                   TP
+## 2 TCGA-4J-AA1J-01A             LDB3          16.2324                   TP
+## 3 TCGA-BI-A0VR-01A             LDB3           7.4664                   TP
+## 4 TCGA-BI-A0VS-01A             LDB3           4.1340                   TP
+## 5 TCGA-BI-A20A-01A             LDB3          15.5539                   TP
+## 6 TCGA-C5-A0TN-01A             LDB3           2.4805                   TP
 ##   Study   Probe_ID Beta_Value
-## 1  CESC cg04305913       0.76
-## 2  CESC cg04305913       0.26
-## 3  CESC cg04305913       0.50
-## 4  CESC cg04305913       0.40
-## 5  CESC cg04305913       0.75
-## 6  CESC cg04305913       0.81
+## 1  CESC cg14794936       0.03
+## 2  CESC cg14794936       0.04
+## 3  CESC cg14794936       0.04
+## 4  CESC cg14794936       0.04
+## 5  CESC cg14794936       0.03
+## 6  CESC cg14794936       0.04
 ```
 
+And run a pearson correlation on it:
 
 ```r
 cor(x=data$normalized_count, y=data$Beta_Value, method="pearson")
 ```
 
 ```
-## [1] 0.6015447
+## [1] 0.9112527
 ```
 
 And we can see that we have reproduced one of our results from BigQuery.
@@ -304,11 +311,11 @@ other attached packages:
 
 loaded via a namespace (and not attached):
  [1] Rcpp_0.12.0      rstudioapi_0.3.1 knitr_1.10.5     magrittr_1.5    
- [5] MASS_7.3-40      munsell_0.4.2    lattice_0.20-31  colorspace_1.2-6
+ [5] MASS_7.3-40      munsell_0.4.2    colorspace_1.2-6 lattice_0.20-31 
  [9] R6_2.1.1         stringr_1.0.0    httr_1.0.0       plyr_1.8.3      
 [13] tools_3.2.0      parallel_3.2.0   grid_3.2.0       gtable_0.1.2    
 [17] DBI_0.3.1        lazyeval_0.1.10  assertthat_0.1   digest_0.6.8    
-[21] Matrix_1.2-0     reshape2_1.4.1   formatR_1.2      curl_0.9.3      
+[21] Matrix_1.2-0     formatR_1.2      reshape2_1.4.1   curl_0.9.3      
 [25] mime_0.4         evaluate_0.7.2   labeling_0.3     stringi_0.5-5   
 [29] jsonlite_0.9.17  markdown_0.7.7   proto_0.3-10    
 ```
