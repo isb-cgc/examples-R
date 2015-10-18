@@ -61,9 +61,16 @@ result <- query_exec(querySql, project=project)
 ## If you have any trouble with OAuth and need to redo/reset OAuth,
 ## run the following code.
 
-# if(FALSE != getOption("httr_oauth_cache")) {
+#if (FALSE != getOption("httr_oauth_cache")) {
 #  file.remove(getOption("httr_oauth_cache"))
 #}
+
+## or maybe it should look like this?
+
+#if (!is.null(getOption("httr_oauth_cache"))) {
+#  file.remove(getOption("httr_oauth_cache"))
+#}
+
 #message("Restart R to redo/reset OAuth.")
 #####################################################################
 ```
