@@ -1,23 +1,25 @@
-#' # Analyzing Variants with BigQuery
+#' # Exploring the TCGA data in BigQuery
 #' 
-#' TODO: this is a copy of the introduction used for BioC2015.  It should be re-worked to be more appropriate for ISB-CGC.
-#' 
-#' 
-#' Google Genomics can import variant calls from VCF files or Complete Genomics masterVar files so that you can query them with a simple API as we saw earlier in vignette [Working with Variants](http://bioconductor.org/packages/devel/bioc/vignettes/GoogleGenomics/inst/doc/AnnotatingVariants.html).  You can also export Variants to BigQuery for interactive analysis of these large datasets.  For more detail, see https://cloud.google.com/genomics/v1/managing-variants
-#' 
-#' In this example we will work with the [Illumina Platinum Genomes](http://googlegenomics.readthedocs.org/en/latest/use_cases/discover_public_data/platinum_genomes.html) dataset.
+#' The ISB-CGC (isb-cgc.org) project has aggregated and curated all of the TCGA open-access clinical, biospecimen, and Level-3 molecular data and uploaded it into BigQuery tables that are open to the public.  Here we will show you how you can begin to work with these tables from the familiar R environment.
 #' 
 #' ### Helpful BigQuery links
 #' 
 #' For this example, we'll also be working with [Google BigQuery](https://cloud.google.com/bigquery/). It's often helpful to have a [link to the docs](https://cloud.google.com/bigquery/what-is-bigquery) handy, and especially the [query reference](https://cloud.google.com/bigquery/query-reference).
 #' 
 #' ## Run a query from R
+#' TODO: is there a way to get these "installed" for the user if they haven't already been?
 #' 
-#' The [bigrquery](https://github.com/hadley/bigrquery) package written by Hadley Wickham implements an R interface to [Google BigQuery](https://cloud.google.com/bigquery/).
+#' We will start by loading four R packages:
+#' - the [bigrquery](https://github.com/hadley/bigrquery) package written by Hadley Wickham implements an R interface to [Google BigQuery](https://cloud.google.com/bigquery/),
+#' - the [dplyr](https://github.com/hadley/dplyr) package provides a set of tools for efficiently manipulating datasets in R, and
+#' - the [ggplot2](https://github.com/hadley/ggplot2) package for elegant graphics, and
+#' - the [scales](https://github.com/hadley/scales) package for visualization-oriented scale functions.
 #' 
 ## ----message=FALSE-------------------------------------------------------
 library(dplyr)
 library(bigrquery)
+library(ggplot2)
+library(scales)
 
 #' 
 ## ----eval=FALSE----------------------------------------------------------
@@ -31,46 +33,56 @@ library(bigrquery)
 ## #####################################################################
 
 #' 
+#' Let's start by working with one of the simplest tables, the Clinical_data table.  The format of a table name in BigQuery is <project_name>:<dataset_name>.<table_name>
+#' 
 ## ------------------------------------------------------------------------
-# Change the table here if you wish to run these queries against a different Variants table.
-theTable <- "genomics-public-data:platinum_genomes.variants"
-# theTable <- "genomics-public-data:1000_genomes.variants"
-# theTable <- "genomics-public-data:1000_genomes_phase_3.variants"
+theTable <- "isb-cgc:tcga_201507_alpha.Clinical_data"
 
 #' 
-#' Let's start by just counting the number of records in the table:
+#' Note that when you send the first query, you will need to go through the authentication flow with BigQuery.  You will be provided with a url to cut and  paste into your browser, and then you will get an authorization code to cut and paste back here.
+#' 
+#' [bigrquery](https://github.com/hadley/bigrquery) uses the package [httr](https://github.com/hadley/httr) to perform OAuth.
+#' 
+#' Let's start by just counting the number of records in the table.
+#' First we'll just create the query string and echo it:
 ## ------------------------------------------------------------------------
 querySql <- paste("SELECT COUNT(1) FROM [", theTable, "]", sep="")
 querySql
 
 #' 
-#' And send the query to the cloud for execution:
+#' And then we'll send the query to the cloud for execution:
 ## ------------------------------------------------------------------------
 result <- query_exec(querySql, project=project)
 
 #' 
-#' [bigrquery](https://github.com/hadley/bigrquery) uses the package [httr](https://github.com/hadley/httr) to perform OAuth.
 #' 
 ## ----eval=FALSE----------------------------------------------------------
 ## ######################[ TIP ]########################################
 ## ## If you have any trouble with OAuth and need to redo/reset OAuth,
 ## ## run the following code.
 ## 
-## # if(FALSE != getOption("httr_oauth_cache")) {
+## #if (FALSE != getOption("httr_oauth_cache")) {
 ## #  file.remove(getOption("httr_oauth_cache"))
 ## #}
+## 
+## ## or maybe it should look like this?
+## 
+## #if (!is.null(getOption("httr_oauth_cache"))) {
+## #  file.remove(getOption("httr_oauth_cache"))
+## #}
+## 
 ## #message("Restart R to redo/reset OAuth.")
 ## #####################################################################
 
 #' 
-#' And we see that the table has `r result[1,1]` rows - wow!
+#' And we see that the table has `r result[1,1]` rows - this is the number of unique patients or participants across all of the various TCGA studies.
 ## ------------------------------------------------------------------------
 result
 
 #' 
 #' ## Run a query using the BigQuery Web User Interface
 #' 
-#' So what is actually in this table?  Click on [this link](https://bigquery.cloud.google.com/table/genomics-public-data:platinum_genomes.variants) to view the schema in the BigQuery web user interface.
+#' So what is actually in this table?  Click on [this link](https://bigquery.cloud.google.com/table/isb-cgc:tcga_201507_alpha.Clinical_data) to view the schema in the BigQuery web user interface.
 #' 
 #' We can also run the exact same query using the BigQuery web user interface.  In the BigQuery web user interface:
 #' 
@@ -86,24 +98,24 @@ library(ISBCGCExamples)
 DisplayAndDispatchQuery
 
 #' 
-#' This allows queries to be more easily shared among analyses and also reused for different datasets.  For example, in the following file we have a query that will retrieve data from any table exported from a Google Genomics Variant Set.
+#' This allows queries to be more easily shared among analyses and also reused for different tables.  For example, in the following file we have a query that will count the number of patients, grouped by disease type in any of our TCGA data tables.
 ## ------------------------------------------------------------------------
 file.show(file.path(system.file(package = "ISBCGCExamples"),
                     "sql",
-                    "variant-level-data-for-brca1.sql"))
+                    "count-patients-by-study.sql"))
 
 #' 
-#' Now let's run the query to retrieve variant data for BRCA1:
+#' Now let's run the query to see what these counts are in the Clinical_data table:
 ## ----comment=NA----------------------------------------------------------
 result <- DisplayAndDispatchQuery(file.path(system.file(package = "ISBCGCExamples"),
                                             "sql",
-                                            "variant-level-data-for-brca1.sql"),
+                                            "count-patients-by-study.sql"),
                                   project=project,
                                   replacements=list("_THE_TABLE_"=theTable))
 
 #' Number of rows returned by this query: `r nrow(result)`.
 #' 
-#' Results from [bigrquery](https://github.com/hadley/bigrquery) are dataframes:
+#' Results from [bigrquery](https://github.com/hadley/bigrquery) are returned as R dataframes, meaning that we can make use of all of the regular dataframe functions as well as all sorts of other great R packages to do our downstream work. 
 ## ------------------------------------------------------------------------
 mode(result)
 class(result)
@@ -113,49 +125,24 @@ head(result)
 #' 
 #' ## Visualize Query Results
 #' 
-#' The prior query was basically a data retrieval similar to what we performed earlier in this workshop when we used the GoogleGenomics Bioconductor package to retrieve data from the Google Genomics Variants API.  
-#' 
-#' But BigQuery really shines when it is used to perform an actual *analysis* - do the heavy-lifting on the big data resident in the cloud, and bring back the result of the analysis to R for further downstream analysis and visualization.
-#' 
-#' Let's do that now with a query that computes the Transition Transversion ratio for the variants within genomic region windows.
-## ----comment=NA----------------------------------------------------------
-result <- DisplayAndDispatchQuery(file.path(system.file(package = "ISBCGCExamples"),
-                                            "sql",
-                                            "ti-tv-ratio.sql"),
-                                  project=project,
-                                  replacements=list("_THE_TABLE_"=theTable,
-                                                    "_WINDOW_SIZE_"=100000))
-
-#' Number of rows returned by this query: `r nrow(result)`.
+#' Since there are over 30 distinct tumor types within the TCGA project, we may want to filter our results before visualizing.  For example let's look only at tumor types with at least 500 patients in the study:
 #' 
 ## ------------------------------------------------------------------------
-summary(result)
-head(result)
+subsetResults <- filter(result, n>=500)
+subsetResults <- arrange(subsetResults,desc(n))
 
 #' 
-#' Since [bigrquery](https://github.com/hadley/bigrquery) results are dataframes, we can make use of all sorts of other great R packages to do our downstream work.  Here we use a few more packages from the Hadleyverse: dplyr for data filtering and ggplot2 for visualization.
-#' 
-## ------------------------------------------------------------------------
-# Change this filter if you want to visualize the result of this analysis for a different chromosome.
-chromosomeOneResults <- filter(result, reference_name == "chr1" | reference_name == "1")
-
-#' 
-## ----message=FALSE-------------------------------------------------------
-library(scales)
-library(ggplot2)
-
+#' and then create a barchart of the patient counts:
 #' 
 ## ----titv, fig.align="center", fig.width=10, message=FALSE, warning=FALSE, comment=NA----
-ggplot(chromosomeOneResults, aes(x=window_start, y=titv)) +
-  geom_point() +
-  stat_smooth() +
-  scale_x_continuous(labels=comma) +
-  xlab("Genomic Position") +
-  ylab("Ti/Tv") +
-  ggtitle("Ti/Tv by 100,000 base pair windows on Chromosome 1")
+ggplot(subsetResults, aes(x=Disease_Code, y=n, fill=Disease_Code)) +
+  geom_bar(stat="identity") +
+  ylab("Number of Patients") +
+  ggtitle("Study Size")
 
 #' 
 #' ## Provenance
 ## ----provenance, comment=NA----------------------------------------------
 sessionInfo()
 
+#' 

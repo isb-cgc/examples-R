@@ -1,24 +1,26 @@
-# Analyzing Variants with BigQuery
+# Exploring the TCGA data in BigQuery
 
-TODO: this is a copy of the introduction used for BioC2015.  It should be re-worked to be more appropriate for ISB-CGC.
-
-
-Google Genomics can import variant calls from VCF files or Complete Genomics masterVar files so that you can query them with a simple API as we saw earlier in vignette [Working with Variants](http://bioconductor.org/packages/devel/bioc/vignettes/GoogleGenomics/inst/doc/AnnotatingVariants.html).  You can also export Variants to BigQuery for interactive analysis of these large datasets.  For more detail, see https://cloud.google.com/genomics/v1/managing-variants
-
-In this example we will work with the [Illumina Platinum Genomes](http://googlegenomics.readthedocs.org/en/latest/use_cases/discover_public_data/platinum_genomes.html) dataset.
+The ISB-CGC (isb-cgc.org) project has aggregated and curated all of the TCGA open-access clinical, biospecimen, and Level-3 molecular data and uploaded it into BigQuery tables that are open to the public.  Here we will show you how you can begin to work with these tables from the familiar R environment.
 
 ### Helpful BigQuery links
 
 For this example, we'll also be working with [Google BigQuery](https://cloud.google.com/bigquery/). It's often helpful to have a [link to the docs](https://cloud.google.com/bigquery/what-is-bigquery) handy, and especially the [query reference](https://cloud.google.com/bigquery/query-reference).
 
 ## Run a query from R
+TODO: is there a way to get these "installed" for the user if they haven't already been?
 
-The [bigrquery](https://github.com/hadley/bigrquery) package written by Hadley Wickham implements an R interface to [Google BigQuery](https://cloud.google.com/bigquery/).
+We will start by loading four R packages:
+- the [bigrquery](https://github.com/hadley/bigrquery) package written by Hadley Wickham implements an R interface to [Google BigQuery](https://cloud.google.com/bigquery/),
+- the [dplyr](https://github.com/hadley/dplyr) package provides a set of tools for efficiently manipulating datasets in R, and
+- the [ggplot2](https://github.com/hadley/ggplot2) package for elegant graphics, and
+- the [scales](https://github.com/hadley/scales) package for visualization-oriented scale functions.
 
 
 ```r
 library(dplyr)
 library(bigrquery)
+library(ggplot2)
+library(scales)
 ```
 
 
@@ -33,15 +35,19 @@ library(bigrquery)
 #####################################################################
 ```
 
+Let's start by working with one of the simplest tables, the Clinical_data table.  The format of a table name in BigQuery is <project_name>:<dataset_name>.<table_name>
+
 
 ```r
-# Change the table here if you wish to run these queries against a different Variants table.
-theTable <- "genomics-public-data:platinum_genomes.variants"
-# theTable <- "genomics-public-data:1000_genomes.variants"
-# theTable <- "genomics-public-data:1000_genomes_phase_3.variants"
+theTable <- "isb-cgc:tcga_201507_alpha.Clinical_data"
 ```
 
-Let's start by just counting the number of records in the table:
+Note that when you send the first query, you will need to go through the authentication flow with BigQuery.  You will be provided with a url to cut and  paste into your browser, and then you will get an authorization code to cut and paste back here.
+
+[bigrquery](https://github.com/hadley/bigrquery) uses the package [httr](https://github.com/hadley/httr) to perform OAuth.
+
+Let's start by just counting the number of records in the table.
+First we'll just create the query string and echo it:
 
 ```r
 querySql <- paste("SELECT COUNT(1) FROM [", theTable, "]", sep="")
@@ -49,16 +55,15 @@ querySql
 ```
 
 ```
-## [1] "SELECT COUNT(1) FROM [genomics-public-data:platinum_genomes.variants]"
+## [1] "SELECT COUNT(1) FROM [isb-cgc:tcga_201507_alpha.Clinical_data]"
 ```
 
-And send the query to the cloud for execution:
+And then we'll send the query to the cloud for execution:
 
 ```r
 result <- query_exec(querySql, project=project)
 ```
 
-[bigrquery](https://github.com/hadley/bigrquery) uses the package [httr](https://github.com/hadley/httr) to perform OAuth.
 
 
 ```r
@@ -66,27 +71,34 @@ result <- query_exec(querySql, project=project)
 ## If you have any trouble with OAuth and need to redo/reset OAuth,
 ## run the following code.
 
-# if(FALSE != getOption("httr_oauth_cache")) {
+#if (FALSE != getOption("httr_oauth_cache")) {
 #  file.remove(getOption("httr_oauth_cache"))
 #}
+
+## or maybe it should look like this?
+
+#if (!is.null(getOption("httr_oauth_cache"))) {
+#  file.remove(getOption("httr_oauth_cache"))
+#}
+
 #message("Restart R to redo/reset OAuth.")
 #####################################################################
 ```
 
-And we see that the table has 688167235 rows - wow!
+And we see that the table has 11103 rows - this is the number of unique patients or participants across all of the various TCGA studies.
 
 ```r
 result
 ```
 
 ```
-##         f0_
-## 1 688167235
+##     f0_
+## 1 11103
 ```
 
 ## Run a query using the BigQuery Web User Interface
 
-So what is actually in this table?  Click on [this link](https://bigquery.cloud.google.com/table/genomics-public-data:platinum_genomes.variants) to view the schema in the BigQuery web user interface.
+So what is actually in this table?  Click on [this link](https://bigquery.cloud.google.com/table/isb-cgc:tcga_201507_alpha.Clinical_data) to view the schema in the BigQuery web user interface.
 
 We can also run the exact same query using the BigQuery web user interface.  In the BigQuery web user interface:
 
@@ -105,6 +117,9 @@ DisplayAndDispatchQuery
 
 ```
 ## function(queryUri, project, replacements=list()) {
+## 
+##   cat("inside DisplayAndDispatchQuery.R ...", queryUri, "  ", project)
+## 
 ##   if (missing(queryUri)) {
 ##     stop("Pass the file path or url to the file containing the query.")
 ##   }
@@ -134,50 +149,38 @@ DisplayAndDispatchQuery
 ## <environment: namespace:ISBCGCExamples>
 ```
 
-This allows queries to be more easily shared among analyses and also reused for different datasets.  For example, in the following file we have a query that will retrieve data from any table exported from a Google Genomics Variant Set.
+This allows queries to be more easily shared among analyses and also reused for different tables.  For example, in the following file we have a query that will count the number of patients, grouped by disease type in any of our TCGA data tables.
 
 ```r
 file.show(file.path(system.file(package = "ISBCGCExamples"),
                     "sql",
-                    "variant-level-data-for-brca1.sql"))
+                    "count-patients-by-study.sql"))
 ```
 
-Now let's run the query to retrieve variant data for BRCA1:
+Now let's run the query to see what these counts are in the Clinical_data table:
 
 ```r
 result <- DisplayAndDispatchQuery(file.path(system.file(package = "ISBCGCExamples"),
                                             "sql",
-                                            "variant-level-data-for-brca1.sql"),
+                                            "count-patients-by-study.sql"),
                                   project=project,
                                   replacements=list("_THE_TABLE_"=theTable))
 ```
 
 ```
-# Retrieve variant-level information for BRCA1 variants.
-SELECT
-  reference_name,
-  start,
-  end,
-  reference_bases,
-  GROUP_CONCAT(alternate_bases) WITHIN RECORD AS alternate_bases,
-  quality,
-  GROUP_CONCAT(filter) WITHIN RECORD AS filter,
-  GROUP_CONCAT(names) WITHIN RECORD AS names,
-  COUNT(call.call_set_name) WITHIN RECORD AS num_samples,
-FROM
-  [genomics-public-data:platinum_genomes.variants]
-WHERE
-  reference_name CONTAINS '17' # To match both 'chr17' and '17'
-  AND start BETWEEN 41196311 AND 41277499
-# Skip non-variant segments if the source data was gVCF or CGI data
-OMIT RECORD IF EVERY(alternate_bases IS NULL) OR EVERY(alternate_bases = '<NON_REF>')
-ORDER BY
-  start,
-  alternate_bases
+inside DisplayAndDispatchQuery.R ... /Library/Frameworks/R.framework/Versions/3.2/Resources/library/ISBCGCExamples/sql/count-patients-by-study.sql    isb-cgc# all of the TCGA molecular data tables contain the fields ParticipantBarcode and Disease_Code
+# TODO: this is actually being re-standardized to be "Study" FIXME
+SELECT Disease_Code, COUNT(*) AS n
+FROM (
+    SELECT ParticipantBarcode, Disease_Code
+    FROM [isb-cgc:tcga_201507_alpha.Clinical_data]
+    GROUP BY ParticipantBarcode, Disease_Code
+) GROUP BY Disease_Code
+ORDER BY n DESC
 ```
-Number of rows returned by this query: 335.
+Number of rows returned by this query: 33.
 
-Results from [bigrquery](https://github.com/hadley/bigrquery) are dataframes:
+Results from [bigrquery](https://github.com/hadley/bigrquery) are returned as R dataframes, meaning that we can make use of all of the regular dataframe functions as well as all sorts of other great R packages to do our downstream work. 
 
 ```r
 mode(result)
@@ -200,27 +203,13 @@ summary(result)
 ```
 
 ```
-##  reference_name         start               end          
-##  Length:335         Min.   :41196407   Min.   :41196408  
-##  Class :character   1st Qu.:41218836   1st Qu.:41218837  
-##  Mode  :character   Median :41239914   Median :41239916  
-##                     Mean   :41238083   Mean   :41238085  
-##                     3rd Qu.:41258167   3rd Qu.:41258168  
-##                     Max.   :41277186   Max.   :41277187  
-##  reference_bases    alternate_bases       quality       
-##  Length:335         Length:335         Min.   :   0.00  
-##  Class :character   Class :character   1st Qu.:  48.56  
-##  Mode  :character   Mode  :character   Median : 317.76  
-##                                        Mean   : 445.50  
-##                                        3rd Qu.: 737.80  
-##                                        Max.   :6097.85  
-##     filter             names            num_samples    
-##  Length:335         Length:335         Min.   : 1.000  
-##  Class :character   Class :character   1st Qu.: 2.000  
-##  Mode  :character   Mode  :character   Median : 7.000  
-##                                        Mean   : 5.304  
-##                                        3rd Qu.: 7.000  
-##                                        Max.   :17.000
+##  Disease_Code             n         
+##  Length:33          Min.   :  36.0  
+##  Class :character   1st Qu.: 134.0  
+##  Mode  :character   Median : 307.0  
+##                     Mean   : 336.5  
+##                     3rd Qu.: 507.0  
+##                     Max.   :1088.0
 ```
 
 ```r
@@ -228,152 +217,33 @@ head(result)
 ```
 
 ```
-##   reference_name    start      end reference_bases alternate_bases quality
-## 1          chr17 41196407 41196408               G               A  733.47
-## 2          chr17 41196820 41196822              CT               C   63.74
-## 3          chr17 41196820 41196823             CTT            C,CT  314.59
-## 4          chr17 41196840 41196841               G               T   85.68
-## 5          chr17 41197273 41197274               C               A 1011.08
-## 6          chr17 41197938 41197939               A              AT   86.95
-##                                       filter names num_samples
-## 1                                       PASS  <NA>           7
-## 2                                      LowQD  <NA>           1
-## 3                                       PASS  <NA>           3
-## 4 TruthSensitivityTranche99.90to100.00,LowQD  <NA>           2
-## 5                                       PASS  <NA>           7
-## 6                                      LowQD  <NA>           3
+##   Disease_Code    n
+## 1         BRCA 1088
+## 2          GBM  594
+## 3           OV  587
+## 4         UCEC  545
+## 5         KIRC  536
+## 6         HNSC  526
 ```
 
 ## Visualize Query Results
 
-The prior query was basically a data retrieval similar to what we performed earlier in this workshop when we used the GoogleGenomics Bioconductor package to retrieve data from the Google Genomics Variants API.  
-
-But BigQuery really shines when it is used to perform an actual *analysis* - do the heavy-lifting on the big data resident in the cloud, and bring back the result of the analysis to R for further downstream analysis and visualization.
-
-Let's do that now with a query that computes the Transition Transversion ratio for the variants within genomic region windows.
-
-```r
-result <- DisplayAndDispatchQuery(file.path(system.file(package = "ISBCGCExamples"),
-                                            "sql",
-                                            "ti-tv-ratio.sql"),
-                                  project=project,
-                                  replacements=list("_THE_TABLE_"=theTable,
-                                                    "_WINDOW_SIZE_"=100000))
-```
-
-```
-# Compute the Ti/Tv ratio for variants within genomic region windows.
-SELECT
-  reference_name,
-  window * 1e+05 AS window_start,
-  transitions,
-  transversions,
-  transitions/transversions AS titv,
-  num_variants_in_window,
-FROM (
-  SELECT
-    reference_name,
-    window,
-    SUM(mutation IN ('A->G', 'G->A', 'C->T', 'T->C')) AS transitions,
-    SUM(mutation IN ('A->C', 'C->A', 'G->T', 'T->G',
-                     'A->T', 'T->A', 'C->G', 'G->C')) AS transversions,
-    COUNT(mutation) AS num_variants_in_window
-  FROM (
-    SELECT
-      reference_name,
-      reference_bases,
-      alternate_bases,
-      INTEGER(FLOOR(start / 1e+05)) AS window,
-      CONCAT(reference_bases, CONCAT(STRING('->'), alternate_bases)) AS mutation,
-      COUNT(alternate_bases) WITHIN RECORD AS num_alts,
-    FROM
-      [genomics-public-data:platinum_genomes.variants]
-    # Optionally add clause here to limit the query to a particular
-    # region of the genome.
-    #_WHERE_
-    HAVING
-      # Skip 1/2 genotypes _and non-SNP variants
-      num_alts = 1
-      AND reference_bases IN ('A','C','G','T')
-      AND alternate_bases IN ('A','C','G','T'))
-  GROUP BY
-    reference_name,
-    window)
-ORDER BY
-  reference_name,
-  window_start
-Retrieving data:  3.1s
-```
-Number of rows returned by this query: 28734.
+Since there are over 30 distinct tumor types within the TCGA project, we may want to filter our results before visualizing.  For example let's look only at tumor types with at least 500 patients in the study:
 
 
 ```r
-summary(result)
+subsetResults <- filter(result, n>=500)
+subsetResults <- arrange(subsetResults,desc(n))
 ```
 
-```
-##  reference_name      window_start        transitions     transversions   
-##  Length:28734       Min.   :        0   Min.   :   0.0   Min.   :   0.0  
-##  Class :character   1st Qu.: 34600000   1st Qu.: 145.0   1st Qu.: 109.0  
-##  Mode  :character   Median : 71000000   Median : 194.0   Median : 142.0  
-##                     Mean   : 79795469   Mean   : 214.8   Mean   : 158.2  
-##                     3rd Qu.:115400000   3rd Qu.: 252.0   3rd Qu.: 182.0  
-##                     Max.   :249200000   Max.   :6313.0   Max.   :6703.0  
-##                                                                          
-##       titv       num_variants_in_window
-##  Min.   :0.000   Min.   :    1.0       
-##  1st Qu.:1.173   1st Qu.:  258.0       
-##  Median :1.362   Median :  338.0       
-##  Mean   :1.375   Mean   :  373.1       
-##  3rd Qu.:1.557   3rd Qu.:  432.0       
-##  Max.   :5.000   Max.   :12001.0       
-##  NA's   :7
-```
-
-```r
-head(result)
-```
-
-```
-##   reference_name window_start transitions transversions      titv
-## 1           chr1        0e+00         293           198 1.4797980
-## 2           chr1        1e+05         147            76 1.9342105
-## 3           chr1        2e+05          64            61 1.0491803
-## 4           chr1        3e+05           2            11 0.1818182
-## 5           chr1        4e+05          30            14 2.1428571
-## 6           chr1        5e+05         207            76 2.7236842
-##   num_variants_in_window
-## 1                    491
-## 2                    223
-## 3                    125
-## 4                     13
-## 5                     44
-## 6                    283
-```
-
-Since [bigrquery](https://github.com/hadley/bigrquery) results are dataframes, we can make use of all sorts of other great R packages to do our downstream work.  Here we use a few more packages from the Hadleyverse: dplyr for data filtering and ggplot2 for visualization.
+and then create a barchart of the patient counts:
 
 
 ```r
-# Change this filter if you want to visualize the result of this analysis for a different chromosome.
-chromosomeOneResults <- filter(result, reference_name == "chr1" | reference_name == "1")
-```
-
-
-```r
-library(scales)
-library(ggplot2)
-```
-
-
-```r
-ggplot(chromosomeOneResults, aes(x=window_start, y=titv)) +
-  geom_point() +
-  stat_smooth() +
-  scale_x_continuous(labels=comma) +
-  xlab("Genomic Position") +
-  ylab("Ti/Tv") +
-  ggtitle("Ti/Tv by 100,000 base pair windows on Chromosome 1")
+ggplot(subsetResults, aes(x=Disease_Code, y=n, fill=Disease_Code)) +
+  geom_bar(stat="identity") +
+  ylab("Number of Patients") +
+  ggtitle("Study Size")
 ```
 
 <img src="figure/titv-1.png" title="plot of chunk titv" alt="plot of chunk titv" style="display: block; margin: auto;" />
@@ -385,7 +255,7 @@ sessionInfo()
 ```
 
 ```
-R version 3.2.0 (2015-04-16)
+R version 3.2.2 (2015-08-14)
 Platform: x86_64-apple-darwin13.4.0 (64-bit)
 Running under: OS X 10.10.5 (Yosemite)
 
@@ -396,17 +266,17 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] mgcv_1.8-6         nlme_3.1-120       ggplot2_1.0.1     
-[4] scales_0.2.5       bigrquery_0.1.0    dplyr_0.4.2       
-[7] ISBCGCExamples_0.1
+[1] knitr_1.11         scales_0.3.0       ggplot2_1.0.1     
+[4] bigrquery_0.1.0    dplyr_0.4.3        ISBCGCExamples_0.1
 
 loaded via a namespace (and not attached):
- [1] Rcpp_0.12.0      rstudioapi_0.3.1 knitr_1.10.5     magrittr_1.5    
- [5] MASS_7.3-40      munsell_0.4.2    lattice_0.20-31  colorspace_1.2-6
- [9] R6_2.1.1         stringr_1.0.0    httr_1.0.0       plyr_1.8.3      
-[13] tools_3.2.0      parallel_3.2.0   grid_3.2.0       gtable_0.1.2    
-[17] DBI_0.3.1        lazyeval_0.1.10  assertthat_0.1   digest_0.6.8    
-[21] Matrix_1.2-0     reshape2_1.4.1   formatR_1.2      curl_0.9.3      
-[25] evaluate_0.7.2   labeling_0.3     stringi_0.5-5    jsonlite_0.9.17 
+ [1] Rcpp_0.12.1      magrittr_1.5     MASS_7.3-43      munsell_0.4.2   
+ [5] colorspace_1.2-6 R6_2.1.1         stringr_1.0.0    httr_1.0.0      
+ [9] plyr_1.8.3       tools_3.2.2      parallel_3.2.2   grid_3.2.2      
+[13] gtable_0.1.2     DBI_0.3.1        htmltools_0.2.6  lazyeval_0.1.10 
+[17] assertthat_0.1   digest_0.6.8     reshape2_1.4.1   formatR_1.2.1   
+[21] curl_0.9.3       mime_0.4         evaluate_0.8     rmarkdown_0.8.1 
+[25] labeling_0.3     stringi_0.5-5    jsonlite_0.9.17  markdown_0.7.7  
 [29] proto_0.3-10    
 ```
+
