@@ -1,8 +1,6 @@
 # Expression and Protein Correlation
 
-TODO introduction, talk about the tables we will use, etc...
-
-Reproduces some of the analyses in http://watson.nci.nih.gov/~sdavis/tutorials/TCGA_data_integration/
+In this example, we will look at the correlation between mRNAseq-based gene expression data and RPPA-based protein expression data.  We will do this using two molecular data tables from the isb-cgc:tcga_201507_alpha dataset and a cohort table from the isb-cgc:tcga_cohorts dataset.
 
 
 ```r
@@ -10,8 +8,7 @@ library(ISBCGCExamples)
 
 # The directory in which the files containing SQL reside.
 #sqlDir = file.path("/PATH/TO/GIT/CLONE/OF/examples-R/inst/", 
-sqlDir = file.path(system.file(package = "ISBCGCExamples"),
-                    "sql")
+sqlDir = file.path(system.file(package = "ISBCGCExamples"),"sql")
 ```
 
 
@@ -28,6 +25,8 @@ sqlDir = file.path(system.file(package = "ISBCGCExamples"),
 
 ## Spearman Correlation in BigQuery
 
+We will start by performing the correlation directly in BigQuery.  We will use a pre-defined SQL query in which key strings will be replaced according to the values specified in the "replacements" list.
+
 
 ```r
 # Set the desired tables to query.
@@ -37,24 +36,55 @@ cohortTable = "isb-cgc:tcga_cohorts.BRCA"
 
 # Do not correlate unless there are at least this many observations available
 minimumNumberOfObservations = 30
+```
+
+We'll pause for a moment here and have a look at the size of our cohort table:
+
+
+```r
+cohortInfo <- get_table("isb-cgc","tcga_cohorts","BRCA")
+cohortInfo$description
+```
+
+```
+[1] "This BRCA cohort is a curated list of patients and samples from the TCGA BRCA study.  It contains 1088 patients and 2275 samples.  You may join this table with other tables in the isb-cgc:tcga_201507_alpha dataset to perform further analysis on this cohort."
+```
+
+```r
+cohortInfo$numRows
+```
+
+```
+[1] "2275"
+```
+
+```r
+ptm1 <- proc.time()
 
 # Now we are ready to run the query.
-result = DisplayAndDispatchQuery(file.path(sqlDir, "protein-mrna-spearman-correlation.sql"),
-                                 project=project,
-                                 replacements=list("_EXPRESSION_TABLE_"=expressionTable,
-                                                   "_PROTEIN_TABLE_"=proteinTable,
-                                                   "_COHORT_TABLE_"=cohortTable,
-                                                   "_MINIMUM_NUMBER_OF_OBSERVATIONS_"=minimumNumberOfObservations))
+result = DisplayAndDispatchQuery ( 
+             file.path(sqlDir, "protein-mrna-spearman-correlation.sql"),
+             project=project,
+             replacements=list("_EXPRESSION_TABLE_"=expressionTable,
+                               "_PROTEIN_TABLE_"=proteinTable,
+                               "_COHORT_TABLE_"=cohortTable,
+                               "_MINIMUM_NUMBER_OF_OBSERVATIONS_"=minimumNumberOfObservations) )
 ```
 
 ```
-# Correlate the protein quantification data with the mRNA expression data.
+# This query performs a Spearman (ranked) correlation between the protein- and the mRNA-expression data
+# partitioned based on gene and protein.  The correlation is done by the BigQuery CORR function, but first
+# we need to use the RANK function to turn expression values into ranks.
+
+#### QUESTION: should the COUNT(1) be COUNT(2) instead ???
+
 SELECT
   gene,
   protein,
   COUNT(1) AS num_observations,
   CORR(expr_rank, prot_rank) AS spearman_corr
 FROM (
+  # in order to do a ranke-based (Spearman) correlation, we need to turn the expression values into ranks
   SELECT
     barcode,
     gene,
@@ -62,6 +92,8 @@ FROM (
     RANK() OVER (PARTITION BY gene, protein ORDER BY log2_count ASC) AS expr_rank,
     RANK() OVER (PARTITION BY gene, protein ORDER BY protein_expression ASC) AS prot_rank,
   FROM (
+    # here we need the sample identifier, the gene symbol, the protein name, and the two expression values
+    # that come out of the JOIN defined below
     SELECT
       feat1.SampleBarcode AS barcode,
       Gene_Name AS gene,
@@ -69,6 +101,8 @@ FROM (
       protein_expression,
       log2_count,
     FROM (
+      # on the left side of the JOIN, we SELECT the sample identifier, the gene symbol, the protein name,
+      # and the protein expression value, but only for samples that are in our specified "cohort"
       SELECT
         SampleBarcode,
         Gene_Name,
@@ -83,6 +117,8 @@ FROM (
         FROM
           [isb-cgc:tcga_cohorts.BRCA] ) ) feat1
     JOIN EACH (
+      # on the right side of the JOIN, we SELECT the sample identifier, the gene symbol, and the gene
+      # expression value (to which we apply a LOG2() operation), again only for samples in our "cohort"
       SELECT
         SampleBarcode,
         HGNC_gene_symbol,
@@ -96,19 +132,34 @@ FROM (
         FROM
           [isb-cgc:tcga_cohorts.BRCA] ) ) feat2
     ON
+      # the JOIN needs to line up rows where the sample identifier and the gene symbol match
       feat1.SampleBarcode = feat2.SampleBarcode
       AND feat1.Gene_Name = feat2.HGNC_gene_symbol))
 GROUP BY
   gene,
   protein
 HAVING
+  # although we will compute correlations for all genes and proteins, we only want to keep values where
+  # the correlation was based on at least 30 observations
   num_observations >= 30
 ORDER BY
+  # and finally we want to order the ouputs from largest positive correlation, descending to the most negative
+  # correlation
   spearman_corr DESC
+```
+
+```r
+ptm2 <- proc.time() - ptm1
+cat("Wall-clock time for BigQuery:",ptm2[3])
+```
+
+```
+Wall-clock time for BigQuery: 2.311
 ```
 Number of rows returned by this query: 133.
 
-The result is one correlation value per row of data, each of which corresponds to  . . . MORE HERE
+The result is a table with one row for each (gene,protein) pair for which at least 30 data values exist for the specified cohort.  The (gene,protein) pair is defined by a gene symbol and a protein name.  In many cases the gene symbol and the protein name may be identical, but for some genes the RPPA dataset may contain expression values for more than one post-translationally-modified protein product from a particular gene.
+
 
 ```r
 head(result)
@@ -128,23 +179,27 @@ head(result)
 ```r
 library(ggplot2)
 
-# Histogram overlaid with kernel density curve
-ggplot(result, aes(x=spearman_corr)) + 
-    geom_histogram(aes(y=..density..),      # Histogram with density instead of count on y-axis
+# Use ggplot to create a histogram overlaid with a transparent kernel density curve
+ggplot(result, aes(x=spearman_corr)) +
+     # use 'density' instead of 'count' for the histogram
+     geom_histogram(aes(y=..density..),
                    binwidth=.05,
                    colour="black", fill="white") +
-    geom_density(alpha=.2, fill="#FF6666")  # Overlay with transparent density plot
+     # and overlay with a transparent density plot
+     geom_density(alpha=.2, fill="#FF6666") +
+     # and add a vertical line at x=0 to emphasize that most correlations are positive
+     geom_vline(xintercept=0)
 ```
 
 <img src="figure/spearman_density-1.png" title="plot of chunk spearman_density" alt="plot of chunk spearman_density" style="display: block; margin: auto;" />
 
 ## Spearman Correlation in R
 
-Now let's reproduce one of the results directly in R.
+Now let's reproduce one of the results directly in R.  The highest correlation value was for the (ESR1,ER-alpha) (gene,protein) pair, so that's the pair that we will use for our validation test.
 
 ### Retrieve Expression Data
 
-First we retrieve the expression data for a particular gene.
+First we retrieve the mRNA expression data for a specific gene and only for samples in our cohort.
 
 ```r
 # Set the desired gene to query.
@@ -193,7 +248,7 @@ head(expressionData)
 
 ### Retrieve Protein Data
 
-Then we retrieve the protein data for a particular gene.
+Next, we retrieve the protein data for a specific (gene,protein) pair, and again only for samples in our cohort.
 
 
 ```r
@@ -244,9 +299,8 @@ head(proteinData)
 ## 6 TCGA-A2-A04P-01A      ESR1     ER-alpha         -1.3375791
 ```
 
-### Perform the correlation
+Since protein data is not typically available for as many samples as mRNA expression data, the returned "expressionData" table is likely to be quite a bit bigger than the "proteinData" table.  The next step is an inner join of these two tables:
 
-First we take the inner join of this data:
 
 ```r
 library(dplyr)
@@ -287,7 +341,8 @@ head(arrange(data, normalized_count))
 ## 6     ER-alpha          -2.897148
 ```
 
-And run a spearman correlation on it:
+The dimension of the resulting table should match the number of observations indicated in our original BigQuery result, and now we perform a Spearman correlation on the two data vectors:
+
 
 ```r
 cor(x=data$normalized_count, y=data$protein_expression, method="spearman")
@@ -296,7 +351,8 @@ cor(x=data$normalized_count, y=data$protein_expression, method="spearman")
 ```
 ## [1] 0.9075414
 ```
-And we can see that we have reproduced one of our results from BigQuery.
+
+The R-based Spearman correlation matches the BigQuery result.
 
 ## Provenance
 
@@ -305,7 +361,7 @@ sessionInfo()
 ```
 
 ```
-R version 3.2.0 (2015-04-16)
+R version 3.2.2 (2015-08-14)
 Platform: x86_64-apple-darwin13.4.0 (64-bit)
 Running under: OS X 10.10.5 (Yosemite)
 
@@ -316,17 +372,15 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] mgcv_1.8-6         nlme_3.1-120       ggplot2_1.0.1     
-[4] scales_0.2.5       bigrquery_0.1.0    dplyr_0.4.2       
-[7] ISBCGCExamples_0.1
+[1] knitr_1.11         scales_0.3.0       ggplot2_1.0.1     
+[4] bigrquery_0.1.0    dplyr_0.4.3        ISBCGCExamples_0.1
 
 loaded via a namespace (and not attached):
- [1] Rcpp_0.12.0      rstudioapi_0.3.1 knitr_1.10.5     magrittr_1.5    
- [5] MASS_7.3-40      munsell_0.4.2    colorspace_1.2-6 lattice_0.20-31 
- [9] R6_2.1.1         stringr_1.0.0    httr_1.0.0       plyr_1.8.3      
-[13] tools_3.2.0      parallel_3.2.0   grid_3.2.0       gtable_0.1.2    
-[17] DBI_0.3.1        lazyeval_0.1.10  assertthat_0.1   digest_0.6.8    
-[21] Matrix_1.2-0     formatR_1.2      reshape2_1.4.1   curl_0.9.3      
-[25] mime_0.4         evaluate_0.7.2   labeling_0.3     stringi_0.5-5   
-[29] jsonlite_0.9.17  markdown_0.7.7   proto_0.3-10    
+ [1] Rcpp_0.12.1      magrittr_1.5     MASS_7.3-43      munsell_0.4.2   
+ [5] colorspace_1.2-6 R6_2.1.1         stringr_1.0.0    httr_1.0.0      
+ [9] plyr_1.8.3       tools_3.2.2      parallel_3.2.2   grid_3.2.2      
+[13] gtable_0.1.2     DBI_0.3.1        lazyeval_0.1.10  assertthat_0.1  
+[17] digest_0.6.8     reshape2_1.4.1   formatR_1.2.1    curl_0.9.3      
+[21] mime_0.4         evaluate_0.8     labeling_0.3     stringi_0.5-5   
+[25] jsonlite_0.9.17  markdown_0.7.7   proto_0.3-10    
 ```

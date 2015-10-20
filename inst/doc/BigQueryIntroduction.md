@@ -117,9 +117,6 @@ DisplayAndDispatchQuery
 
 ```
 ## function(queryUri, project, replacements=list()) {
-## 
-##   cat("inside DisplayAndDispatchQuery.R ...", queryUri, "  ", project)
-## 
 ##   if (missing(queryUri)) {
 ##     stop("Pass the file path or url to the file containing the query.")
 ##   }
@@ -168,7 +165,7 @@ result <- DisplayAndDispatchQuery(file.path(system.file(package = "ISBCGCExample
 ```
 
 ```
-inside DisplayAndDispatchQuery.R ... /Library/Frameworks/R.framework/Versions/3.2/Resources/library/ISBCGCExamples/sql/count-patients-by-study.sql    isb-cgc# all of the TCGA molecular data tables contain the fields ParticipantBarcode and Disease_Code
+# all of the TCGA molecular data tables contain the fields ParticipantBarcode and Disease_Code
 # TODO: this is actually being re-standardized to be "Study" FIXME
 SELECT Disease_Code, COUNT(*) AS n
 FROM (
@@ -273,10 +270,9 @@ loaded via a namespace (and not attached):
  [1] Rcpp_0.12.1      magrittr_1.5     MASS_7.3-43      munsell_0.4.2   
  [5] colorspace_1.2-6 R6_2.1.1         stringr_1.0.0    httr_1.0.0      
  [9] plyr_1.8.3       tools_3.2.2      parallel_3.2.2   grid_3.2.2      
-[13] gtable_0.1.2     DBI_0.3.1        htmltools_0.2.6  lazyeval_0.1.10 
-[17] assertthat_0.1   digest_0.6.8     reshape2_1.4.1   formatR_1.2.1   
-[21] curl_0.9.3       mime_0.4         evaluate_0.8     rmarkdown_0.8.1 
-[25] labeling_0.3     stringi_0.5-5    jsonlite_0.9.17  markdown_0.7.7  
-[29] proto_0.3-10    
+[13] gtable_0.1.2     DBI_0.3.1        lazyeval_0.1.10  assertthat_0.1  
+[17] digest_0.6.8     reshape2_1.4.1   formatR_1.2.1    curl_0.9.3      
+[21] evaluate_0.8     labeling_0.3     stringi_0.5-5    jsonlite_0.9.17 
+[25] proto_0.3-10    
 ```
 
