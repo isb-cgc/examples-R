@@ -1,8 +1,8 @@
 # Expression and Methylation Correlation
 
-TODO introduction, talk about the tables we will use, etc...
+In this example, we will look at the correlation between mRNAseq-based gene expression and DNA methylation data.  We will do this using two molecular data tables from the isb-cgc:tcga_201507_alpha dataset and a cohort table from the isb-cgc:tcga_cohorts dataset.
 
-Reproduces some of the analyses in http://watson.nci.nih.gov/~sdavis/tutorials/TCGA_data_integration/
+NOTE: I think I will rework and/or eliminate this particular example, but am just going through it now to make sure I understand it and it works as expected.
 
 ```{r message=FALSE}
 library(ISBCGCExamples)
@@ -31,22 +31,25 @@ sqlDir = file.path(system.file(package = "ISBCGCExamples"),
 expressionTable = "isb-cgc:tcga_201507_alpha.mRNA_UNC_HiSeq_RSEM"
 methylationTable = "isb-cgc:tcga_201507_alpha.DNA_Methylation_betas"
 # Add any additional clauses to be applied in WHERE to limit the methylation data further.
-andWhere = "AND SampleTypeLetterCode = 'TP' AND Study = 'CESC'"
-# Do not correlate unless there are at least this many observations available
-minimumNumberOfObservations = 30
+# (These specific filters are used here just to make the query run faster.  If a query returns
+#  very large results, they may need to be handled differently.)
+andWhere = "AND SampleTypeLetterCode = 'TP' AND Study = 'CESC' AND CHR = '9'"
+# Do not correlate unless there are at least this many observations available:
+minNumObs = 30
 
 # Now we are ready to run the query.
-result = DisplayAndDispatchQuery(file.path(sqlDir, "expression-methylation-correlation.sql"),
-                                 project=project,
-                                 replacements=list("_EXPRESSION_TABLE_"=expressionTable,
-                                                   "_METHYLATION_TABLE_"=methylationTable,
-                                                   "#_AND_WHERE_"=andWhere,
-                                                   "_MINIMUM_NUMBER_OF_OBSERVATIONS_"=minimumNumberOfObservations))
+result = DisplayAndDispatchQuery(
+     file.path(sqlDir, "expression-methylation-correlation.sql"),
+               project=project,
+               replacements=list("_EXPRESSION_TABLE_"=expressionTable,
+                                 "_METHYLATION_TABLE_"=methylationTable,
+                                 "_AND_WHERE_"=andWhere,
+                                 "_MINIMUM_NUMBER_OF_OBSERVATIONS_"=minNumObs))
 ```
 Number of rows returned by this query: `r nrow(result)`.
 
-The result is one correlation value per row of data, each of which corresponds to a methylation probe and
-its associated expression probe. Note that each expression probe may map to several methylation probes.
+The result is a table with one row for each (gene,CpG-probe) pair for which at least 30 data values exist that meet the requirements in the "andWhere" clause.  The (gene,CpG-probe) pair is defined by a gene symbol and a CpG-probe ID.  In many cases, there may be multiple CpG probes associated with a single gene.
+
 ```{r}
 head(result)
 ```
@@ -71,7 +74,7 @@ Now let's reproduce one of the results directly in R.
 First we retrieve the expression data for a particular gene.
 ```{r comment=NA}
 # Set the desired gene to query.
-gene = "LDB3"
+gene = "ZPBP2"
 
 expressionData = DisplayAndDispatchQuery(file.path(sqlDir, "expression-data.sql"),
                                          project=project,
@@ -90,14 +93,14 @@ Then we retrieve the methylation data for a particular probe.
 
 ```{r comment=NA}
 # Set the desired probe to query.
-probe = "cg14794936"
+probe = "cg16810031"
 
 # Be sure to apply the same additional clauses to the WHERE to limit the methylation data further.
 
 methylationData = DisplayAndDispatchQuery(file.path(sqlDir, "methylation-data.sql"),
                                           project=project,
                                           replacements=list("_METHYLATION_TABLE_"=methylationTable,
-                                                            "#_AND_WHERE_"=andWhere,
+                                                            "_AND_WHERE_"=andWhere,
                                                             "_PROBE_"=probe))
 ```
 
