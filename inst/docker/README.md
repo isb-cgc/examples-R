@@ -32,7 +32,8 @@ sudo gcloud docker push b.gcr.io/isb-cgc-public-docker-images/r-examples:2015-10
 
 (6) Also tag the new version as 'latest'.  *Always explicity mark as 'latest' a particular tagged version.*
 ```
-sudo docker tag  b.gcr.io/isb-cgc-public-docker-images/r-examples:2015-10-30 b.gcr.io/isb-cgc-public-docker-images/r-examples:latest
+sudo docker tag  b.gcr.io/isb-cgc-public-docker-images/r-examples:2015-10-30 \
+  b.gcr.io/isb-cgc-public-docker-images/r-examples:latest
 ```
 
 (7) And push 'latest'. (This will be really quick since its just updating metadata about 'latest'.)
