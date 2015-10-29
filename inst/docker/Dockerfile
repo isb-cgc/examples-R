@@ -1,4 +1,4 @@
-### Start from Bioconductor devel core ######
+### Start from Bioconductor release core ######
 FROM bioconductor/release_core
 MAINTAINER deflaux@google.com
 
