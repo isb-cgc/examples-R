@@ -33,6 +33,8 @@ DisplayAndDispatchQuery <- function(queryUri, project, replacements=list()) {
   # Display the query to the terminal.
   cat(querySql)
 
+
+
   # Dispatch the query to BigQuery.
   bigrquery::query_exec(querySql, project)
 }
