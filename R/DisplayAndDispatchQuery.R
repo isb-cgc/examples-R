@@ -1,3 +1,6 @@
+#
+#  Make sure you're working on your fork!
+#
 #' Display and dispatch a query to BigQuery.
 #'
 #' This convenience method will read SQL from a local file or a url.  It will
