@@ -17,14 +17,15 @@ We will start by loading four R packages:
 ```{r message=FALSE}
 require(dplyr) || install.packages("dplyr")
 require(bigrquery) || install.packages("bigrquery")
-require(ggplot2) || install.packages("ggplot2")
 require(scales) || install.packages("scales")
+require(ggplot2) || install.packages("ggplot2")
+library(ISBCGCExamples)
 ```
 
 ```{r eval=FALSE}
 ######################[ TIP ]########################################
 ## Set the Google Cloud Platform project id under which these queries will run.
-## 
+##
 ## If you are using the Google Bioconductor workshop docker image, this is already
 ## set for you in your .Rprofile and you can skip this step.
 
@@ -115,7 +116,7 @@ result <- DisplayAndDispatchQuery(file.path(system.file(package = "ISBCGCExample
 ```
 Number of rows returned by this query: `r nrow(result)`.
 
-Results from [bigrquery](https://github.com/hadley/bigrquery) are returned as R dataframes, meaning that we can make use of all of the regular dataframe functions as well as all sorts of other great R packages to do our downstream work. 
+Results from [bigrquery](https://github.com/hadley/bigrquery) are returned as R dataframes, meaning that we can make use of all of the regular dataframe functions as well as all sorts of other great R packages to do our downstream work.
 ```{r}
 mode(result)
 class(result)
@@ -145,4 +146,3 @@ ggplot(subsetResults, aes(x=Study, y=n, fill=Study)) +
 ```{r provenance, comment=NA}
 sessionInfo()
 ```
-

@@ -13,17 +13,18 @@ changes in the DNA of tumors, and associating it with differentially expressed g
 The first question: "what types of mutation data are available?"
 
 ```{r chunk1, echo=F}
-#pid <- YOUR PROJECT ID
+#project <- YOUR PROJECT ID
 ```
 
 ```{r chunk2}
 library(dplyr)
 library(bigrquery)
-library(ggplot2)
 library(scales)
+library(ggplot2)
+library(ISBCGCExamples)
 
 q <- "SELECT
-        Variant_Classification
+        Variant_Classification, COUNT(*) AS n
       FROM
         [isb-cgc:tcga_201510_alpha.Somatic_Mutation_calls]
       WHERE
@@ -31,7 +32,7 @@ q <- "SELECT
       GROUP BY
         Variant_Classification"
 
-result <- query_exec(q, pid)
+result <- query_exec(q, project)
 result
 ```
 
@@ -59,10 +60,10 @@ q <- "SELECT
       GROUP BY
         ParticipantBarcode"
 
-query_exec(q, pid)
+query_exec(q, project)
 ```
 
-Oh! It turns out there's no data for that gene. Maybe we should find out
+It turns out there's no data for that gene in the BRCA study. Maybe we should find out
 What genes *do* have somatic mutations in BRCA, and how many samples? That
 way we can make a more educated choice.
 
@@ -80,12 +81,12 @@ q <- "SELECT
             Study = 'BRCA'
         GROUP BY
             hugosymbols,
-            pb) AS g
+            pb)
       GROUP BY
         gene
       ORDER BY
         sampleN DESC"
-genes <- query_exec(q, pid)
+genes <- query_exec(q, project)
 head(genes)
 ```
 
@@ -111,8 +112,8 @@ q <- "SELECT count(hugosymbols)
             and Study = 'BRCA'
           GROUP BY
             ParticipantBarcode,
-            hugosymbols ) as g"
-query_exec(q, pid)
+            hugosymbols )"
+query_exec(q, project)
 ```
 
 The inner select statement produces a table with a row for each participant.
@@ -137,7 +138,7 @@ q <- "
   GROUP BY
     ParticipantBarcode
  "
-barcodesBRCA <- query_exec(q, pid)
+barcodesBRCA <- query_exec(q, project)
 head(barcodesBRCA)
 ```
 
@@ -157,7 +158,7 @@ q <- "
   GROUP BY
     ParticipantBarcode
  "
-barcodesWithMutations <- query_exec(q, pid)
+barcodesWithMutations <- query_exec(q, project)
 head(barcodesWithMutations)
 ```
 
@@ -182,12 +183,12 @@ WHERE ParticipantBarcode NOT IN (
       ParticipantBarcode)
   and Study = 'BRCA'
 GROUP BY ParticipantBarcode"
-barcodesWithOUTMutations <- query_exec(q, pid)
+barcodesWithOUTMutations <- query_exec(q, project)
 sum(barcodesWithMutations$ParticipantBarcode %in% barcodesWithOUTMutations$ParticipantBarcode)
 ```
 
 This gives us 117 samples with a variant in GATA3, 873 samples without a
-variant in GATA3, which matches the number of samples in the BRCA study (990).
+variant in GATA3, which matches the number of samples that have mutation data in the MAF table (990).
 Let's take a look at what kind of variants are found in GATA3, in case we
 would like to eliminate some.
 
@@ -195,7 +196,7 @@ would like to eliminate some.
 q <- "
   SELECT
     vc,
-    count(vc)
+    count(vc) as num_variants_in_class
   FROM (
     SELECT
       ParticipantBarcode,
@@ -207,10 +208,10 @@ q <- "
       AND Study = 'BRCA'
     GROUP BY
       ParticipantBarcode,
-      vc) as g
+      vc)
   GROUP BY vc
  "
-query_exec(q, pid)
+query_exec(q, project)
 ```
 
 So we find that frame shift insertions are the most common type of variant,
@@ -245,7 +246,7 @@ WHERE
   GROUP BY
     ParticipantBarcode )
 "
-query_exec(q, pid)
+query_exec(q, project)
 ```
 
 
@@ -344,7 +345,7 @@ GROUP BY
   ny,
   T
 "
-result1 <- query_exec(q, pid)
+result1 <- query_exec(q, project)
 result1
 ```
 
@@ -362,11 +363,6 @@ errors. Second, make sure the two tables we're joining have different aliases!
 Finally, let's just "bang-the-hammer" and query ALL genes!
 
 ```{r chunk12}
-
-compute_df <- function(d) {
-  ((d$sx2/d$nx + d$sy2/d$ny)^2) /
-  ((1/(d$nx-1))*(d$sx2/d$nx)^2 + (1/(d$ny-1))*(d$sy2/d$ny)^2)
-}
 
 q <- "
 SELECT
@@ -444,7 +440,12 @@ ON
 GROUP BY gene, study, x, sx2, nx, y, sy2, ny, T, mean_diff
 ORDER BY mean_diff DESC
 "
-system.time(result1 <- query_exec(q, pid))
+system.time(result1 <- query_exec(q, project))
+
+compute_df <- function(d) {
+  ((d$sx2/d$nx + d$sy2/d$ny)^2) /
+  ((1/(d$nx-1))*(d$sx2/d$nx)^2 + (1/(d$ny-1))*(d$sy2/d$ny)^2)
+}
 
 result1$df <- compute_df(result1)
 result1$p_value <- sapply(1:nrow(result1), function(i) 2*pt(abs(result1$T[i]), result1$df[i],lower=FALSE))
@@ -488,7 +489,7 @@ and (ParticipantBarcode IN (
     m.ParticipantBarcode
   ))
 "
-mutExpr <- query_exec(q, pid)   # SOME DUPLCIATES
+mutExpr <- query_exec(q, project)   # SOME DUPLCIATES
 
 q <- "
 SELECT HGNC_gene_symbol, ParticipantBarcode, LOG2(normalized_count+1)
@@ -516,7 +517,7 @@ and (ParticipantBarcode IN (
   GROUP BY ParticipantBarcode
 )) /* end getting table of participants */
 "
-wtExpr <- query_exec(q, pid)   # SOME DUPLCIATES
+wtExpr <- query_exec(q, project)   # SOME DUPLCIATES
 
 t.test(mutExpr$f0_, wtExpr$f0_)
 
@@ -526,6 +527,8 @@ boxplot(list(Mutation_In_GATA3=mutExpr$f0_, No_Mutation_In_GATA3=wtExpr$f0_), yl
 So, we have found the same gene expression means and standard deviation, degrees of freedom,
 and T statistic. Looks good! GATA3 has the most signficant result, interesting (or not?)
 since we split our samples on mutations in GATA3!
+
+This result has been previously seen in: http://www.ncbi.nlm.nih.gov/pmc/articles/PMC4303202/
 
 
 ```{r chunk14}

@@ -79,11 +79,11 @@ img {
 <p>We will start by loading four R packages: - the <a href="https://github.com/hadley/bigrquery">bigrquery</a> package written by Hadley Wickham implements an R interface to <a href="https://cloud.google.com/bigquery/">Google BigQuery</a>, - the <a href="https://github.com/hadley/dplyr">dplyr</a> package provides a set of tools for efficiently manipulating datasets in R, and - the <a href="https://github.com/hadley/ggplot2">ggplot2</a> package for elegant graphics, and - the <a href="https://github.com/hadley/scales">scales</a> package for visualization-oriented scale functions.</p>
 <pre class="r"><code>require(dplyr) || install.packages(&quot;dplyr&quot;)
 require(bigrquery) || install.packages(&quot;bigrquery&quot;)
-require(ggplot2) || install.packages(&quot;ggplot2&quot;)
-require(scales) || install.packages(&quot;scales&quot;)</code></pre>
+require(scales) || install.packages(&quot;scales&quot;)
+require(ggplot2) || install.packages(&quot;ggplot2&quot;)</code></pre>
 <pre class="r"><code>######################[ TIP ]########################################
 ## Set the Google Cloud Platform project id under which these queries will run.
-## 
+##
 ## If you are using the Google Bioconductor workshop docker image, this is already
 ## set for you in your .Rprofile and you can skip this step.
 
@@ -142,22 +142,22 @@ DisplayAndDispatchQuery</code></pre>
 ##   if(missing(project)) {
 ##     stop(&quot;Pass the project id of your Google Cloud Platform project.&quot;)
 ##   }
-## 
+##
 ##   if (grepl(&quot;^https.*&quot;, queryUri)) {
 ##     # Read the query from a remote location.
 ##     querySql &lt;- RCurl::getURL(queryUri, ssl.verifypeer=FALSE)
 ##   } else {
 ##     querySql &lt;- readChar(queryUri, nchars=1e6)
 ##   }
-## 
+##
 ##   # If applicable, substitute values in the query template.
 ##   for(replacement in names(replacements)) {
 ##     querySql &lt;- gsub(replacement, replacements[[replacement]], querySql, fixed=TRUE)
 ##   }
-## 
+##
 ##   # Display the query to the terminal.
 ##   cat(querySql)
-## 
+##
 ##   # Dispatch the query to BigQuery.
 ##   bigrquery::query_exec(querySql, project)
 ## }
@@ -237,7 +237,7 @@ loaded via a namespace (and not attached):
  [9] plyr_1.8.3       tools_3.2.2      parallel_3.2.2   grid_3.2.2      
 [13] gtable_0.1.2     DBI_0.3.1        lazyeval_0.1.10  assertthat_0.1  
 [17] digest_0.6.8     reshape2_1.4.1   formatR_1.2.1    curl_0.9.3      
-[21] evaluate_0.8     labeling_0.3     stringi_0.5-5    jsonlite_0.9.17 
+[21] evaluate_0.8     labeling_0.3     stringi_0.5-5    jsonlite_0.9.17
 [25] proto_0.3-10    </code></pre>
 </div>
 </div>

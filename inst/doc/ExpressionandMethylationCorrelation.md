@@ -6,23 +6,22 @@ NOTE: I think I will rework and/or eliminate this particular example, but am jus
 
 
 ```r
-library(ISBCGCExamples)
 library(dplyr)
 library(bigrquery)
-library(ggplot2)
 library(scales)
+library(ggplot2)
+library(ISBCGCExamples)
 
 # The directory in which the files containing SQL reside.
-#sqlDir = file.path("/PATH/TO/GIT/CLONE/OF/examples-R/inst/", 
-sqlDir = file.path(system.file(package = "ISBCGCExamples"),
-                   "sql")
+#sqlDir = file.path("/PATH/TO/GIT/CLONE/OF/examples-R/inst/",
+sqlDir = file.path(system.file(package = "ISBCGCExamples"),"sql")
 ```
 
 
 ```r
 ######################[ TIP ]########################################
 ## Set the Google Cloud Platform project id under which these queries will run.
-## 
+##
 ## If you are using the workshop docker image, this is already
 ## set for you in your .Rprofile and you can skip this step.
 
@@ -65,7 +64,7 @@ SELECT
 FROM (
   # We select the sample-barcode, gene-symbol, gene-expression, probe-id, and beta-value
   # from a "JOIN" of the gene expression data and the methylation data.  Note that we log-
-  # transform the expression since the value in the table is a normalized_count value. 
+  # transform the expression since the value in the table is a normalized_count value.
   SELECT
     expr.SampleBarcode,
     HGNC_gene_symbol,
@@ -77,7 +76,7 @@ FROM (
   JOIN EACH ( FLATTEN ( (
         # We select the sample-barcode, sample-type, study-name, probe-id, beta-value, and gene-symbol
         # from the results of a "JOIN" of the methylation data and the methylation annotation tables
-        # which are joined on the CpG probe id that exists in both tables.  Note that we need to 
+        # which are joined on the CpG probe id that exists in both tables.  Note that we need to
         # FLATTEN this because the UCSC.RefGene information is a (potentially) repeated field.
         SELECT
           SampleBarcode,
@@ -134,7 +133,7 @@ head(result)
 ```r
 
 # Histogram overlaid with kernel density curve
-ggplot(result, aes(x=correlation)) + 
+ggplot(result, aes(x=correlation)) +
     geom_histogram(aes(y=..density..),      # Histogram with density instead of count on y-axis
                    binwidth=.05,
                    colour="black", fill="white") +
