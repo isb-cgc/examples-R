@@ -1,8 +1,3 @@
-#
-# A cool idea would be to create a similar function that put together chunks of
-# SQL... suppose you supply a list of chunks... somehow putting them together.
-#
-#
 #' Display and dispatch a query to BigQuery.
 #'
 #' This convenience method will read SQL from a local file or a url.  It will

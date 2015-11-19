@@ -8,8 +8,6 @@ SELECT
 FROM [_METHYLATION_TABLE_]
 WHERE
   Probe_ID = '_PROBE_'
-  # Optionally add clause here to limit the query to a particular
-  # sample types and/or studies.
   _AND_WHERE_
 ORDER BY
   SampleBarcode,
