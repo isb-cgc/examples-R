@@ -1,3 +1,6 @@
+---
+output: html_document
+---
 # Exploring the TCGA data in BigQuery
 
 The ISB-CGC (isb-cgc.org) project has aggregated and curated all of the TCGA open-access clinical, biospecimen, and Level-3 molecular data and uploaded it into BigQuery tables that are open to the public.  Here we will show you how you can begin to work with these tables from the familiar R environment.
@@ -7,7 +10,6 @@ The ISB-CGC (isb-cgc.org) project has aggregated and curated all of the TCGA ope
 For this example, we'll also be working with [Google BigQuery](https://cloud.google.com/bigquery/). It's often helpful to have a [link to the docs](https://cloud.google.com/bigquery/what-is-bigquery) handy, and especially the [query reference](https://cloud.google.com/bigquery/query-reference).
 
 ## Run a query from R
-TODO: is there a way to get these "installed" for the user if they haven't already been?
 
 We will start by loading four R packages:
 - the [bigrquery](https://github.com/hadley/bigrquery) package written by Hadley Wickham implements an R interface to [Google BigQuery](https://cloud.google.com/bigquery/),
@@ -17,10 +19,10 @@ We will start by loading four R packages:
 
 
 ```r
-library(dplyr)
-library(bigrquery)
-library(ggplot2)
-library(scales)
+require(dplyr) || install.packages("dplyr")
+require(bigrquery) || install.packages("bigrquery")
+require(ggplot2) || install.packages("ggplot2")
+require(scales) || install.packages("scales")
 ```
 
 
@@ -39,7 +41,7 @@ Let's start by working with one of the simplest tables, the Clinical_data table.
 
 
 ```r
-theTable <- "isb-cgc:tcga_201507_alpha.Clinical_data"
+theTable <- "isb-cgc:tcga_201510_alpha.Clinical_data"
 ```
 
 Note that when you send the first query, you will need to go through the authentication flow with BigQuery.  You will be provided with a url to cut and  paste into your browser, and then you will get an authorization code to cut and paste back here.
@@ -55,7 +57,7 @@ querySql
 ```
 
 ```
-## [1] "SELECT COUNT(1) FROM [isb-cgc:tcga_201507_alpha.Clinical_data]"
+## [1] "SELECT COUNT(1) FROM [isb-cgc:tcga_201510_alpha.Clinical_data]"
 ```
 
 And then we'll send the query to the cloud for execution:
@@ -98,7 +100,7 @@ result
 
 ## Run a query using the BigQuery Web User Interface
 
-So what is actually in this table?  Click on [this link](https://bigquery.cloud.google.com/table/isb-cgc:tcga_201507_alpha.Clinical_data) to view the schema in the BigQuery web user interface.
+So what is actually in this table?  Click on [this link](https://bigquery.cloud.google.com/table/isb-cgc:tcga_201510_alpha.Clinical_data) to view the schema in the BigQuery web user interface.
 
 We can also run the exact same query using the BigQuery web user interface.  In the BigQuery web user interface:
 
@@ -128,7 +130,6 @@ DisplayAndDispatchQuery
 ##     # Read the query from a remote location.
 ##     querySql <- RCurl::getURL(queryUri, ssl.verifypeer=FALSE)
 ##   } else {
-##     # Read the query from the local filesystem.
 ##     querySql <- readChar(queryUri, nchars=1e6)
 ##   }
 ## 
@@ -165,14 +166,12 @@ result <- DisplayAndDispatchQuery(file.path(system.file(package = "ISBCGCExample
 ```
 
 ```
-# all of the TCGA molecular data tables contain the fields ParticipantBarcode and Disease_Code
-# TODO: this is actually being re-standardized to be "Study" FIXME
-SELECT Disease_Code, COUNT(*) AS n
+SELECT Study, COUNT(*) AS n
 FROM (
-    SELECT ParticipantBarcode, Disease_Code
-    FROM [isb-cgc:tcga_201507_alpha.Clinical_data]
-    GROUP BY ParticipantBarcode, Disease_Code
-) GROUP BY Disease_Code
+    SELECT ParticipantBarcode, Study
+    FROM [isb-cgc:tcga_201510_alpha.Clinical_data]
+    GROUP BY ParticipantBarcode, Study
+) GROUP BY Study
 ORDER BY n DESC
 ```
 Number of rows returned by this query: 33.
@@ -200,7 +199,7 @@ summary(result)
 ```
 
 ```
-##  Disease_Code             n         
+##  Study              n         
 ##  Length:33          Min.   :  36.0  
 ##  Class :character   1st Qu.: 134.0  
 ##  Mode  :character   Median : 307.0  
@@ -214,7 +213,7 @@ head(result)
 ```
 
 ```
-##   Disease_Code    n
+##          Study    n
 ## 1         BRCA 1088
 ## 2          GBM  594
 ## 3           OV  587
@@ -237,7 +236,7 @@ and then create a barchart of the patient counts:
 
 
 ```r
-ggplot(subsetResults, aes(x=Disease_Code, y=n, fill=Disease_Code)) +
+ggplot(subsetResults, aes(x=Study, y=n, fill=Study)) +
   geom_bar(stat="identity") +
   ylab("Number of Patients") +
   ggtitle("Study Size")

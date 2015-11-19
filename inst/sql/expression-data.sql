@@ -6,5 +6,6 @@ SELECT
 FROM [_EXPRESSION_TABLE_]
 WHERE
   HGNC_gene_symbol = '_GENE_'
+  _AND_WHERE_
 ORDER BY
   SampleBarcode

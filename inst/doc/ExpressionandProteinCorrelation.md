@@ -1,6 +1,6 @@
 # Expression and Protein Correlation
 
-In this example, we will look at the correlation between mRNAseq-based gene expression data and RPPA-based protein expression data.  We will do this using two molecular data tables from the isb-cgc:tcga_201507_alpha dataset and a cohort table from the isb-cgc:tcga_cohorts dataset.
+In this example, we will look at the correlation between mRNAseq-based gene expression data and RPPA-based protein expression data.  We will do this using two molecular data tables from the isb-cgc:tcga_201510_alpha dataset and a cohort table from the isb-cgc:tcga_cohorts dataset.
 
 
 ```r
@@ -30,8 +30,8 @@ We will start by performing the correlation directly in BigQuery.  We will use a
 
 ```r
 # Set the desired tables to query.
-expressionTable = "isb-cgc:tcga_201507_alpha.mRNA_UNC_HiSeq_RSEM"
-proteinTable = "isb-cgc:tcga_201507_alpha.Protein_RPPA_data"
+expressionTable = "isb-cgc:tcga_201510_alpha.mRNA_UNC_HiSeq_RSEM"
+proteinTable = "isb-cgc:tcga_201510_alpha.Protein_RPPA_data"
 cohortTable = "isb-cgc:tcga_cohorts.BRCA"
 
 # Do not correlate unless there are at least this many observations available
@@ -47,7 +47,7 @@ cohortInfo$description
 ```
 
 ```
-[1] "This BRCA cohort is a curated list of patients and samples from the TCGA BRCA study.  It contains 1088 patients and 2275 samples.  You may join this table with other tables in the isb-cgc:tcga_201507_alpha dataset to perform further analysis on this cohort."
+[1] "This BRCA cohort is a curated list of patients and samples from the TCGA BRCA study.  It contains 1088 patients and 2275 samples.  You may join this table with other tables in the isb-cgc:tcga_201510_alpha dataset to perform further analysis on this cohort."
 ```
 
 ```r
@@ -109,7 +109,7 @@ FROM (
         Protein_Name,
         protein_expression
       FROM
-        [isb-cgc:tcga_201507_alpha.Protein_RPPA_data]
+        [isb-cgc:tcga_201510_alpha.Protein_RPPA_data]
       WHERE
         SampleBarcode IN (
         SELECT
@@ -124,7 +124,7 @@ FROM (
         HGNC_gene_symbol,
         LOG2(normalized_count+1) AS log2_count
       FROM
-        [isb-cgc:tcga_201507_alpha.mRNA_UNC_HiSeq_RSEM]
+        [isb-cgc:tcga_201510_alpha.mRNA_UNC_HiSeq_RSEM]
       WHERE
         SampleBarcode IN (
         SELECT
@@ -154,9 +154,9 @@ cat("Wall-clock time for BigQuery:",ptm2[3])
 ```
 
 ```
-Wall-clock time for BigQuery: 2.311
+Wall-clock time for BigQuery: 2.494
 ```
-Number of rows returned by this query: 133.
+Number of rows returned by this query: 217.
 
 The result is a table with one row for each (gene,protein) pair for which at least 30 data values exist for the specified cohort.  The (gene,protein) pair is defined by a gene symbol and a protein name.  In many cases the gene symbol and the protein name may be identical, but for some genes the RPPA dataset may contain expression values for more than one post-translationally-modified protein product from a particular gene.
 
@@ -166,13 +166,13 @@ head(result)
 ```
 
 ```
-##     gene  protein num_observations spearman_corr
-## 1   ESR1 ER-alpha              403     0.9075414
-## 2    PGR       PR              403     0.8718714
-## 3   BCL2    Bcl-2              403     0.8438356
-## 4  GATA3    GATA3              403     0.8320966
-## 5 IGFBP2   IGFBP2              403     0.7975304
-## 6   ASNS     ASNS              403     0.7523398
+##    gene  protein num_observations spearman_corr
+##1   ESR1 ER-alpha              922     0.8552661
+##2   BCL2    Bcl-2              922     0.8022549
+##3  GATA3    GATA3              922     0.7479918
+##4  PREX1   P-REX1              922     0.7412556
+##5   FASN     FASN              922     0.7299020
+##6 IGFBP2   IGFBP2              922     0.7262222
 ```
 
 
@@ -218,7 +218,7 @@ SELECT
   SampleBarcode,
   HGNC_gene_symbol,
   normalized_count
-FROM [isb-cgc:tcga_201507_alpha.mRNA_UNC_HiSeq_RSEM]
+FROM [isb-cgc:tcga_201510_alpha.mRNA_UNC_HiSeq_RSEM]
 WHERE
   HGNC_gene_symbol = 'ESR1'
   AND SampleBarcode IN (
@@ -270,7 +270,7 @@ SELECT
   Protein_Name,
   protein_expression
 FROM
-  [isb-cgc:tcga_201507_alpha.Protein_RPPA_data]
+  [isb-cgc:tcga_201510_alpha.Protein_RPPA_data]
 WHERE
   Gene_Name = 'ESR1'
   AND Protein_Name = 'ER-alpha'
@@ -346,11 +346,16 @@ The dimension of the resulting table should match the number of observations ind
 
 ```r
 cor(x=data$normalized_count, y=data$protein_expression, method="spearman")
+qplot(data=data, y=log2(normalized_count), x=protein_expression, geom=c("point","smooth"),
+      xlab="protein level", ylab="log2 mRNA level")
 ```
 
 ```
-## [1] 0.9075414
+## [1] 0.8552661
 ```
+
+<img src="figure/protein_expression_plot.png" title="plot of expression vs protein levels"  
+style="display: block; margin: auto;" />
 
 The R-based Spearman correlation matches the BigQuery result.
 

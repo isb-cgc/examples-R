@@ -7,8 +7,7 @@
 #' For this example, we'll also be working with [Google BigQuery](https://cloud.google.com/bigquery/). It's often helpful to have a [link to the docs](https://cloud.google.com/bigquery/what-is-bigquery) handy, and especially the [query reference](https://cloud.google.com/bigquery/query-reference).
 #' 
 #' ## Run a query from R
-#' TODO: is there a way to get these "installed" for the user if they haven't already been?
-#' 
+#'
 #' We will start by loading four R packages:
 #' - the [bigrquery](https://github.com/hadley/bigrquery) package written by Hadley Wickham implements an R interface to [Google BigQuery](https://cloud.google.com/bigquery/),
 #' - the [dplyr](https://github.com/hadley/dplyr) package provides a set of tools for efficiently manipulating datasets in R, and
@@ -16,10 +15,10 @@
 #' - the [scales](https://github.com/hadley/scales) package for visualization-oriented scale functions.
 #' 
 ## ----message=FALSE-------------------------------------------------------
-library(dplyr)
-library(bigrquery)
-library(ggplot2)
-library(scales)
+require(dplyr) || install.packages("dplyr")
+require(bigrquery) || install.packages("bigrquery")
+require(ggplot2) || install.packages("ggplot2")
+require(scales) || install.packages("scales")
 
 #' 
 ## ----eval=FALSE----------------------------------------------------------
@@ -36,7 +35,7 @@ library(scales)
 #' Let's start by working with one of the simplest tables, the Clinical_data table.  The format of a table name in BigQuery is <project_name>:<dataset_name>.<table_name>
 #' 
 ## ------------------------------------------------------------------------
-theTable <- "isb-cgc:tcga_201507_alpha.Clinical_data"
+theTable <- "isb-cgc:tcga_201510_alpha.Clinical_data"
 
 #' 
 #' Note that when you send the first query, you will need to go through the authentication flow with BigQuery.  You will be provided with a url to cut and  paste into your browser, and then you will get an authorization code to cut and paste back here.
@@ -135,7 +134,7 @@ subsetResults <- arrange(subsetResults,desc(n))
 #' and then create a barchart of the patient counts:
 #' 
 ## ----titv, fig.align="center", fig.width=10, message=FALSE, warning=FALSE, comment=NA----
-ggplot(subsetResults, aes(x=Disease_Code, y=n, fill=Disease_Code)) +
+ggplot(subsetResults, aes(x=Study, y=n, fill=Study)) +
   geom_bar(stat="identity") +
   ylab("Number of Patients") +
   ggtitle("Study Size")
