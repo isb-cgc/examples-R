@@ -24,7 +24,7 @@ library(ggplot2)
 library(ISBCGCExamples)
 
 q <- "SELECT
-        Variant_Classification
+        Variant_Classification, COUNT(*) AS n
       FROM
         [isb-cgc:tcga_201510_alpha.Somatic_Mutation_calls]
       WHERE
@@ -63,7 +63,7 @@ q <- "SELECT
 query_exec(q, project)
 ```
 
-Oh! It turns out there's no data for that gene. Maybe we should find out
+It turns out there's no data for that gene in the BRCA study. Maybe we should find out
 What genes *do* have somatic mutations in BRCA, and how many samples? That
 way we can make a more educated choice.
 
@@ -188,7 +188,7 @@ sum(barcodesWithMutations$ParticipantBarcode %in% barcodesWithOUTMutations$Parti
 ```
 
 This gives us 117 samples with a variant in GATA3, 873 samples without a
-variant in GATA3, which matches the number of samples in the BRCA study (990).
+variant in GATA3, which matches the number of samples that have mutation data in the MAF table (990).
 Let's take a look at what kind of variants are found in GATA3, in case we
 would like to eliminate some.
 
@@ -364,11 +364,6 @@ Finally, let's just "bang-the-hammer" and query ALL genes!
 
 ```{r chunk12}
 
-compute_df <- function(d) {
-  ((d$sx2/d$nx + d$sy2/d$ny)^2) /
-  ((1/(d$nx-1))*(d$sx2/d$nx)^2 + (1/(d$ny-1))*(d$sy2/d$ny)^2)
-}
-
 q <- "
 SELECT
   p.gene as gene,
@@ -446,6 +441,11 @@ GROUP BY gene, study, x, sx2, nx, y, sy2, ny, T, mean_diff
 ORDER BY mean_diff DESC
 "
 system.time(result1 <- query_exec(q, project))
+
+compute_df <- function(d) {
+  ((d$sx2/d$nx + d$sy2/d$ny)^2) /
+  ((1/(d$nx-1))*(d$sx2/d$nx)^2 + (1/(d$ny-1))*(d$sy2/d$ny)^2)
+}
 
 result1$df <- compute_df(result1)
 result1$p_value <- sapply(1:nrow(result1), function(i) 2*pt(abs(result1$T[i]), result1$df[i],lower=FALSE))
@@ -527,6 +527,8 @@ boxplot(list(Mutation_In_GATA3=mutExpr$f0_, No_Mutation_In_GATA3=wtExpr$f0_), yl
 So, we have found the same gene expression means and standard deviation, degrees of freedom,
 and T statistic. Looks good! GATA3 has the most signficant result, interesting (or not?)
 since we split our samples on mutations in GATA3!
+
+This result has been previously seen in: http://www.ncbi.nlm.nih.gov/pmc/articles/PMC4303202/
 
 
 ```{r chunk14}

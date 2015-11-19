@@ -25,7 +25,7 @@ library(ggplot2)
 library(ISBCGCExamples)
 
 q <- "SELECT
-        Variant_Classification
+        Variant_Classification, COUNT(*) AS n
       FROM
         [isb-cgc:tcga_201510_alpha.Somatic_Mutation_calls]
       WHERE
@@ -38,29 +38,29 @@ result
 ```
 
 ```r
-#     Variant_Classification
-#1         Nonsense_Mutation
-#2              In_Frame_Del
-#3     De_novo_Start_InFrame
-#4                       RNA
-#5               Splice_Site
-#6         Missense_Mutation
-#7           Frame_Shift_Del
-#8           Start_Codon_Ins
-#9            Stop_Codon_Ins
-#10                      IGR
-#11                   Intron
-#12                  lincRNA
-#13                    3'UTR
-#14         Nonstop_Mutation
-#15          Start_Codon_Del
-#16                   Silent
-#17                    5'UTR
-#18          Frame_Shift_Ins
-#19             In_Frame_Ins
-#20           Stop_Codon_Del
-#21          Start_Codon_SNP
-#22 De_novo_Start_OutOfFrame
+#     Variant_Classification     n
+#1                       IGR  1641
+#2                    Intron  6617
+#3                   lincRNA   661
+#4                     3'UTR  2027
+#5          Nonstop_Mutation    94
+#6           Start_Codon_Del    25
+#7                       RNA  2644
+#8               Splice_Site  4158
+#9         Missense_Mutation 75429
+#10          Frame_Shift_Del  4056
+#11          Start_Codon_Ins    13
+#12           Stop_Codon_Ins     4
+#13          Start_Codon_SNP    97
+#14                   Silent 27612
+#15                    5'UTR  1392
+#16          Frame_Shift_Ins  3034
+#17             In_Frame_Ins   434
+#18           Stop_Codon_Del    16
+#19 De_novo_Start_OutOfFrame    26
+#20        Nonsense_Mutation  6038
+#21             In_Frame_Del  1337
+#22    De_novo_Start_InFrame     7
 ```
 
 This query is selecting all the variant classification labels for samples
@@ -89,10 +89,16 @@ query_exec(q, project)
 ```
 
 ```r
-#NULL
+#   Study n
+#1   STAD 2
+#2   LIHC 1
+#3   UCEC 2
+#4   ESCA 2
+#5    GBM 2
+#     ...
 ```
 
-NULL? What it means is there's no data for that gene. Maybe we should find out
+It turns out there's no data for that gene in the BRCA study. Maybe we should find out
 What genes *do* have somatic mutations in BRCA, and how many samples? That
 way we can make a more educated choice.
 
@@ -257,7 +263,7 @@ sum(barcodesWithMutations$ParticipantBarcode %in% barcodesWithOUTMutations$Parti
 ```
 
 This gives us 117 samples with a variant in GATA3, 873 samples without a
-variant in GATA3, which matches the number of samples in the BRCA study (990).
+variant in GATA3, which matches the number of samples that have mutation data in the MAF table (990)
 Let's take a look at what kind of variants are found in GATA3, in case we
 would like to eliminate some.
 
@@ -452,10 +458,6 @@ errors. Second, make sure the two tables we're joining have different aliases!
 Finally, let's just "bang-the-hammer" and query ALL genes!
 
 ```r
-compute_df <- function(d) {
-  ((d$sx2/d$nx + d$sy2/d$ny)^2) /
-  ((1/(d$nx-1))*(d$sx2/d$nx)^2 + (1/(d$ny-1))*(d$sy2/d$ny)^2)
-}
 
 q <- "
 SELECT
@@ -534,6 +536,11 @@ GROUP BY gene, study, x, sx2, nx, y, sy2, ny, T, mean_diff
 ORDER BY mean_diff DESC
 "
 system.time(result1 <- query_exec(q, project))
+
+compute_df <- function(d) {
+  ((d$sx2/d$nx + d$sy2/d$ny)^2) /
+  ((1/(d$nx-1))*(d$sx2/d$nx)^2 + (1/(d$ny-1))*(d$sy2/d$ny)^2)
+}
 
 result1$df <- compute_df(result1)
 result1$p_value <- sapply(1:nrow(result1), function(i) 2*pt(abs(result1$T[i]), result1$df[i],lower=FALSE))
@@ -655,6 +662,8 @@ boxplot(list(Mutation_In_GATA3=mutExpr$f0_, No_Mutation_In_GATA3=wtExpr$f0_), yl
 So, we have found the same gene expression means and standard deviation, degrees of freedom,
 and T statistic. Looks good! GATA3 has the most signficant result, interesting (or not?)
 since we split our samples on mutations in GATA3!
+
+This result has been previously seen in: http://www.ncbi.nlm.nih.gov/pmc/articles/PMC4303202/
 
 
 ```r
