@@ -21,15 +21,15 @@ We will start by loading four R packages:
 ```r
 require(dplyr) || install.packages("dplyr")
 require(bigrquery) || install.packages("bigrquery")
-require(ggplot2) || install.packages("ggplot2")
 require(scales) || install.packages("scales")
+require(ggplot2) || install.packages("ggplot2")
 ```
 
 
 ```r
 ######################[ TIP ]########################################
 ## Set the Google Cloud Platform project id under which these queries will run.
-## 
+##
 ## If you are using the Google Bioconductor workshop docker image, this is already
 ## set for you in your .Rprofile and you can skip this step.
 
@@ -125,22 +125,22 @@ DisplayAndDispatchQuery
 ##   if(missing(project)) {
 ##     stop("Pass the project id of your Google Cloud Platform project.")
 ##   }
-## 
+##
 ##   if (grepl("^https.*", queryUri)) {
 ##     # Read the query from a remote location.
 ##     querySql <- RCurl::getURL(queryUri, ssl.verifypeer=FALSE)
 ##   } else {
 ##     querySql <- readChar(queryUri, nchars=1e6)
 ##   }
-## 
+##
 ##   # If applicable, substitute values in the query template.
 ##   for(replacement in names(replacements)) {
 ##     querySql <- gsub(replacement, replacements[[replacement]], querySql, fixed=TRUE)
 ##   }
-## 
+##
 ##   # Display the query to the terminal.
 ##   cat(querySql)
-## 
+##
 ##   # Dispatch the query to BigQuery.
 ##   bigrquery::query_exec(querySql, project)
 ## }
@@ -176,7 +176,7 @@ ORDER BY n DESC
 ```
 Number of rows returned by this query: 33.
 
-Results from [bigrquery](https://github.com/hadley/bigrquery) are returned as R dataframes, meaning that we can make use of all of the regular dataframe functions as well as all sorts of other great R packages to do our downstream work. 
+Results from [bigrquery](https://github.com/hadley/bigrquery) are returned as R dataframes, meaning that we can make use of all of the regular dataframe functions as well as all sorts of other great R packages to do our downstream work.
 
 ```r
 mode(result)
@@ -271,7 +271,6 @@ loaded via a namespace (and not attached):
  [9] plyr_1.8.3       tools_3.2.2      parallel_3.2.2   grid_3.2.2      
 [13] gtable_0.1.2     DBI_0.3.1        lazyeval_0.1.10  assertthat_0.1  
 [17] digest_0.6.8     reshape2_1.4.1   formatR_1.2.1    curl_0.9.3      
-[21] evaluate_0.8     labeling_0.3     stringi_0.5-5    jsonlite_0.9.17 
+[21] evaluate_0.8     labeling_0.3     stringi_0.5-5    jsonlite_0.9.17
 [25] proto_0.3-10    
 ```
-

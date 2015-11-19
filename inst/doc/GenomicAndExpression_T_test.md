@@ -14,14 +14,15 @@ changes in the DNA of tumors, and associating it with differentially expressed g
 The first question: "what types of mutation data are available?"
 
 ```r
-pid <- 'YOUR PROJECT ID'
+project <- 'YOUR PROJECT ID'
 ```
 
 ```r
 library(dplyr)
 library(bigrquery)
-library(ggplot2)
 library(scales)
+library(ggplot2)
+library(ISBCGCExamples)
 
 q <- "SELECT
         Variant_Classification
@@ -32,7 +33,7 @@ q <- "SELECT
       GROUP BY
         Variant_Classification"
 
-result <- query_exec(q, pid)
+result <- query_exec(q, project)
 result
 ```
 
@@ -84,7 +85,7 @@ q <- "SELECT
       GROUP BY
         ParticipantBarcode"
 
-query_exec(q, pid)
+query_exec(q, project)
 ```
 
 ```r
@@ -109,12 +110,12 @@ q <- "SELECT
             Study = 'BRCA'
         GROUP BY
             hugosymbols,
-            pb) AS g
+            pb)
       GROUP BY
         gene
       ORDER BY
         sampleN DESC"
-genes <- query_exec(q, pid)
+genes <- query_exec(q, project)
 head(genes)
 ```
 
@@ -150,8 +151,8 @@ q <- "SELECT count(hugosymbols)
             and Study = 'BRCA'
           GROUP BY
             ParticipantBarcode,
-            hugosymbols ) as g"
-query_exec(q, pid)
+            hugosymbols )"
+query_exec(q, project)
 ```
 
 ```r
@@ -181,7 +182,7 @@ q <- "
   GROUP BY
     ParticipantBarcode
  "
-barcodesBRCA <- query_exec(q, pid)
+barcodesBRCA <- query_exec(q, project)
 head(barcodesBRCA)
 ```
 
@@ -211,7 +212,7 @@ q <- "
   GROUP BY
     ParticipantBarcode
  "
-barcodesWithMutations <- query_exec(q, pid)
+barcodesWithMutations <- query_exec(q, project)
 head(barcodesWithMutations)
 ```
 
@@ -246,7 +247,7 @@ WHERE ParticipantBarcode NOT IN (
       ParticipantBarcode)
   and Study = 'BRCA'
 GROUP BY ParticipantBarcode"
-barcodesWithOUTMutations <- query_exec(q, pid)
+barcodesWithOUTMutations <- query_exec(q, project)
 sum(barcodesWithMutations$ParticipantBarcode %in% barcodesWithOUTMutations$ParticipantBarcode)
 ```
 
@@ -264,7 +265,7 @@ would like to eliminate some.
 q <- "
   SELECT
     vc,
-    count(vc)
+    count(vc) as num_variants_in_class
   FROM (
     SELECT
       ParticipantBarcode,
@@ -276,14 +277,14 @@ q <- "
       AND Study = 'BRCA'
     GROUP BY
       ParticipantBarcode,
-      vc) as g
+      vc)
   GROUP BY vc
  "
-query_exec(q, pid)
+query_exec(q, project)
 ```
 
 ```r
-#                 vc f0_
+#                 vc  num_variants_in_class
 #1       Splice_Site  24
 #2   Frame_Shift_Ins  62
 #3   Frame_Shift_Del  19
@@ -325,7 +326,7 @@ WHERE
   GROUP BY
     ParticipantBarcode )
 "
-query_exec(q, pid)
+query_exec(q, project)
 ```
 
 ```r
@@ -428,7 +429,7 @@ GROUP BY
   ny,
   T
 "
-result1 <- query_exec(q, pid)
+result1 <- query_exec(q, project)
 result1
 ```
 
@@ -532,7 +533,7 @@ ON
 GROUP BY gene, study, x, sx2, nx, y, sy2, ny, T, mean_diff
 ORDER BY mean_diff DESC
 "
-system.time(result1 <- query_exec(q, pid))
+system.time(result1 <- query_exec(q, project))
 
 result1$df <- compute_df(result1)
 result1$p_value <- sapply(1:nrow(result1), function(i) 2*pt(abs(result1$T[i]), result1$df[i],lower=FALSE))
@@ -593,7 +594,7 @@ and (ParticipantBarcode IN (
     m.ParticipantBarcode
   ))
 "
-mutExpr <- query_exec(q, pid)
+mutExpr <- query_exec(q, project)
 
 q <- "
 SELECT HGNC_gene_symbol, ParticipantBarcode, LOG2(normalized_count+1)
@@ -621,7 +622,7 @@ and (ParticipantBarcode IN (
   GROUP BY ParticipantBarcode
 )) /* end getting table of participants */
 "
-wtExpr <- query_exec(q, pid)
+wtExpr <- query_exec(q, project)
 
 t.test(mutExpr$f0_, wtExpr$f0_)
 
@@ -640,15 +641,15 @@ boxplot(list(Mutation_In_GATA3=mutExpr$f0_, No_Mutation_In_GATA3=wtExpr$f0_), yl
 #95 percent confidence interval:
 # 1.448563 1.821547
 #sample estimates:
-#mean of x mean of y 
-# 14.11414  12.47909 
-# 
+#mean of x mean of y
+# 14.11414  12.47909
+#
 ```
 
 ```r
 # the result from above
 #      gene study mean_diff          x       sx2  nx         y       sy2  ny         T       df      p_value          fdr
-#42   GATA3  BRCA  1.635055 14.1141410 0.4490203 116 12.479086  4.425040 861  17.22515 504.2384 
+#42   GATA3  BRCA  1.635055 14.1141410 0.4490203 116 12.479086  4.425040 861  17.22515 504.2384
 ```
 
 So, we have found the same gene expression means and standard deviation, degrees of freedom,
@@ -675,11 +676,9 @@ other attached packages:
 [1] ISBCGCExamples_0.1 devtools_1.9.1     scales_0.3.0       ggplot2_1.0.1      bigrquery_0.1.0    dplyr_0.4.3       
 
 loaded via a namespace (and not attached):
- [1] Rcpp_0.12.2      formatR_1.2.1    git2r_0.11.0     plyr_1.8.3       tools_3.2.1      digest_0.6.8     jsonlite_0.9.17 
+ [1] Rcpp_0.12.2      formatR_1.2.1    git2r_0.11.0     plyr_1.8.3       tools_3.2.1      digest_0.6.8     jsonlite_0.9.17
  [8] memoise_0.2.1    gtable_0.1.2     DBI_0.3.1        rstudioapi_0.3.1 curl_0.9.3       yaml_2.1.13      parallel_3.2.1  
 [15] proto_0.3-10     httr_1.0.0       stringr_1.0.0    knitr_1.11       grid_3.2.1       R6_2.1.1         rmarkdown_0.8   
 [22] reshape2_1.4.1   magrittr_1.5     htmltools_0.2.6  MASS_7.3-44      assertthat_0.1   colorspace_1.2-6 labeling_0.3    
-[29] stringi_1.0-1    lazyeval_0.1.10  munsell_0.4.2 
+[29] stringi_1.0-1    lazyeval_0.1.10  munsell_0.4.2
 ```
-
-

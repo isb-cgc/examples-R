@@ -5,14 +5,14 @@ In this example, we will look at the correlation between mRNAseq-based gene expr
 NOTE: I think I will rework and/or eliminate this particular example, but am just going through it now to make sure I understand it and it works as expected.
 
 ```{r message=FALSE}
-library(ISBCGCExamples)
 library(dplyr)
 library(bigrquery)
-library(ggplot2)
 library(scales)
+library(ggplot2)
+library(ISBCGCExamples)
 
 # The directory in which the files containing SQL reside.
-#sqlDir = file.path("/PATH/TO/GIT/CLONE/OF/examples-R/inst/", 
+#sqlDir = file.path("/PATH/TO/GIT/CLONE/OF/examples-R/inst/",
 sqlDir = file.path(system.file(package = "ISBCGCExamples"),
                    "sql")
 ```
@@ -20,7 +20,7 @@ sqlDir = file.path(system.file(package = "ISBCGCExamples"),
 ```{r eval=FALSE}
 ######################[ TIP ]########################################
 ## Set the Google Cloud Platform project id under which these queries will run.
-## 
+##
 ## If you are using the workshop docker image, this is already
 ## set for you in your .Rprofile and you can skip this step.
 
@@ -62,7 +62,7 @@ head(result)
 ```{r density, fig.align="center", fig.width=10, message=FALSE, warning=FALSE, comment=NA}
 
 # Histogram overlaid with kernel density curve
-ggplot(result, aes(x=correlation)) + 
+ggplot(result, aes(x=correlation)) +
     geom_histogram(aes(y=..density..),      # Histogram with density instead of count on y-axis
                    binwidth=.05,
                    colour="black", fill="white") +
