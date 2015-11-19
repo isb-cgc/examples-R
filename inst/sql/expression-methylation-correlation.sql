@@ -3,7 +3,7 @@
 SELECT
   HGNC_gene_symbol,
   Probe_ID,
-  COUNT(1) AS num_observations,
+  COUNT(DISTINCT(expr.SampleBarcode)) AS num_observations,
   CORR(log2_count, Beta_Value) AS correlation,
 FROM (
   # We select the sample-barcode, gene-symbol, gene-expression, probe-id, and beta-value
@@ -28,7 +28,7 @@ FROM (
           Study,
           Probe_ID,
           Beta_Value,
-	  CHR,
+	        CHR,
           UCSC.RefGene_Name
         FROM
           [_METHYLATION_TABLE_] AS methData

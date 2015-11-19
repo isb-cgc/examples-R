@@ -1,9 +1,9 @@
-# all of the TCGA molecular data tables contain the fields ParticipantBarcode and Disease_Code
-# TODO: this is actually being re-standardized to be "Study" FIXME
-SELECT Disease_Code, COUNT(*) AS n
+# all of the TCGA molecular data tables contain the fields ParticipantBarcode and Study
+
+SELECT Study, COUNT(*) AS n
 FROM (
-    SELECT ParticipantBarcode, Disease_Code
+    SELECT ParticipantBarcode, Study
     FROM [_THE_TABLE_]
-    GROUP BY ParticipantBarcode, Disease_Code
-) GROUP BY Disease_Code
+    GROUP BY ParticipantBarcode, Study
+) GROUP BY Study
 ORDER BY n DESC

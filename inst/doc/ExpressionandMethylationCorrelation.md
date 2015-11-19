@@ -1,12 +1,16 @@
 # Expression and Methylation Correlation
 
-In this example, we will look at the correlation between mRNAseq-based gene expression and DNA methylation data.  We will do this using two molecular data tables from the isb-cgc:tcga_201507_alpha dataset and a cohort table from the isb-cgc:tcga_cohorts dataset.
+In this example, we will look at the correlation between mRNAseq-based gene expression and DNA methylation data.  We will do this using two molecular data tables from the isb-cgc:tcga_201510_alpha dataset and a cohort table from the isb-cgc:tcga_cohorts dataset.
 
 NOTE: I think I will rework and/or eliminate this particular example, but am just going through it now to make sure I understand it and it works as expected.
 
 
 ```r
 library(ISBCGCExamples)
+library(dplyr)
+library(bigrquery)
+library(ggplot2)
+library(scales)
 
 # The directory in which the files containing SQL reside.
 #sqlDir = file.path("/PATH/TO/GIT/CLONE/OF/examples-R/inst/", 
@@ -31,8 +35,8 @@ sqlDir = file.path(system.file(package = "ISBCGCExamples"),
 
 ```r
 # Set the desired tables to query.
-expressionTable = "isb-cgc:tcga_201507_alpha.mRNA_UNC_HiSeq_RSEM"
-methylationTable = "isb-cgc:tcga_201507_alpha.DNA_Methylation_betas"
+expressionTable = "isb-cgc:tcga_201510_alpha.mRNA_UNC_HiSeq_RSEM"
+methylationTable = "isb-cgc:tcga_201510_alpha.DNA_Methylation_betas"
 # Add any additional clauses to be applied in WHERE to limit the methylation data further.
 # (These specific filters are used here just to make the query run faster.  If a query returns
 #  very large results, they may need to be handled differently.  This query should take < 20s)
@@ -40,7 +44,7 @@ andWhere = "AND SampleTypeLetterCode = 'TP' AND Study = 'CESC' AND CHR = '9'"
 # Do not correlate unless there are at least this many observations available:
 minNumObs = 30
 
-# Now we are ready to run the query.  (Should return 6110 rows.)
+# Now we are ready to run the query.  (Should return 6046 rows.)
 result = DisplayAndDispatchQuery(
      file.path(sqlDir, "expression-methylation-correlation.sql"),
                project=project,
@@ -56,7 +60,7 @@ result = DisplayAndDispatchQuery(
 SELECT
   HGNC_gene_symbol,
   Probe_ID,
-  COUNT(1) AS num_observations,
+  COUNT(DISTINCT(expr.SampleBarcode)) AS num_observations,
   CORR(log2_count, Beta_Value) AS correlation,
 FROM (
   # We select the sample-barcode, gene-symbol, gene-expression, probe-id, and beta-value
@@ -69,7 +73,7 @@ FROM (
     Probe_ID,
     Beta_value
   FROM
-    [isb-cgc:tcga_201507_alpha.mRNA_UNC_HiSeq_RSEM] AS expr
+    [isb-cgc:tcga_201510_alpha.mRNA_UNC_HiSeq_RSEM] AS expr
   JOIN EACH ( FLATTEN ( (
         # We select the sample-barcode, sample-type, study-name, probe-id, beta-value, and gene-symbol
         # from the results of a "JOIN" of the methylation data and the methylation annotation tables
@@ -84,7 +88,7 @@ FROM (
 	  CHR,
           UCSC.RefGene_Name
         FROM
-          [isb-cgc:tcga_201507_alpha.DNA_Methylation_betas] AS methData
+          [isb-cgc:tcga_201510_alpha.DNA_Methylation_betas] AS methData
         JOIN EACH [isb-cgc:platform_reference.methylation_annotation] AS methAnnot
         ON
           methData.Probe_ID = methAnnot.Name
@@ -106,7 +110,7 @@ HAVING
 ORDER BY
   correlation ASC
 ```
-Number of rows returned by this query: 6110.
+Number of rows returned by this query: 6046.
 
 The result is a table with one row for each (gene,CpG-probe) pair for which at least 30 data values exist that meet the requirements in the "andWhere" clause.  The (gene,CpG-probe) pair is defined by a gene symbol and a CpG-probe ID.  In many cases, there may be multiple CpG probes associated with a single gene.
 
@@ -128,7 +132,6 @@ head(result)
 
 
 ```r
-library(bigrquery)
 
 # Histogram overlaid with kernel density curve
 ggplot(result, aes(x=correlation)) + 
@@ -151,13 +154,12 @@ First we retrieve the expression data for a particular gene.
 ```r
 # Set the desired gene to query.
 gene = "PHYHD1"
-
-#FIXME: there probably needs to be some additional "AND WHERE" filtering here... 
-#because right now this is returning 10252 rows...
+andWhere = "AND SampleTypeLetterCode = 'TP' AND Study = 'CESC'"
 expressionData = DisplayAndDispatchQuery(file.path(sqlDir, "expression-data.sql"),
                                          project=project,
                                          replacements=list("_EXPRESSION_TABLE_"=expressionTable,
-                                                           "_GENE_"=gene))
+                                                           "_GENE_"=gene,
+                                                           "_AND_WHERE_"=andWhere))
 ```
 
 ```
@@ -166,13 +168,14 @@ SELECT
   SampleBarcode,
   HGNC_gene_symbol,
   normalized_count
-FROM [isb-cgc:tcga_201507_alpha.mRNA_UNC_HiSeq_RSEM]
+FROM [isb-cgc:tcga_201510_alpha.mRNA_UNC_HiSeq_RSEM]
 WHERE
   HGNC_gene_symbol = 'PHYHD1'
+  AND SampleTypeLetterCode = 'TP' AND Study = 'CESC'
 ORDER BY
   SampleBarcode
 ```
-Number of rows returned by this query: 10252.
+Number of rows returned by this query: 301.
 
 
 ```r
@@ -197,14 +200,11 @@ Then we retrieve the methylation data for a particular probe.
 ```r
 # Set the desired probe to query.
 probe = "cg14299940"
-
-# Be sure to apply the same additional clauses to the WHERE to limit the methylation data further.
-
-#FIXME the andWhere clause breaks here because the previously it was being applied to the result of a JOIN
+andWhere = "AND SampleTypeLetterCode = 'TP' AND Study = 'CESC'"
 methylationData = DisplayAndDispatchQuery(file.path(sqlDir, "methylation-data.sql"),
                                           project=project,
                                           replacements=list("_METHYLATION_TABLE_"=methylationTable,
-                                                            "_AND_WHERE_"="",
+                                                            "_AND_WHERE_"=andWhere,
                                                             "_PROBE_"=probe))
 ```
 
@@ -216,12 +216,10 @@ SELECT
   Study,
   Probe_ID,
   Beta_Value
-FROM [isb-cgc:tcga_201507_alpha.DNA_Methylation_betas]
+FROM [isb-cgc:tcga_201510_alpha.DNA_Methylation_betas]
 WHERE
   Probe_ID = 'cg14299940'
-  # Optionally add clause here to limit the query to a particular
-  # sample types and/or studies.
-  
+  AND SampleTypeLetterCode = 'TP' AND Study = 'CESC'
 ORDER BY
   SampleBarcode,
   SampleTypeLetterCode,
@@ -236,13 +234,13 @@ head(methylationData)
 ```
 
 ```
-##      SampleBarcode SampleTypeLetterCode Study   Probe_ID Beta_Value
-## 1 TCGA-05-4384-01A                   TP  LUAD cg14299940       0.17
-## 2 TCGA-05-4390-01A                   TP  LUAD cg14299940       0.09
-## 3 TCGA-05-4396-01A                   TP  LUAD cg14299940       0.49
-## 4 TCGA-05-4405-01A                   TP  LUAD cg14299940       0.13
-## 5 TCGA-05-4410-01A                   TP  LUAD cg14299940       0.38
-## 6 TCGA-05-4415-01A                   TP  LUAD cg14299940       0.09
+##     SampleBarcode SampleTypeLetterCode Study   Probe_ID Beta_Value
+##1 TCGA-2W-A8YY-01A                   TP  CESC cg14299940       0.03
+##2 TCGA-4J-AA1J-01A                   TP  CESC cg14299940       0.07
+##3 TCGA-BI-A0VR-01A                   TP  CESC cg14299940       0.54
+##4 TCGA-BI-A0VS-01A                   TP  CESC cg14299940       0.08
+##5 TCGA-BI-A20A-01A                   TP  CESC cg14299940       0.56
+##6 TCGA-C5-A0TN-01A                   TP  CESC cg14299940       0.05
 ```
 
 ### Perform the correlation
@@ -250,7 +248,6 @@ head(methylationData)
 First we take the inner join of this data:
 
 ```r
-library(dplyr)
 data = inner_join(expressionData, methylationData)
 ```
 
@@ -263,34 +260,31 @@ head(data)
 ```
 
 ```
-##      SampleBarcode HGNC_gene_symbol normalized_count SampleTypeLetterCode
-## 1 TCGA-05-4384-01A           PHYHD1         263.2865                   TP
-## 2 TCGA-05-4390-01A           PHYHD1         515.4080                   TP
-## 3 TCGA-05-4396-01A           PHYHD1          15.9212                   TP
-## 4 TCGA-05-4405-01A           PHYHD1         412.1566                   TP
-## 5 TCGA-05-4410-01A           PHYHD1         365.4434                   TP
-## 6 TCGA-05-4415-01A           PHYHD1         144.0000                   TP
-##   Study   Probe_ID Beta_Value
-## 1  LUAD cg14299940       0.17
-## 2  LUAD cg14299940       0.09
-## 3  LUAD cg14299940       0.49
-## 4  LUAD cg14299940       0.13
-## 5  LUAD cg14299940       0.38
-## 6  LUAD cg14299940       0.09
+##     SampleBarcode HGNC_gene_symbol normalized_count SampleTypeLetterCode Study   Probe_ID Beta_Value
+##1 TCGA-2W-A8YY-01A           PHYHD1        1467.8112                   TP  CESC cg14299940       0.03
+##2 TCGA-4J-AA1J-01A           PHYHD1         632.2085                   TP  CESC cg14299940       0.07
+##3 TCGA-BI-A0VR-01A           PHYHD1          13.3608                   TP  CESC cg14299940       0.54
+##4 TCGA-BI-A0VS-01A           PHYHD1         446.1287                   TP  CESC cg14299940       0.08
+##5 TCGA-BI-A20A-01A           PHYHD1          48.6473                   TP  CESC cg14299940       0.56
+##6 TCGA-C5-A0TN-01A           PHYHD1          49.1132                   TP  CESC cg14299940       0.05
 ```
 
 And run a pearson correlation on it:
 
 ```r
-cor(x=data$normalized_count, y=data$Beta_Value, method="pearson")
+p = round(cor(x=data$normalized_count, y=data$Beta_Value, method="pearson"), 3)
+qplot(data=data, y=log2(normalized_count), x=Beta_Value, geom=c("point","smooth"),
+      xlab="methylation level (beta value)", ylab="mRNA level") +
+      geom_text(x = 0.7, y = 11, label = paste("Pearson Corr ", p))
+p
 ```
 
 ```
-## [1] -0.4054692
+## [1] -0.802
 ```
 
 And we can see that we have reproduced one of our results from BigQuery.
-#FIXME but we have not ;)  the correlation now is -0.405 on 8756 samples rather than just 603...
+the correlation now is -0.802 on 301 samples.
 
 ## Provenance
 
