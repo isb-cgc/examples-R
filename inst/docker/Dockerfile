@@ -6,9 +6,6 @@ MAINTAINER deflaux@google.com
 # Modelled after https://github.com/Bioconductor/bioc_docker/blob/master/out/devel_sequencing/Dockerfile
 ADD .Rprofile /home/rstudio/
 
-# TODO remove this line after examples-R is public.
-COPY ISBCGCExamples_0.1.tar.gz /tmp/
-
 ADD installPackages.R /tmp/
 RUN cd /tmp && \
     R -f /tmp/installPackages.R
