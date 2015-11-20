@@ -17,3 +17,4 @@ knitAllVignettes <- function() {
   }
   )
 }
+# last comment.
