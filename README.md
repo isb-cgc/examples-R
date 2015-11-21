@@ -12,7 +12,7 @@ To view and run the vignettes.
   help(package="ISBCGCExamples")
 ```
 
-There are three main vignettes using TCGA data, with more in the works. 
+There are four main vignettes using TCGA data, with more in the works. 
 They involve analyzing genomic data, correlating gene expression and methylation, 
 and correlating protein and mRNA levels. 
 
