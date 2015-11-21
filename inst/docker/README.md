@@ -8,7 +8,7 @@ Here we have a version of the Bioconductor `bioconductor/release_core` which add
 Deploying a new version to the public image repository
 ------------------------------------------------------
 
-The following instructions assume that Docker is installed and the current user can run docker commands.  For help with that one-time initial setup, see https://cloud.google.com/container-registry/#install_docker.
+The following instructions assume that Docker is installed and the current user can run docker commands.  For help with that one-time initial setup, see https://cloud.google.com/container-registry/docs/#install_docker.
 
 (1) Get the latest Dockerfile, etc., from this repository via a `git clone https://github.com/isb-cgc/examples-R.git` or `git pull`.
 
@@ -34,7 +34,7 @@ gcloud docker push b.gcr.io/isb-cgc-public-docker-images/r-examples:2015-10-30
 
 (6) Also tag the new version as 'latest'.  *Always explicity mark as 'latest' a particular tagged version.*
 ```
-docker tag  b.gcr.io/isb-cgc-public-docker-images/r-examples:2015-10-30 \
+docker tag -f b.gcr.io/isb-cgc-public-docker-images/r-examples:2015-10-30 \
   b.gcr.io/isb-cgc-public-docker-images/r-examples:latest
 ```
 
