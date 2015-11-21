@@ -1,3 +1,6 @@
+---
+output: html_document
+---
 <!--
 %% \VignetteEngine{knitr::rmarkdown}
 %% \VignetteIndexEntry{ISB Cancer Genomics Cloud}
@@ -12,6 +15,7 @@ This workshop consists of two parts:
  * Part 1: Use the [bigrquery](http://cran.r-project.org/web/packages/bigrquery/index.html) package to analyze Variants via [Google BigQuery](https://cloud.google.com/bigquery/what-is-bigquery) 
  * Part 2: Analyze pearson correlation between expression and methylation data.
  * Part 3: Analyze spearman correlation between expression and protein data.
+ * Part 4: Create groups based on mutation, and compare gene expression using a T-test.
  
 Part 1: Analyze Variants with BigQuery
 ======================================
@@ -63,3 +67,26 @@ file.show(file.path(system.file(package = "ISBCGCExamples"), "doc", "ExpressionA
 ```
 
 Alternatively, you can view the documentation for the [ISBCGCExamples](https://github.com/isb-cgc/examples-R) package by running `help(package="ISBCGCExamples")` and clicking on *"User guides, package vignettes and other documentation."*.
+
+Part 4: Creating groups and performing T-tests.
+======================================================================================
+
+In this vignette we create groups based on mutation status, and compare gene expression levels using a T-test.
+
+Open the code and the rendered vignette in separate windows:
+
+* Open the vignette to run it line-by-line via:
+```{r eval=FALSE}
+file.edit(file.path(system.file(package = "ISBCGCExamples"), "doc", "GenomicAndExpression_T_test.Rmd"))
+```
+
+* View the rendered vignette 
+```{r eval=FALSE}
+file.show(file.path(system.file(package = "ISBCGCExamples"), "doc", "GenomicAndExpression_T_test.html"))
+```
+
+Alternatively, you can view the documentation for the [ISBCGCExamples](https://github.com/isb-cgc/examples-R) package by running `help(package="ISBCGCExamples")` and clicking on *"User guides, package vignettes and other documentation."*.
+
+
+
+
