@@ -12,8 +12,8 @@ To view and run the vignettes.
   help(package="ISBCGCExamples")
 ```
 
-There are four main vignettes using TCGA data, with more in the works.
-They involve analyzing genomic data, correlating gene expression and methylation,
+There are vignettes for each TCGA data type, and more elaborate examples
+involving analyzing genomic data, correlating gene expression and methylation,
 and correlating protein and mRNA levels.
 
 The vignettes as **R-markdown** can be found in the [examples-R/inst/doc](inst/doc) directory,
