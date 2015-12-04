@@ -6,7 +6,7 @@
 library(ISBCGCExamples)
 
 # The directory in which the files containing SQL reside.
-#sqlDir = file.path("/PATH/TO/GIT/CLONE/OF/examples-R/inst/", 
+#sqlDir = file.path("/PATH/TO/GIT/CLONE/OF/examples-R/inst/",
 sqlDir = file.path(system.file(package = "ISBCGCExamples"),"sql")
 
 #' 
@@ -45,7 +45,7 @@ cohortInfo$numRows
 ptm1 <- proc.time()
 
 # Now we are ready to run the query.
-result = DisplayAndDispatchQuery ( 
+result = DisplayAndDispatchQuery (
              file.path(sqlDir, "protein-mrna-spearman-correlation.sql"),
              project=project,
              replacements=list("_EXPRESSION_TABLE_"=expressionTable,
@@ -57,7 +57,7 @@ ptm2 <- proc.time() - ptm1
 cat("Wall-clock time for BigQuery:",ptm2[3])
 
 
-#' Number of rows returned by this query: `r nrow(result)`.
+#' Number of rows returned by this query: `nrow(result)`.
 #' 
 #' The result is a table with one row for each (gene,protein) pair for which at least 30 data values exist for the specified cohort.  The (gene,protein) pair is defined by a gene symbol and a protein name.  In many cases the gene symbol and the protein name may be identical, but for some genes the RPPA dataset may contain expression values for more than one post-translationally-modified protein product from a particular gene.
 #' 
@@ -97,7 +97,7 @@ expressionData = DisplayAndDispatchQuery(file.path(sqlDir, "expression-data-by-c
                                                            "_COHORT_TABLE_"=cohortTable,
                                                            "_GENE_"=gene))
 
-#' Number of rows returned by this query: `r nrow(expressionData)`.
+#' Number of rows returned by this query: `nrow(expressionData)`.
 #' 
 ## ------------------------------------------------------------------------
 head(expressionData)
@@ -117,7 +117,7 @@ proteinData = DisplayAndDispatchQuery(file.path(sqlDir, "protein-data-by-cohort.
                                                         "_GENE_"=gene,
                                                         "_PROTEIN_"=protein))
 
-#' Number of rows returned by this query: `r nrow(proteinData)`.
+#' Number of rows returned by this query: `nrow(proteinData)`.
 #' 
 ## ------------------------------------------------------------------------
 head(proteinData)
@@ -139,6 +139,7 @@ head(arrange(data, normalized_count))
 cor(x=data$normalized_count, y=data$protein_expression, method="spearman")
 qplot(data=data, y=log2(normalized_count), x=protein_expression, geom=c("point","smooth"),
       xlab="protein level", ylab="log2 mRNA level")
+
 #' 
 #' The R-based Spearman correlation matches the BigQuery result.
 #' 

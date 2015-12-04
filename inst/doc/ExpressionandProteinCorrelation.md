@@ -7,7 +7,7 @@ In this example, we will look at the correlation between mRNAseq-based gene expr
 library(ISBCGCExamples)
 
 # The directory in which the files containing SQL reside.
-#sqlDir = file.path("/PATH/TO/GIT/CLONE/OF/examples-R/inst/", 
+#sqlDir = file.path("/PATH/TO/GIT/CLONE/OF/examples-R/inst/",
 sqlDir = file.path(system.file(package = "ISBCGCExamples"),"sql")
 ```
 
@@ -15,7 +15,7 @@ sqlDir = file.path(system.file(package = "ISBCGCExamples"),"sql")
 ```r
 ######################[ TIP ]########################################
 ## Set the Google Cloud Platform project id under which these queries will run.
-## 
+##
 ## If you are using the workshop docker image, this is already
 ## set for you in your .Rprofile and you can skip this step.
 
@@ -47,7 +47,7 @@ cohortInfo$description
 ```
 
 ```
-[1] "This BRCA cohort is a curated list of patients and samples from the TCGA BRCA study.  It contains 1088 patients and 2275 samples.  You may join this table with other tables in the isb-cgc:tcga_201510_alpha dataset to perform further analysis on this cohort."
+[1] "This BRCA cohort is a curated list of patients and samples from the TCGA BRCA study.  It contains 1088 patients and 2275 samples.  You may join this table with other tables in the isb-cgc:tcga_201507_alpha dataset to perform further analysis on this cohort."
 ```
 
 ```r
@@ -62,7 +62,7 @@ cohortInfo$numRows
 ptm1 <- proc.time()
 
 # Now we are ready to run the query.
-result = DisplayAndDispatchQuery ( 
+result = DisplayAndDispatchQuery (
              file.path(sqlDir, "protein-mrna-spearman-correlation.sql"),
              project=project,
              replacements=list("_EXPRESSION_TABLE_"=expressionTable,
@@ -154,9 +154,9 @@ cat("Wall-clock time for BigQuery:",ptm2[3])
 ```
 
 ```
-Wall-clock time for BigQuery: 2.494
+Wall-clock time for BigQuery: 2.377
 ```
-Number of rows returned by this query: 217.
+Number of rows returned by this query: `nrow(result)`.
 
 The result is a table with one row for each (gene,protein) pair for which at least 30 data values exist for the specified cohort.  The (gene,protein) pair is defined by a gene symbol and a protein name.  In many cases the gene symbol and the protein name may be identical, but for some genes the RPPA dataset may contain expression values for more than one post-translationally-modified protein product from a particular gene.
 
@@ -166,13 +166,13 @@ head(result)
 ```
 
 ```
-##    gene  protein num_observations spearman_corr
-##1   ESR1 ER-alpha              922     0.8552661
-##2   BCL2    Bcl-2              922     0.8022549
-##3  GATA3    GATA3              922     0.7479918
-##4  PREX1   P-REX1              922     0.7412556
-##5   FASN     FASN              922     0.7299020
-##6 IGFBP2   IGFBP2              922     0.7262222
+##     gene  protein num_observations spearman_corr
+## 1   ESR1 ER-alpha              922     0.8552661
+## 2   BCL2    Bcl-2              922     0.8022549
+## 3  GATA3    GATA3              922     0.7479918
+## 4  PREX1   P-REX1              922     0.7412556
+## 5   FASN     FASN              922     0.7299020
+## 6 IGFBP2   IGFBP2              922     0.7262222
 ```
 
 
@@ -229,7 +229,7 @@ WHERE
 ORDER BY
   SampleBarcode
 ```
-Number of rows returned by this query: 1202.
+Number of rows returned by this query: `nrow(expressionData)`.
 
 
 ```r
@@ -282,7 +282,7 @@ WHERE
 ORDER BY
   SampleBarcode
 ```
-Number of rows returned by this query: 404.
+Number of rows returned by this query: `nrow(proteinData)`.
 
 
 ```r
@@ -291,12 +291,12 @@ head(proteinData)
 
 ```
 ##      SampleBarcode Gene_Name Protein_Name protein_expression
-## 1 TCGA-A1-A0SH-01A      ESR1     ER-alpha         -1.6136630
-## 2 TCGA-A1-A0SJ-01A      ESR1     ER-alpha          0.2359291
-## 3 TCGA-A1-A0SK-01A      ESR1     ER-alpha         -3.7201419
-## 4 TCGA-A1-A0SO-01A      ESR1     ER-alpha         -4.0307670
-## 5 TCGA-A2-A04N-01A      ESR1     ER-alpha         -0.7388394
-## 6 TCGA-A2-A04P-01A      ESR1     ER-alpha         -1.3375791
+## 1 TCGA-3C-AALI-01A      ESR1     ER-alpha         -0.7433601
+## 2 TCGA-3C-AALK-01A      ESR1     ER-alpha          0.0404196
+## 3 TCGA-4H-AAAK-01A      ESR1     ER-alpha          1.3058341
+## 4 TCGA-5T-A9QA-01A      ESR1     ER-alpha          1.7900436
+## 5 TCGA-A1-A0SF-01A      ESR1     ER-alpha          1.1791140
+## 6 TCGA-A1-A0SH-01A      ESR1     ER-alpha         -1.5588764
 ```
 
 Since protein data is not typically available for as many samples as mRNA expression data, the returned "expressionData" table is likely to be quite a bit bigger than the "proteinData" table.  The next step is an inner join of these two tables:
@@ -317,7 +317,7 @@ dim(data)
 ```
 
 ```
-## [1] 403   6
+## [1] 922   6
 ```
 
 ```r
@@ -326,19 +326,19 @@ head(arrange(data, normalized_count))
 
 ```
 ##      SampleBarcode HGNC_gene_symbol normalized_count Gene_Name
-## 1 TCGA-E2-A158-01A             ESR1           4.4555      ESR1
-## 2 TCGA-AN-A0G0-01A             ESR1           5.8621      ESR1
-## 3 TCGA-AR-A1AH-01A             ESR1           6.0368      ESR1
-## 4 TCGA-AR-A0TP-01A             ESR1           6.1550      ESR1
-## 5 TCGA-A2-A0D0-01A             ESR1           6.1779      ESR1
-## 6 TCGA-A2-A04U-01A             ESR1           6.7541      ESR1
+## 1 TCGA-AQ-A54N-01A             ESR1           2.7343      ESR1
+## 2 TCGA-A2-A3XV-01A             ESR1           3.8710      ESR1
+## 3 TCGA-E2-A158-01A             ESR1           4.4555      ESR1
+## 4 TCGA-AN-A0G0-01A             ESR1           5.8621      ESR1
+## 5 TCGA-AR-A1AH-01A             ESR1           6.0368      ESR1
+## 6 TCGA-AR-A0TP-01A             ESR1           6.1550      ESR1
 ##   Protein_Name protein_expression
-## 1     ER-alpha          -3.570038
-## 2     ER-alpha          -3.873648
-## 3     ER-alpha          -3.604598
-## 4     ER-alpha          -3.338214
-## 5     ER-alpha          -3.886696
-## 6     ER-alpha          -2.897148
+## 1     ER-alpha          -2.417648
+## 2     ER-alpha          -2.432641
+## 3     ER-alpha          -3.637536
+## 4     ER-alpha          -2.958320
+## 5     ER-alpha          -2.591913
+## 6     ER-alpha          -2.540526
 ```
 
 The dimension of the resulting table should match the number of observations indicated in our original BigQuery result, and now we perform a Spearman correlation on the two data vectors:
@@ -346,16 +346,22 @@ The dimension of the resulting table should match the number of observations ind
 
 ```r
 cor(x=data$normalized_count, y=data$protein_expression, method="spearman")
+```
+
+```
+## [1] 0.8552696
+```
+
+```r
 qplot(data=data, y=log2(normalized_count), x=protein_expression, geom=c("point","smooth"),
       xlab="protein level", ylab="log2 mRNA level")
 ```
 
 ```
-## [1] 0.8552661
+## geom_smooth: method="auto" and size of largest group is <1000, so using loess. Use 'method = x' to change the smoothing method.
 ```
 
-<img src="figure/protein_expression_plot.png" title="plot of expression vs protein levels"  
-style="display: block; margin: auto;" />
+![plot of chunk unnamed-chunk-11](figure/unnamed-chunk-11-1.png) 
 
 The R-based Spearman correlation matches the BigQuery result.
 
@@ -366,7 +372,7 @@ sessionInfo()
 ```
 
 ```
-R version 3.2.2 (2015-08-14)
+R version 3.2.1 (2015-06-18)
 Platform: x86_64-apple-darwin13.4.0 (64-bit)
 Running under: OS X 10.10.5 (Yosemite)
 
@@ -377,15 +383,15 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] knitr_1.11         scales_0.3.0       ggplot2_1.0.1     
-[4] bigrquery_0.1.0    dplyr_0.4.3        ISBCGCExamples_0.1
+[1] ISBCGCExamples_0.1 ggplot2_1.0.1      scales_0.3.0      
+[4] bigrquery_0.1.0    dplyr_0.4.3       
 
 loaded via a namespace (and not attached):
- [1] Rcpp_0.12.1      magrittr_1.5     MASS_7.3-43      munsell_0.4.2   
- [5] colorspace_1.2-6 R6_2.1.1         stringr_1.0.0    httr_1.0.0      
- [9] plyr_1.8.3       tools_3.2.2      parallel_3.2.2   grid_3.2.2      
-[13] gtable_0.1.2     DBI_0.3.1        lazyeval_0.1.10  assertthat_0.1  
-[17] digest_0.6.8     reshape2_1.4.1   formatR_1.2.1    curl_0.9.3      
-[21] mime_0.4         evaluate_0.8     labeling_0.3     stringi_0.5-5   
-[25] jsonlite_0.9.17  markdown_0.7.7   proto_0.3-10    
+ [1] Rcpp_0.12.2      knitr_1.11       magrittr_1.5     MASS_7.3-44     
+ [5] munsell_0.4.2    colorspace_1.2-6 R6_2.1.1         stringr_1.0.0   
+ [9] httr_1.0.0       plyr_1.8.3       tools_3.2.1      parallel_3.2.1  
+[13] grid_3.2.1       gtable_0.1.2     DBI_0.3.1        lazyeval_0.1.10 
+[17] assertthat_0.1   digest_0.6.8     reshape2_1.4.1   formatR_1.2.1   
+[21] curl_0.9.3       mime_0.4         evaluate_0.8     labeling_0.3    
+[25] stringi_1.0-1    jsonlite_0.9.17  markdown_0.7.7   proto_0.3-10    
 ```

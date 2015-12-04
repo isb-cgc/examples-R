@@ -54,8 +54,10 @@ querySql
 And then we'll send the query to the cloud for execution:
 ```{r}
 result <- query_exec(querySql, project=project)
+result
 ```
 
+And we see that the table has 1 row - this is the number of unique patients or participants across all of the various TCGA studies.
 
 ```{r eval=FALSE}
 ######################[ TIP ]########################################
@@ -76,10 +78,6 @@ result <- query_exec(querySql, project=project)
 #####################################################################
 ```
 
-And we see that the table has `r result[1,1]` rows - this is the number of unique patients or participants across all of the various TCGA studies.
-```{r}
-result
-```
 
 ## Run a query using the BigQuery Web User Interface
 
@@ -113,8 +111,8 @@ result <- DisplayAndDispatchQuery(file.path(system.file(package = "ISBCGCExample
                                             "count-patients-by-study.sql"),
                                   project=project,
                                   replacements=list("_THE_TABLE_"=theTable))
+cat("Number of rows returned by this query: ", nrow(result), "\n")
 ```
-Number of rows returned by this query: `r nrow(result)`.
 
 Results from [bigrquery](https://github.com/hadley/bigrquery) are returned as R dataframes, meaning that we can make use of all of the regular dataframe functions as well as all sorts of other great R packages to do our downstream work.
 ```{r}

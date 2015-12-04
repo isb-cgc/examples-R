@@ -362,7 +362,7 @@ errors. Second, make sure the two tables we're joining have different aliases!
 
 Finally, let's just "bang-the-hammer" and query ALL genes!
 
-```{r chunk12}
+```{r ttest_fig1}
 
 q <- "
 SELECT
@@ -469,7 +469,7 @@ Wow! So did we do that right? Let's check on a single gene. We'll pull down
 the actual expression values, and use the R T-test.
 
 
-```{r chunk13}
+```{r ttest_fig2}
 
 q <- "
 SELECT HGNC_gene_symbol, ParticipantBarcode, LOG2(normalized_count+1)
