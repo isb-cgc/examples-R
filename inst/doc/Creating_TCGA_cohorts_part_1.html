@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<title>Creating TCGA cohorts (part 1)</title>
+
+<script type="text/javascript">
+window.onload = function() {
+  var imgs = document.getElementsByTagName('img'), i, img;
+  for (i = 0; i < imgs.length; i++) {
+    img = imgs[i];
+    // center an image if it is the only element of its parent
+    if (img.parentElement.childElementCount === 1)
+      img.parentElement.style.textAlign = 'center';
+  }
+};
+</script>
+
+<!-- Styles for R syntax highlighter -->
+<style type="text/css">
+   pre .operator,
+   pre .paren {
+     color: rgb(104, 118, 135)
+   }
+
+   pre .literal {
+     color: #990073
+   }
+
+   pre .number {
+     color: #099;
+   }
+
+   pre .comment {
+     color: #998;
+     font-style: italic
+   }
+
+   pre .keyword {
+     color: #900;
+     font-weight: bold
+   }
+
+   pre .identifier {
+     color: rgb(0, 0, 0);
+   }
+
+   pre .string {
+     color: #d14;
+   }
+</style>
+
+<!-- R syntax highlighter -->
+<script type="text/javascript">
+var hljs=new function(){function m(p){return p.replace(/&/gm,"&amp;").replace(/</gm,"&lt;")}function f(r,q,p){return RegExp(q,"m"+(r.cI?"i":"")+(p?"g":""))}function b(r){for(var p=0;p<r.childNodes.length;p++){var q=r.childNodes[p];if(q.nodeName=="CODE"){return q}if(!(q.nodeType==3&&q.nodeValue.match(/\s+/))){break}}}function h(t,s){var p="";for(var r=0;r<t.childNodes.length;r++){if(t.childNodes[r].nodeType==3){var q=t.childNodes[r].nodeValue;if(s){q=q.replace(/\n/g,"")}p+=q}else{if(t.childNodes[r].nodeName=="BR"){p+="\n"}else{p+=h(t.childNodes[r])}}}if(/MSIE [678]/.test(navigator.userAgent)){p=p.replace(/\r/g,"\n")}return p}function a(s){var r=s.className.split(/\s+/);r=r.concat(s.parentNode.className.split(/\s+/));for(var q=0;q<r.length;q++){var p=r[q].replace(/^language-/,"");if(e[p]){return p}}}function c(q){var p=[];(function(s,t){for(var r=0;r<s.childNodes.length;r++){if(s.childNodes[r].nodeType==3){t+=s.childNodes[r].nodeValue.length}else{if(s.childNodes[r].nodeName=="BR"){t+=1}else{if(s.childNodes[r].nodeType==1){p.push({event:"start",offset:t,node:s.childNodes[r]});t=arguments.callee(s.childNodes[r],t);p.push({event:"stop",offset:t,node:s.childNodes[r]})}}}}return t})(q,0);return p}function k(y,w,x){var q=0;var z="";var s=[];function u(){if(y.length&&w.length){if(y[0].offset!=w[0].offset){return(y[0].offset<w[0].offset)?y:w}else{return w[0].event=="start"?y:w}}else{return y.length?y:w}}function t(D){var A="<"+D.nodeName.toLowerCase();for(var B=0;B<D.attributes.length;B++){var C=D.attributes[B];A+=" "+C.nodeName.toLowerCase();if(C.value!==undefined&&C.value!==false&&C.value!==null){A+='="'+m(C.value)+'"'}}return A+">"}while(y.length||w.length){var v=u().splice(0,1)[0];z+=m(x.substr(q,v.offset-q));q=v.offset;if(v.event=="start"){z+=t(v.node);s.push(v.node)}else{if(v.event=="stop"){var p,r=s.length;do{r--;p=s[r];z+=("</"+p.nodeName.toLowerCase()+">")}while(p!=v.node);s.splice(r,1);while(r<s.length){z+=t(s[r]);r++}}}}return z+m(x.substr(q))}function j(){function q(x,y,v){if(x.compiled){return}var u;var s=[];if(x.k){x.lR=f(y,x.l||hljs.IR,true);for(var w in x.k){if(!x.k.hasOwnProperty(w)){continue}if(x.k[w] instanceof Object){u=x.k[w]}else{u=x.k;w="keyword"}for(var r in u){if(!u.hasOwnProperty(r)){continue}x.k[r]=[w,u[r]];s.push(r)}}}if(!v){if(x.bWK){x.b="\\b("+s.join("|")+")\\s"}x.bR=f(y,x.b?x.b:"\\B|\\b");if(!x.e&&!x.eW){x.e="\\B|\\b"}if(x.e){x.eR=f(y,x.e)}}if(x.i){x.iR=f(y,x.i)}if(x.r===undefined){x.r=1}if(!x.c){x.c=[]}x.compiled=true;for(var t=0;t<x.c.length;t++){if(x.c[t]=="self"){x.c[t]=x}q(x.c[t],y,false)}if(x.starts){q(x.starts,y,false)}}for(var p in e){if(!e.hasOwnProperty(p)){continue}q(e[p].dM,e[p],true)}}function d(B,C){if(!j.called){j();j.called=true}function q(r,M){for(var L=0;L<M.c.length;L++){if((M.c[L].bR.exec(r)||[null])[0]==r){return M.c[L]}}}function v(L,r){if(D[L].e&&D[L].eR.test(r)){return 1}if(D[L].eW){var M=v(L-1,r);return M?M+1:0}return 0}function w(r,L){return L.i&&L.iR.test(r)}function K(N,O){var M=[];for(var L=0;L<N.c.length;L++){M.push(N.c[L].b)}var r=D.length-1;do{if(D[r].e){M.push(D[r].e)}r--}while(D[r+1].eW);if(N.i){M.push(N.i)}return f(O,M.join("|"),true)}function p(M,L){var N=D[D.length-1];if(!N.t){N.t=K(N,E)}N.t.lastIndex=L;var r=N.t.exec(M);return r?[M.substr(L,r.index-L),r[0],false]:[M.substr(L),"",true]}function z(N,r){var L=E.cI?r[0].toLowerCase():r[0];var M=N.k[L];if(M&&M instanceof Array){return M}return false}function F(L,P){L=m(L);if(!P.k){return L}var r="";var O=0;P.lR.lastIndex=0;var M=P.lR.exec(L);while(M){r+=L.substr(O,M.index-O);var N=z(P,M);if(N){x+=N[1];r+='<span class="'+N[0]+'">'+M[0]+"</span>"}else{r+=M[0]}O=P.lR.lastIndex;M=P.lR.exec(L)}return r+L.substr(O,L.length-O)}function J(L,M){if(M.sL&&e[M.sL]){var r=d(M.sL,L);x+=r.keyword_count;return r.value}else{return F(L,M)}}function I(M,r){var L=M.cN?'<span class="'+M.cN+'">':"";if(M.rB){y+=L;M.buffer=""}else{if(M.eB){y+=m(r)+L;M.buffer=""}else{y+=L;M.buffer=r}}D.push(M);A+=M.r}function G(N,M,Q){var R=D[D.length-1];if(Q){y+=J(R.buffer+N,R);return false}var P=q(M,R);if(P){y+=J(R.buffer+N,R);I(P,M);return P.rB}var L=v(D.length-1,M);if(L){var O=R.cN?"</span>":"";if(R.rE){y+=J(R.buffer+N,R)+O}else{if(R.eE){y+=J(R.buffer+N,R)+O+m(M)}else{y+=J(R.buffer+N+M,R)+O}}while(L>1){O=D[D.length-2].cN?"</span>":"";y+=O;L--;D.length--}var r=D[D.length-1];D.length--;D[D.length-1].buffer="";if(r.starts){I(r.starts,"")}return R.rE}if(w(M,R)){throw"Illegal"}}var E=e[B];var D=[E.dM];var A=0;var x=0;var y="";try{var s,u=0;E.dM.buffer="";do{s=p(C,u);var t=G(s[0],s[1],s[2]);u+=s[0].length;if(!t){u+=s[1].length}}while(!s[2]);if(D.length>1){throw"Illegal"}return{r:A,keyword_count:x,value:y}}catch(H){if(H=="Illegal"){return{r:0,keyword_count:0,value:m(C)}}else{throw H}}}function g(t){var p={keyword_count:0,r:0,value:m(t)};var r=p;for(var q in e){if(!e.hasOwnProperty(q)){continue}var s=d(q,t);s.language=q;if(s.keyword_count+s.r>r.keyword_count+r.r){r=s}if(s.keyword_count+s.r>p.keyword_count+p.r){r=p;p=s}}if(r.language){p.second_best=r}return p}function i(r,q,p){if(q){r=r.replace(/^((<[^>]+>|\t)+)/gm,function(t,w,v,u){return w.replace(/\t/g,q)})}if(p){r=r.replace(/\n/g,"<br>")}return r}function n(t,w,r){var x=h(t,r);var v=a(t);var y,s;if(v){y=d(v,x)}else{return}var q=c(t);if(q.length){s=document.createElement("pre");s.innerHTML=y.value;y.value=k(q,c(s),x)}y.value=i(y.value,w,r);var u=t.className;if(!u.match("(\\s|^)(language-)?"+v+"(\\s|$)")){u=u?(u+" "+v):v}if(/MSIE [678]/.test(navigator.userAgent)&&t.tagName=="CODE"&&t.parentNode.tagName=="PRE"){s=t.parentNode;var p=document.createElement("div");p.innerHTML="<pre><code>"+y.value+"</code></pre>";t=p.firstChild.firstChild;p.firstChild.cN=s.cN;s.parentNode.replaceChild(p.firstChild,s)}else{t.innerHTML=y.value}t.className=u;t.result={language:v,kw:y.keyword_count,re:y.r};if(y.second_best){t.second_best={language:y.second_best.language,kw:y.second_best.keyword_count,re:y.second_best.r}}}function o(){if(o.called){return}o.called=true;var r=document.getElementsByTagName("pre");for(var p=0;p<r.length;p++){var q=b(r[p]);if(q){n(q,hljs.tabReplace)}}}function l(){if(window.addEventListener){window.addEventListener("DOMContentLoaded",o,false);window.addEventListener("load",o,false)}else{if(window.attachEvent){window.attachEvent("onload",o)}else{window.onload=o}}}var e={};this.LANGUAGES=e;this.highlight=d;this.highlightAuto=g;this.fixMarkup=i;this.highlightBlock=n;this.initHighlighting=o;this.initHighlightingOnLoad=l;this.IR="[a-zA-Z][a-zA-Z0-9_]*";this.UIR="[a-zA-Z_][a-zA-Z0-9_]*";this.NR="\\b\\d+(\\.\\d+)?";this.CNR="\\b(0[xX][a-fA-F0-9]+|(\\d+(\\.\\d*)?|\\.\\d+)([eE][-+]?\\d+)?)";this.BNR="\\b(0b[01]+)";this.RSR="!|!=|!==|%|%=|&|&&|&=|\\*|\\*=|\\+|\\+=|,|\\.|-|-=|/|/=|:|;|<|<<|<<=|<=|=|==|===|>|>=|>>|>>=|>>>|>>>=|\\?|\\[|\\{|\\(|\\^|\\^=|\\||\\|=|\\|\\||~";this.ER="(?![\\s\\S])";this.BE={b:"\\\\.",r:0};this.ASM={cN:"string",b:"'",e:"'",i:"\\n",c:[this.BE],r:0};this.QSM={cN:"string",b:'"',e:'"',i:"\\n",c:[this.BE],r:0};this.CLCM={cN:"comment",b:"//",e:"$"};this.CBLCLM={cN:"comment",b:"/\\*",e:"\\*/"};this.HCM={cN:"comment",b:"#",e:"$"};this.NM={cN:"number",b:this.NR,r:0};this.CNM={cN:"number",b:this.CNR,r:0};this.BNM={cN:"number",b:this.BNR,r:0};this.inherit=function(r,s){var p={};for(var q in r){p[q]=r[q]}if(s){for(var q in s){p[q]=s[q]}}return p}}();hljs.LANGUAGES.cpp=function(){var a={keyword:{"false":1,"int":1,"float":1,"while":1,"private":1,"char":1,"catch":1,"export":1,virtual:1,operator:2,sizeof:2,dynamic_cast:2,typedef:2,const_cast:2,"const":1,struct:1,"for":1,static_cast:2,union:1,namespace:1,unsigned:1,"long":1,"throw":1,"volatile":2,"static":1,"protected":1,bool:1,template:1,mutable:1,"if":1,"public":1,friend:2,"do":1,"return":1,"goto":1,auto:1,"void":2,"enum":1,"else":1,"break":1,"new":1,extern:1,using:1,"true":1,"class":1,asm:1,"case":1,typeid:1,"short":1,reinterpret_cast:2,"default":1,"double":1,register:1,explicit:1,signed:1,typename:1,"try":1,"this":1,"switch":1,"continue":1,wchar_t:1,inline:1,"delete":1,alignof:1,char16_t:1,char32_t:1,constexpr:1,decltype:1,noexcept:1,nullptr:1,static_assert:1,thread_local:1,restrict:1,_Bool:1,complex:1},built_in:{std:1,string:1,cin:1,cout:1,cerr:1,clog:1,stringstream:1,istringstream:1,ostringstream:1,auto_ptr:1,deque:1,list:1,queue:1,stack:1,vector:1,map:1,set:1,bitset:1,multiset:1,multimap:1,unordered_set:1,unordered_map:1,unordered_multiset:1,unordered_multimap:1,array:1,shared_ptr:1}};return{dM:{k:a,i:"</",c:[hljs.CLCM,hljs.CBLCLM,hljs.QSM,{cN:"string",b:"'\\\\?.",e:"'",i:"."},{cN:"number",b:"\\b(\\d+(\\.\\d*)?|\\.\\d+)(u|U|l|L|ul|UL|f|F)"},hljs.CNM,{cN:"preprocessor",b:"#",e:"$"},{cN:"stl_container",b:"\\b(deque|list|queue|stack|vector|map|set|bitset|multiset|multimap|unordered_map|unordered_set|unordered_multiset|unordered_multimap|array)\\s*<",e:">",k:a,r:10,c:["self"]}]}}}();hljs.LANGUAGES.r={dM:{c:[hljs.HCM,{cN:"number",b:"\\b0[xX][0-9a-fA-F]+[Li]?\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\b\\d+(?:[eE][+\\-]?\\d*)?L\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\b\\d+\\.(?!\\d)(?:i\\b)?",e:hljs.IMMEDIATE_RE,r:1},{cN:"number",b:"\\b\\d+(?:\\.\\d*)?(?:[eE][+\\-]?\\d*)?i?\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\.\\d+(?:[eE][+\\-]?\\d*)?i?\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"keyword",b:"(?:tryCatch|library|setGeneric|setGroupGeneric)\\b",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\.\\.\\.",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\.\\.\\d+(?![\\w.])",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\b(?:function)",e:hljs.IMMEDIATE_RE,r:2},{cN:"keyword",b:"(?:if|in|break|next|repeat|else|for|return|switch|while|try|stop|warning|require|attach|detach|source|setMethod|setClass)\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"literal",b:"(?:NA|NA_integer_|NA_real_|NA_character_|NA_complex_)\\b",e:hljs.IMMEDIATE_RE,r:10},{cN:"literal",b:"(?:NULL|TRUE|FALSE|T|F|Inf|NaN)\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"identifier",b:"[a-zA-Z.][a-zA-Z0-9._]*\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"operator",b:"<\\-(?!\\s*\\d)",e:hljs.IMMEDIATE_RE,r:2},{cN:"operator",b:"\\->|<\\-",e:hljs.IMMEDIATE_RE,r:1},{cN:"operator",b:"%%|~",e:hljs.IMMEDIATE_RE},{cN:"operator",b:">=|<=|==|!=|\\|\\||&&|=|\\+|\\-|\\*|/|\\^|>|<|!|&|\\||\\$|:",e:hljs.IMMEDIATE_RE,r:0},{cN:"operator",b:"%",e:"%",i:"\\n",r:1},{cN:"identifier",b:"`",e:"`",r:0},{cN:"string",b:'"',e:'"',c:[hljs.BE],r:0},{cN:"string",b:"'",e:"'",c:[hljs.BE],r:0},{cN:"paren",b:"[[({\\])}]",e:hljs.IMMEDIATE_RE,r:0}]}};
+hljs.initHighlightingOnLoad();
+</script>
+
+
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 13px;
+}
+
+body {
+  max-width: 800px;
+  margin: auto;
+  padding: 1em;
+  line-height: 20px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 {
+   font-size:2.2em;
+}
+
+h2 {
+   font-size:1.8em;
+}
+
+h3 {
+   font-size:1.4em;
+}
+
+h4 {
+   font-size:1.0em;
+}
+
+h5 {
+   font-size:0.9em;
+}
+
+h6 {
+   font-size:0.8em;
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre, img {
+  max-width: 100%;
+}
+pre {
+  overflow-x: auto;
+}
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code {
+  font-size: 92%;
+  border: 1px solid #ccc;
+}
+
+code[class] {
+  background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * {
+      background: transparent !important;
+      color: black !important;
+      filter:none !important;
+      -ms-filter: none !important;
+   }
+
+   body {
+      font-size:12pt;
+      max-width:100%;
+   }
+
+   a, a:visited {
+      text-decoration: underline;
+   }
+
+   hr {
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote {
+      padding-right: 1em;
+      page-break-inside: avoid;
+   }
+
+   tr, img {
+      page-break-inside: avoid;
+   }
+
+   img {
+      max-width: 100% !important;
+   }
+
+   @page :left {
+      margin: 15mm 20mm 15mm 10mm;
+   }
+
+   @page :right {
+      margin: 15mm 10mm 15mm 20mm;
+   }
+
+   p, h2, h3 {
+      orphans: 3; widows: 3;
+   }
+
+   h2, h3 {
+      page-break-after: avoid;
+   }
+}
+</style>
+
+
+
+</head>
+
+<body>
+<h1>Creating TCGA cohorts (part 1)</h1>
+
+<p>This notebook will show you how to create a TCGA cohort using the publicly available TCGA BigQuery tables that the ISB-CGC project has produced based on the open-access TCGA data available at the Data Portal. You will need to have access to a Google Cloud Platform (GCP) project in order to use BigQuery. If you don&#39;t already have one, you can sign up for a free-trial or contact us and become part of the community evaluation phase of our Cancer Genomics Cloud pilot.</p>
+
+<p>We are not attempting to provide a thorough BigQuery or R tutorial here, as a wealth of such information already exists. Here are some links to some resources that you might find useful:</p>
+
+<p>BigQuery, the BigQuery web UI where you can run queries interactively,
+R, the statistical programming language,
+bigrquery, the library that gives an interface to bigquery.</p>
+
+<p>There are also many tutorials and samples available on github (see, in particular, the examples-R repo and the Google Genomics project).</p>
+
+<p>OK then, let&#39;s get started! In order to work with BigQuery, the first thing you need to do is import the bigrquery library:</p>
+
+<pre><code class="r">require(bigrquery) || install.packages(&quot;bigrquery&quot;)
+</code></pre>
+
+<pre><code>## [1] TRUE
+</code></pre>
+
+<p>The next thing you need to know is how to access the specific tables you are interested in. BigQuery tables are organized into datasets, and datasets are owned by a specific GCP project. The tables we will be working with in this notebook are in a dataset called tcga_201510_alpha, owned by the isb-cgc project. A full table identifier is of the form <project_id>:<dataset_id>.<table_id>. Let&#39;s start by getting some basic information about the tables in this dataset:</p>
+
+<pre><code class="r">bigrquery::list_tables(&quot;isb-cgc&quot;, &quot;tcga_201510_alpha&quot;)
+</code></pre>
+
+<pre><code>##  [1] &quot;Annotations&quot;            &quot;Biospecimen_data&quot;      
+##  [3] &quot;Clinical_data&quot;          &quot;Copy_Number_segments&quot;  
+##  [5] &quot;DNA_Methylation_betas&quot;  &quot;Protein_RPPA_data&quot;     
+##  [7] &quot;Somatic_Mutation_calls&quot; &quot;mRNA_BCGSC_HiSeq_RPKM&quot; 
+##  [9] &quot;mRNA_UNC_HiSeq_RSEM&quot;    &quot;miRNA_expression&quot;
+</code></pre>
+
+<p>In this tutorial, we are going to look at a few different ways that we can use the information in these tables to create cohorts. Now, you maybe asking what we mean by &ldquo;cohort&rdquo; and why you might be interested in creating one, or maybe what it even means to &ldquo;create&rdquo; a cohort. The TCGA dataset includes clinical, biospecimen, and molecular data from over 10,000 cancer patients who agreed to be a part of this landmark research project to build The Cancer Genome Atlas. This large dataset was originally organized and studied according to cancer type but now that this multi-year project is nearing completion, with over 30 types of cancer and over 10,000 tumors analyzed, you have the opportunity to look at this dataset from whichever angle most interests you. Maybe you are particularly interested in early-onset cancers, or gastro-intestinal cancers, or a specific type of genetic mutation. This is where the idea of a &ldquo;cohort&rdquo; comes in. The original TCGA &ldquo;cohorts&rdquo; were based on cancer type (aka &ldquo;study&rdquo;), but now you can define a cohort based on virtually any clinical or molecular feature by querying these BigQuery tables. A cohort is simply a list of samples, using the TCGA barcode system. Once you have created a cohort you can use it in any number of ways: you could further explore the data available for one cohort, or compare one cohort to another, for example.</p>
+
+<p>In the rest of this tutorial, we will create several different cohorts based on different motivating research questions. We hope that these examples will provide you with a starting point from which you can build, to answer your own research questions.</p>
+
+<h2>Exploring the Clinical data table¶</h2>
+
+<p>Let&#39;s start by looking at the clinical data table. The TCGA dataset contains a few very basic clinical data elements for almost all patients, and contains additional information for some tumor types only. For example smoking history information is generally available only for lung cancer patients, and BMI (body mass index) is only available for tumor types where that is a known significant risk factor. Let&#39;s take a look at the clinical data table and see how many different pieces of information are available to us:</p>
+
+<pre><code class="r">clinicalTable &lt;- &quot;[isb-cgc:tcga_201510_alpha.Clinical_data]&quot;
+</code></pre>
+
+<pre><code class="r">querySql &lt;- paste(&quot;SELECT * FROM &quot;,clinicalTable,&quot; limit 1&quot;, sep=&quot;&quot;)
+result &lt;- query_exec(querySql, project=project)
+colNames &lt;- data.frame(Columns=colnames(result))
+cat(&quot;Number of features: &quot;, nrow(colNames), &quot;\n&quot;)
+</code></pre>
+
+<pre><code>## Number of features:  65
+</code></pre>
+
+<pre><code class="r">head(colNames)
+</code></pre>
+
+<pre><code>##                               Columns
+## 1                  ParticipantBarcode
+## 2                               Study
+## 3                             Project
+## 4                     ParticipantUUID
+## 5                             TSSCode
+## 6 age_at_initial_pathologic_diagnosis
+</code></pre>
+
+<p>That&#39;s a lot of fields!</p>
+
+<p>Let&#39;s look at these fields and see which ones might be the most &ldquo;interesting&rdquo;, by looking at how many times they are filled-in (not NULL), or how much variation exists in the values. If we wanted to look at just a single field, &ldquo;tobacco_smoking_history&rdquo; for example, we could use a very simple query to get a basic summary:</p>
+
+<pre><code class="r">querySql &lt;- &quot;
+SELECT tobacco_smoking_history, COUNT(*) AS n
+FROM [isb-cgc:tcga_201510_alpha.Clinical_data]
+GROUP BY tobacco_smoking_history
+ORDER BY n DESC&quot;
+
+result &lt;- query_exec(querySql, project=project)
+head(result)
+</code></pre>
+
+<pre><code>##                           tobacco_smoking_history    n
+## 1                                            &lt;NA&gt; 8226
+## 2     Current reformed smoker for &lt; or = 15 years  835
+## 3                             Lifelong Non-smoker  834
+## 4                                  Current smoker  710
+## 5          Current reformed smoker for &gt; 15 years  496
+## 6 Current Reformed Smoker, Duration Not Specified   51
+</code></pre>
+
+<p>But if we want to loop over all 65 fields and get a sense of which fields might provide us with useful criteria for specifying a cohort, we&#39;ll want to automate that. We&#39;ll put a threshold on the minimum number of patients that we expect information for, and the maximum number of unique values (since fields such as the &ldquo;ParticipantBarcode&rdquo; will be unique for every patient and, although we will need that field later, it&#39;s probably not useful for defining a cohort).</p>
+
+<p>The Clinical_data table describes a total of 11152 patients.
+     &gt; Study has 11152 values with 33 unique (BRCA occurs 1097 times)
+     &gt; age_at_initial_pathologic_diagnosis has 11102 values (mean=59, sigma=14)
+     &gt; batch_number has 11152 values (mean=203, sigma=134)
+     &gt; vital_status has 11148 values with 2 unique (Alive occurs 7548 times)
+     &gt; days_to_birth has 11034 values (mean=-21761, sigma=5268)
+     &gt; days_to_last_known_alive has 11100 values (mean=1033, sigma=1040)
+     &gt; gender has 11152 values with 2 unique (FEMALE occurs 5811 times)
+     &gt; year_of_initial_pathologic_diagnosis has 11023 values (mean=2008, sigma=4)
+     &gt; person_neoplasm_cancer_status has 10254 values with 2 unique (TUMOR FREE occurs 6531 times)
+     &gt; race has 9828 values with 5 unique (WHITE occurs 8179 times)</p>
+
+<p>Found 10 potentially interesting features:</p>
+
+<pre><code>[&#39;Study&#39;, &#39;age_at_initial_pathologic_diagnosis&#39;, &#39;batch_number&#39;, &#39;vital_status&#39;, &#39;days_to_birth&#39;, &#39;days_to_last_known_alive&#39;, &#39;gender&#39;, &#39;year_of_initial_pathologic_diagnosis&#39;, &#39;person_neoplasm_cancer_status&#39;, &#39;race&#39;]
+</code></pre>
+
+<p>The above helps us narrow down on which fields are likely to be the most useful, but if you have a specific interest, for example in menopause or HPV status, you can still look at those in more detail very easily:</p>
+
+<pre><code class="r">querySql &lt;- &quot;
+SELECT menopause_status, COUNT(*) AS n
+FROM [isb-cgc:tcga_201510_alpha.Clinical_data]
+WHERE menopause_status IS NOT NULL
+GROUP BY menopause_status
+ORDER BY n DESC&quot;
+
+result &lt;- query_exec(querySql, project=project)
+head(result)
+</code></pre>
+
+<pre><code>##                                                                               menopause_status
+## 1            Post (prior bilateral ovariectomy OR &gt;12 mo since LMP with no prior hysterectomy)
+## 2 Pre (&lt;6 months since LMP AND no prior bilateral ovariectomy AND not on estrogen replacement)
+## 3                                               Peri (6-12 months since last menstrual period)
+## 4                                                Indeterminate (neither Pre or Postmenopausal)
+##      n
+## 1 1291
+## 2  390
+## 3   82
+## 4   54
+</code></pre>
+
+<p>We might wonder which specific tumor types have menopause information:</p>
+
+<pre><code class="r">querySql &lt;- &quot;
+SELECT Study, COUNT(*) AS n
+FROM [isb-cgc:tcga_201510_alpha.Clinical_data]
+WHERE menopause_status IS NOT NULL
+GROUP BY Study
+ORDER BY n DESC&quot;
+
+result &lt;- query_exec(querySql, project=project)
+head(result)
+</code></pre>
+
+<pre><code>##   Study    n
+## 1  BRCA 1007
+## 2  UCEC  517
+## 3  CESC  238
+## 4   UCS   55
+</code></pre>
+
+<pre><code class="r">querySql &lt;- &quot;
+SELECT hpv_status, hpv_calls, COUNT(*) AS n
+FROM [isb-cgc:tcga_201510_alpha.Clinical_data]
+WHERE hpv_status IS NOT NULL
+GROUP BY hpv_status, hpv_calls
+HAVING n &gt; 20
+ORDER BY n DESC&quot;
+
+result &lt;- query_exec(querySql, project=project)
+head(result)
+</code></pre>
+
+<pre><code>##   hpv_status hpv_calls   n
+## 1   Negative      &lt;NA&gt; 449
+## 2   Positive     HPV16 238
+## 3   Positive     HPV18  41
+## 4   Positive     HPV33  25
+## 5   Positive     HPV45  24
+</code></pre>
+
+<h2>TCGA Annotations</h2>
+
+<p>An additional factor to consider, when creating a cohort is that there may be additional information that might lead one to exclude a particular patient from a cohort. In certain instances, patients have been redacted or excluded from analyses for reasons such as prior treatment, etc, but since different researchers may have different criteria for using or excluding certain patients or certain samples from their analyses, in many cases the data is still available while at the same time &ldquo;annotations&rdquo; may have been entered into a searchable database. These annotations have also been uploaded into a BigQuery table and can be used in conjuction with the other BigQuery tables.</p>
+
+<h2>Early-onset Breast Cancer</h2>
+
+<p>Now that we have a better idea of what types of information is available in the Clinical data table, let&#39;s create a cohort consisting of female breast-cancer patients, diagnosed at the age of 50 or younger.
+In this next code cell, we define several queries within a module which allows us to use them both individually and by reference in the final, main query. The first query, called select_on_annotations, finds all patients in the Annotations table which have either been &#39;redacted&#39; or had &#39;unacceptable prior treatment&#39;. The second query, select_on_clinical selects all female breast-cancer patients who were diagnosed at age 50 or younger. And the final query joins these two together and returns just those patients that meet the clinical-criteria and do not meet the exclusion-criteria.</p>
+
+<pre><code class="r"># in this first query, we are looking for two specific types of disqualifying annotations:
+# &#39;redactions&#39; and &#39;unacceptable prior treatment&#39;:
+
+querySql &lt;- &quot;
+SELECT
+  ParticipantBarcode,
+  annotationCategoryName AS categoryName,
+  annotationClassification AS classificationName
+FROM
+  [isb-cgc:tcga_201510_alpha.Annotations]
+WHERE
+  ( itemTypeName=&#39;Patient&#39;
+    AND (annotationCategoryName=&#39;History of unacceptable prior treatment related to a prior/other malignancy&#39;
+      OR annotationClassification=&#39;Redaction&#39; ) )
+GROUP BY
+  ParticipantBarcode,
+  categoryName,
+  classificationName&quot;
+
+disqualified &lt;- query_exec(querySql, project=project)
+head(disqualified)
+</code></pre>
+
+<pre><code>##   ParticipantBarcode
+## 1       TCGA-BH-A1F5
+## 2       TCGA-AR-A2LR
+## 3       TCGA-BG-A0MS
+## 4       TCGA-BH-A0B6
+## 5       TCGA-XK-AAK1
+## 6       TCGA-BG-A0M8
+##                                                                  categoryName
+## 1 History of unacceptable prior treatment related to a prior/other malignancy
+## 2 History of unacceptable prior treatment related to a prior/other malignancy
+## 3 History of unacceptable prior treatment related to a prior/other malignancy
+## 4 History of unacceptable prior treatment related to a prior/other malignancy
+## 5 History of unacceptable prior treatment related to a prior/other malignancy
+## 6 History of unacceptable prior treatment related to a prior/other malignancy
+##   classificationName
+## 1       Notification
+## 2       Notification
+## 3       Notification
+## 4       Notification
+## 5       Notification
+## 6       Notification
+</code></pre>
+
+<pre><code class="r"># in this second query, we are choosing specific types of patients based on a few clinical
+# fields, while also pulling out some of the other fields just to have a look at them
+
+querySql &lt;- &quot;
+SELECT
+  ParticipantBarcode,
+  vital_status,
+  days_to_last_known_alive,
+  ethnicity,
+  histological_type,
+  menopause_status,
+  race
+FROM
+  [isb-cgc:tcga_201510_alpha.Clinical_data]
+WHERE
+  ( Study=&#39;BRCA&#39;
+    AND age_at_initial_pathologic_diagnosis&lt;=50
+    AND gender=&#39;FEMALE&#39; )&quot;
+
+clinicalSelect &lt;- query_exec(querySql, project=project)
+head(clinicalSelect)
+</code></pre>
+
+<pre><code>##   ParticipantBarcode vital_status days_to_last_known_alive
+## 1       TCGA-BH-A0DK        Alive                      423
+## 2       TCGA-BH-A0DZ        Alive                      495
+## 3       TCGA-A7-A5ZW        Alive                      326
+## 4       TCGA-A7-A5ZX        Alive                      336
+## 5       TCGA-A2-A1G0        Alive                      616
+## 6       TCGA-B6-A3ZX         Dead                     1152
+##                ethnicity                histological_type
+## 1                   &lt;NA&gt;    Infiltrating Ductal Carcinoma
+## 2                   &lt;NA&gt;    Infiltrating Ductal Carcinoma
+## 3 NOT HISPANIC OR LATINO    Infiltrating Ductal Carcinoma
+## 4 NOT HISPANIC OR LATINO   Infiltrating Lobular Carcinoma
+## 5 NOT HISPANIC OR LATINO                   Other  specify
+## 6 NOT HISPANIC OR LATINO Mixed Histology (please specify)
+##                                                                               menopause_status
+## 1 Pre (&lt;6 months since LMP AND no prior bilateral ovariectomy AND not on estrogen replacement)
+## 2 Pre (&lt;6 months since LMP AND no prior bilateral ovariectomy AND not on estrogen replacement)
+## 3                                               Peri (6-12 months since last menstrual period)
+## 4 Pre (&lt;6 months since LMP AND no prior bilateral ovariectomy AND not on estrogen replacement)
+## 5 Pre (&lt;6 months since LMP AND no prior bilateral ovariectomy AND not on estrogen replacement)
+## 6                                                                                         &lt;NA&gt;
+##                        race
+## 1                     WHITE
+## 2                     WHITE
+## 3 BLACK OR AFRICAN AMERICAN
+## 4                     WHITE
+## 5                     WHITE
+## 6 BLACK OR AFRICAN AMERICAN
+</code></pre>
+
+<pre><code class="r"># and here we use the prior queries:
+# similar to doing an OUTER JOIN on the results of the two previous queries,
+# we keep only those participants where the annotation &#39;categoryName&#39; and &#39;classificationName&#39;
+# are NULL while the patient barcode from the clinical-select is *not* NULL
+
+clinicalSelect[(clinicalSelect$ParticipantBarcode %in% disqualified$ParticipantBarcode),]
+</code></pre>
+
+<pre><code>##     ParticipantBarcode vital_status days_to_last_known_alive
+## 219       TCGA-BH-A0B6        Alive                     2483
+## 317       TCGA-AR-A2LR        Alive                     1742
+##                  ethnicity             histological_type
+## 219 NOT HISPANIC OR LATINO Infiltrating Ductal Carcinoma
+## 317 NOT HISPANIC OR LATINO         Metaplastic Carcinoma
+##                                                                      menopause_status
+## 219                                                                              &lt;NA&gt;
+## 317 Post (prior bilateral ovariectomy OR &gt;12 mo since LMP with no prior hysterectomy)
+##      race
+## 219 WHITE
+## 317 WHITE
+</code></pre>
+
+<p>As you can see, two patients that met the clinical select criteria we excluded from the final result.</p>
+
+</body>
+
+</html>

@@ -1,0 +1,189 @@
+#' # Creating TCGA cohorts (part 1)
+#' 
+#' This notebook will show you how to create a TCGA cohort using the publicly available TCGA BigQuery tables that the ISB-CGC project has produced based on the open-access TCGA data available at the Data Portal. You will need to have access to a Google Cloud Platform (GCP) project in order to use BigQuery. If you don't already have one, you can sign up for a free-trial or contact us and become part of the community evaluation phase of our Cancer Genomics Cloud pilot.
+#' 
+#' We are not attempting to provide a thorough BigQuery or R tutorial here, as a wealth of such information already exists. Here are some links to some resources that you might find useful:
+#' 
+#' BigQuery, the BigQuery web UI where you can run queries interactively,
+#' R, the statistical programming language,
+#' bigrquery, the library that gives an interface to bigquery.
+#' 
+#' There are also many tutorials and samples available on github (see, in particular, the examples-R repo and the Google Genomics project).
+#' 
+#' OK then, let's get started! In order to work with BigQuery, the first thing you need to do is import the bigrquery library:
+#' 
+## ------------------------------------------------------------------------
+require(bigrquery) || install.packages("bigrquery")
+
+#' 
+#' The next thing you need to know is how to access the specific tables you are interested in. BigQuery tables are organized into datasets, and datasets are owned by a specific GCP project. The tables we will be working with in this notebook are in a dataset called tcga_201510_alpha, owned by the isb-cgc project. A full table identifier is of the form <project_id>:<dataset_id>.<table_id>. Let's start by getting some basic information about the tables in this dataset:
+#' 
+## ------------------------------------------------------------------------
+bigrquery::list_tables("isb-cgc", "tcga_201510_alpha")
+
+#' 
+#' In this tutorial, we are going to look at a few different ways that we can use the information in these tables to create cohorts. Now, you maybe asking what we mean by "cohort" and why you might be interested in creating one, or maybe what it even means to "create" a cohort. The TCGA dataset includes clinical, biospecimen, and molecular data from over 10,000 cancer patients who agreed to be a part of this landmark research project to build The Cancer Genome Atlas. This large dataset was originally organized and studied according to cancer type but now that this multi-year project is nearing completion, with over 30 types of cancer and over 10,000 tumors analyzed, you have the opportunity to look at this dataset from whichever angle most interests you. Maybe you are particularly interested in early-onset cancers, or gastro-intestinal cancers, or a specific type of genetic mutation. This is where the idea of a "cohort" comes in. The original TCGA "cohorts" were based on cancer type (aka "study"), but now you can define a cohort based on virtually any clinical or molecular feature by querying these BigQuery tables. A cohort is simply a list of samples, using the TCGA barcode system. Once you have created a cohort you can use it in any number of ways: you could further explore the data available for one cohort, or compare one cohort to another, for example.
+#' 
+#' In the rest of this tutorial, we will create several different cohorts based on different motivating research questions. We hope that these examples will provide you with a starting point from which you can build, to answer your own research questions.
+#' 
+#' ## Exploring the Clinical data table¶
+#' 
+#' Let's start by looking at the clinical data table. The TCGA dataset contains a few very basic clinical data elements for almost all patients, and contains additional information for some tumor types only. For example smoking history information is generally available only for lung cancer patients, and BMI (body mass index) is only available for tumor types where that is a known significant risk factor. Let's take a look at the clinical data table and see how many different pieces of information are available to us:
+#' 
+## ------------------------------------------------------------------------
+clinicalTable <- "[isb-cgc:tcga_201510_alpha.Clinical_data]"
+
+#' 
+#' 
+## ------------------------------------------------------------------------
+querySql <- paste("SELECT * FROM ",clinicalTable," limit 1", sep="")
+result <- query_exec(querySql, project=project)
+colNames <- data.frame(Columns=colnames(result))
+cat("Number of features: ", nrow(colNames), "\n")
+head(colNames)
+
+#' 
+#' That's a lot of fields!
+#' 
+#' Let's look at these fields and see which ones might be the most "interesting", by looking at how many times they are filled-in (not NULL), or how much variation exists in the values. If we wanted to look at just a single field, "tobacco_smoking_history" for example, we could use a very simple query to get a basic summary:
+#' 
+## ------------------------------------------------------------------------
+querySql <- "
+SELECT tobacco_smoking_history, COUNT(*) AS n
+FROM [isb-cgc:tcga_201510_alpha.Clinical_data]
+GROUP BY tobacco_smoking_history
+ORDER BY n DESC"
+
+result <- query_exec(querySql, project=project)
+head(result)
+
+#' 
+#' But if we want to loop over all 65 fields and get a sense of which fields might provide us with useful criteria for specifying a cohort, we'll want to automate that. We'll put a threshold on the minimum number of patients that we expect information for, and the maximum number of unique values (since fields such as the "ParticipantBarcode" will be unique for every patient and, although we will need that field later, it's probably not useful for defining a cohort).
+#' 
+#' 
+#' 
+#'  The Clinical_data table describes a total of 11152 patients.
+#'      > Study has 11152 values with 33 unique (BRCA occurs 1097 times)
+#'      > age_at_initial_pathologic_diagnosis has 11102 values (mean=59, sigma=14)
+#'      > batch_number has 11152 values (mean=203, sigma=134)
+#'      > vital_status has 11148 values with 2 unique (Alive occurs 7548 times)
+#'      > days_to_birth has 11034 values (mean=-21761, sigma=5268)
+#'      > days_to_last_known_alive has 11100 values (mean=1033, sigma=1040)
+#'      > gender has 11152 values with 2 unique (FEMALE occurs 5811 times)
+#'      > year_of_initial_pathologic_diagnosis has 11023 values (mean=2008, sigma=4)
+#'      > person_neoplasm_cancer_status has 10254 values with 2 unique (TUMOR FREE occurs 6531 times)
+#'      > race has 9828 values with 5 unique (WHITE occurs 8179 times)
+#' 
+#'  Found 10 potentially interesting features:
+#' 
+#'     ['Study', 'age_at_initial_pathologic_diagnosis', 'batch_number', 'vital_status', 'days_to_birth', 'days_to_last_known_alive', 'gender', 'year_of_initial_pathologic_diagnosis', 'person_neoplasm_cancer_status', 'race']
+#' 
+#' 
+#' 
+#' The above helps us narrow down on which fields are likely to be the most useful, but if you have a specific interest, for example in menopause or HPV status, you can still look at those in more detail very easily:
+#' 
+## ------------------------------------------------------------------------
+querySql <- "
+SELECT menopause_status, COUNT(*) AS n
+FROM [isb-cgc:tcga_201510_alpha.Clinical_data]
+WHERE menopause_status IS NOT NULL
+GROUP BY menopause_status
+ORDER BY n DESC"
+
+result <- query_exec(querySql, project=project)
+head(result)
+
+#' 
+#' We might wonder which specific tumor types have menopause information:
+#' 
+## ------------------------------------------------------------------------
+querySql <- "
+SELECT Study, COUNT(*) AS n
+FROM [isb-cgc:tcga_201510_alpha.Clinical_data]
+WHERE menopause_status IS NOT NULL
+GROUP BY Study
+ORDER BY n DESC"
+
+result <- query_exec(querySql, project=project)
+head(result)
+
+#' 
+## ------------------------------------------------------------------------
+querySql <- "
+SELECT hpv_status, hpv_calls, COUNT(*) AS n
+FROM [isb-cgc:tcga_201510_alpha.Clinical_data]
+WHERE hpv_status IS NOT NULL
+GROUP BY hpv_status, hpv_calls
+HAVING n > 20
+ORDER BY n DESC"
+
+result <- query_exec(querySql, project=project)
+head(result)
+
+#' 
+#' ## TCGA Annotations
+#' An additional factor to consider, when creating a cohort is that there may be additional information that might lead one to exclude a particular patient from a cohort. In certain instances, patients have been redacted or excluded from analyses for reasons such as prior treatment, etc, but since different researchers may have different criteria for using or excluding certain patients or certain samples from their analyses, in many cases the data is still available while at the same time "annotations" may have been entered into a searchable database. These annotations have also been uploaded into a BigQuery table and can be used in conjuction with the other BigQuery tables.
+#' 
+#' ## Early-onset Breast Cancer
+#' Now that we have a better idea of what types of information is available in the Clinical data table, let's create a cohort consisting of female breast-cancer patients, diagnosed at the age of 50 or younger.
+#' In this next code cell, we define several queries within a module which allows us to use them both individually and by reference in the final, main query. The first query, called select_on_annotations, finds all patients in the Annotations table which have either been 'redacted' or had 'unacceptable prior treatment'. The second query, select_on_clinical selects all female breast-cancer patients who were diagnosed at age 50 or younger. And the final query joins these two together and returns just those patients that meet the clinical-criteria and do not meet the exclusion-criteria.
+#' 
+## ------------------------------------------------------------------------
+# in this first query, we are looking for two specific types of disqualifying annotations:
+# 'redactions' and 'unacceptable prior treatment':
+
+querySql <- "
+SELECT
+  ParticipantBarcode,
+  annotationCategoryName AS categoryName,
+  annotationClassification AS classificationName
+FROM
+  [isb-cgc:tcga_201510_alpha.Annotations]
+WHERE
+  ( itemTypeName='Patient'
+    AND (annotationCategoryName='History of unacceptable prior treatment related to a prior/other malignancy'
+      OR annotationClassification='Redaction' ) )
+GROUP BY
+  ParticipantBarcode,
+  categoryName,
+  classificationName"
+
+disqualified <- query_exec(querySql, project=project)
+head(disqualified)
+
+#' 
+#' 
+## ------------------------------------------------------------------------
+# in this second query, we are choosing specific types of patients based on a few clinical
+# fields, while also pulling out some of the other fields just to have a look at them
+
+querySql <- "
+SELECT
+  ParticipantBarcode,
+  vital_status,
+  days_to_last_known_alive,
+  ethnicity,
+  histological_type,
+  menopause_status,
+  race
+FROM
+  [isb-cgc:tcga_201510_alpha.Clinical_data]
+WHERE
+  ( Study='BRCA'
+    AND age_at_initial_pathologic_diagnosis<=50
+    AND gender='FEMALE' )"
+
+clinicalSelect <- query_exec(querySql, project=project)
+head(clinicalSelect)
+
+#' 
+## ------------------------------------------------------------------------
+# and here we use the prior queries:
+# similar to doing an OUTER JOIN on the results of the two previous queries,
+# we keep only those participants where the annotation 'categoryName' and 'classificationName'
+# are NULL while the patient barcode from the clinical-select is *not* NULL
+
+clinicalSelect[(clinicalSelect$ParticipantBarcode %in% disqualified$ParticipantBarcode),]
+
+#' 
+#' As you can see, two patients that met the clinical select criteria we excluded from the final result.
