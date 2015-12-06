@@ -1,6 +1,3 @@
----
-output: html_document
----
 # Exploring the TCGA data in BigQuery
 
 The ISB-CGC (isb-cgc.org) project has aggregated and curated all of the TCGA open-access clinical, biospecimen, and Level-3 molecular data and uploaded it into BigQuery tables that are open to the public.  Here we will show you how you can begin to work with these tables from the familiar R environment.
@@ -20,9 +17,38 @@ We will start by loading four R packages:
 
 ```r
 require(dplyr) || install.packages("dplyr")
+```
+
+```
+## [1] TRUE
+```
+
+```r
 require(bigrquery) || install.packages("bigrquery")
+```
+
+```
+## [1] TRUE
+```
+
+```r
 require(scales) || install.packages("scales")
+```
+
+```
+## [1] TRUE
+```
+
+```r
 require(ggplot2) || install.packages("ggplot2")
+```
+
+```
+## [1] TRUE
+```
+
+```r
+library(ISBCGCExamples)
 ```
 
 
@@ -38,6 +64,7 @@ require(ggplot2) || install.packages("ggplot2")
 ```
 
 Let's start by working with one of the simplest tables, the Clinical_data table.  The format of a table name in BigQuery is <project_name>:<dataset_name>.<table_name>
+
 
 
 ```r
@@ -64,8 +91,15 @@ And then we'll send the query to the cloud for execution:
 
 ```r
 result <- query_exec(querySql, project=project)
+result
 ```
 
+```
+##     f0_
+## 1 11152
+```
+
+And we see that the table has 1 row - this is the number of unique patients or participants across all of the various TCGA studies.
 
 
 ```r
@@ -87,20 +121,10 @@ result <- query_exec(querySql, project=project)
 #####################################################################
 ```
 
-And we see that the table has 11103 rows - this is the number of unique patients or participants across all of the various TCGA studies.
-
-```r
-result
-```
-
-```
-##     f0_
-## 1 11103
-```
 
 ## Run a query using the BigQuery Web User Interface
 
-So what is actually in this table?  Click on [this link](https://bigquery.cloud.google.com/table/isb-cgc:tcga_201510_alpha.Clinical_data) to view the schema in the BigQuery web user interface.
+So what is actually in this table?  Click on [this link](https://bigquery.cloud.google.com/table/isb-cgc:tcga_201507_alpha.Clinical_data) to view the schema in the BigQuery web user interface.
 
 We can also run the exact same query using the BigQuery web user interface.  In the BigQuery web user interface:
 
@@ -118,31 +142,26 @@ DisplayAndDispatchQuery
 ```
 
 ```
-## function(queryUri, project, replacements=list()) {
-##   if (missing(queryUri)) {
-##     stop("Pass the file path or url to the file containing the query.")
-##   }
-##   if(missing(project)) {
-##     stop("Pass the project id of your Google Cloud Platform project.")
-##   }
-##
-##   if (grepl("^https.*", queryUri)) {
-##     # Read the query from a remote location.
-##     querySql <- RCurl::getURL(queryUri, ssl.verifypeer=FALSE)
-##   } else {
-##     querySql <- readChar(queryUri, nchars=1e6)
-##   }
-##
-##   # If applicable, substitute values in the query template.
-##   for(replacement in names(replacements)) {
-##     querySql <- gsub(replacement, replacements[[replacement]], querySql, fixed=TRUE)
-##   }
-##
-##   # Display the query to the terminal.
-##   cat(querySql)
-##
-##   # Dispatch the query to BigQuery.
-##   bigrquery::query_exec(querySql, project)
+## function (queryUri, project, replacements = list()) 
+## {
+##     if (missing(queryUri)) {
+##         stop("Pass the file path or url to the file containing the query.")
+##     }
+##     if (missing(project)) {
+##         stop("Pass the project id of your Google Cloud Platform project.")
+##     }
+##     if (grepl("^https.*", queryUri)) {
+##         querySql <- RCurl::getURL(queryUri, ssl.verifypeer = FALSE)
+##     }
+##     else {
+##         querySql <- readChar(queryUri, nchars = 1e+06)
+##     }
+##     for (replacement in names(replacements)) {
+##         querySql <- gsub(replacement, replacements[[replacement]], 
+##             querySql, fixed = TRUE)
+##     }
+##     cat(querySql)
+##     bigrquery::query_exec(querySql, project)
 ## }
 ## <environment: namespace:ISBCGCExamples>
 ```
@@ -166,6 +185,8 @@ result <- DisplayAndDispatchQuery(file.path(system.file(package = "ISBCGCExample
 ```
 
 ```
+# all of the TCGA molecular data tables contain the fields ParticipantBarcode and Study
+
 SELECT Study, COUNT(*) AS n
 FROM (
     SELECT ParticipantBarcode, Study
@@ -174,7 +195,14 @@ FROM (
 ) GROUP BY Study
 ORDER BY n DESC
 ```
-Number of rows returned by this query: 33.
+
+```r
+cat("Number of rows returned by this query: ", nrow(result), "\n")
+```
+
+```
+Number of rows returned by this query:  33 
+```
 
 Results from [bigrquery](https://github.com/hadley/bigrquery) are returned as R dataframes, meaning that we can make use of all of the regular dataframe functions as well as all sorts of other great R packages to do our downstream work.
 
@@ -199,13 +227,13 @@ summary(result)
 ```
 
 ```
-##  Study              n         
+##     Study                 n         
 ##  Length:33          Min.   :  36.0  
 ##  Class :character   1st Qu.: 134.0  
-##  Mode  :character   Median : 307.0  
-##                     Mean   : 336.5  
+##  Mode  :character   Median : 308.0  
+##                     Mean   : 337.9  
 ##                     3rd Qu.: 507.0  
-##                     Max.   :1088.0
+##                     Max.   :1097.0
 ```
 
 ```r
@@ -213,13 +241,13 @@ head(result)
 ```
 
 ```
-##          Study    n
-## 1         BRCA 1088
-## 2          GBM  594
-## 3           OV  587
-## 4         UCEC  545
-## 5         KIRC  536
-## 6         HNSC  526
+##   Study    n
+## 1  BRCA 1097
+## 2   GBM  596
+## 3    OV  587
+## 4  UCEC  548
+## 5  KIRC  537
+## 6  HNSC  528
 ```
 
 ## Visualize Query Results
@@ -251,7 +279,7 @@ sessionInfo()
 ```
 
 ```
-R version 3.2.2 (2015-08-14)
+R version 3.2.1 (2015-06-18)
 Platform: x86_64-apple-darwin13.4.0 (64-bit)
 Running under: OS X 10.10.5 (Yosemite)
 
@@ -262,15 +290,15 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] knitr_1.11         scales_0.3.0       ggplot2_1.0.1     
-[4] bigrquery_0.1.0    dplyr_0.4.3        ISBCGCExamples_0.1
+[1] ISBCGCExamples_0.1 ggplot2_1.0.1      scales_0.3.0      
+[4] bigrquery_0.1.0    dplyr_0.4.3       
 
 loaded via a namespace (and not attached):
- [1] Rcpp_0.12.1      magrittr_1.5     MASS_7.3-43      munsell_0.4.2   
- [5] colorspace_1.2-6 R6_2.1.1         stringr_1.0.0    httr_1.0.0      
- [9] plyr_1.8.3       tools_3.2.2      parallel_3.2.2   grid_3.2.2      
-[13] gtable_0.1.2     DBI_0.3.1        lazyeval_0.1.10  assertthat_0.1  
-[17] digest_0.6.8     reshape2_1.4.1   formatR_1.2.1    curl_0.9.3      
-[21] evaluate_0.8     labeling_0.3     stringi_0.5-5    jsonlite_0.9.17
-[25] proto_0.3-10    
+ [1] Rcpp_0.12.2      knitr_1.11       magrittr_1.5     MASS_7.3-44     
+ [5] munsell_0.4.2    colorspace_1.2-6 R6_2.1.1         stringr_1.0.0   
+ [9] httr_1.0.0       plyr_1.8.3       tools_3.2.1      parallel_3.2.1  
+[13] grid_3.2.1       gtable_0.1.2     DBI_0.3.1        lazyeval_0.1.10 
+[17] assertthat_0.1   digest_0.6.8     reshape2_1.4.1   formatR_1.2.1   
+[21] curl_0.9.3       mime_0.4         evaluate_0.8     labeling_0.3    
+[25] stringi_1.0-1    jsonlite_0.9.17  markdown_0.7.7   proto_0.3-10    
 ```

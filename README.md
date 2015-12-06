@@ -12,22 +12,22 @@ To view and run the vignettes.
   help(package="ISBCGCExamples")
 ```
 
-There are four main vignettes using TCGA data, with more in the works. 
-They involve analyzing genomic data, correlating gene expression and methylation, 
-and correlating protein and mRNA levels. 
+There are vignettes for each TCGA data type, and more elaborate examples
+involving analyzing genomic data, correlating gene expression and methylation,
+and correlating protein and mRNA levels.
 
 The vignettes as **R-markdown** can be found in the [examples-R/inst/doc](inst/doc) directory,
 which can serve as examples of using builtin BigQuery functions like Pearson
-correlation, or even how to implement more complex functions like Spearmans 
-correlation. Queries can be simple character vectors, or standalone files. 
-Results are returned as data.frames using the bigrquery package to 
+correlation, or even how to implement more complex functions like Spearmans
+correlation. Queries can be simple character vectors, or standalone files.
+Results are returned as data.frames using the bigrquery package to
 interact with the servers.
 
-The **SQL** files used in the vignettes can be found at [examples-R/inst/sql](inst/sql). 
-These are parsed and dispatched with arguments using the DisplayAndDispatchQuery function, 
+The **SQL** files used in the vignettes can be found at [examples-R/inst/sql](inst/sql).
+These are parsed and dispatched with arguments using the DisplayAndDispatchQuery function,
 found in the file of the same name in [examples-R/R](R).
 
-If you have trouble with the **OAuth**, see [examples-R/inst/doc/BigQueryIntroduction.html](inst/doc/BigQueryIntroduction.md) 
+If you have trouble with the **OAuth**, see [examples-R/inst/doc/BigQueryIntroduction.html](inst/doc/BigQueryIntroduction.md)
 for some instructions on resetting it.
 
 ## Docker
@@ -46,3 +46,6 @@ It can be run like so:
 and then navigate to http://localhost:8787 on your local machine.
 
 For more details, see [examples-R/inst/docker](inst/docker) and http://www.bioconductor.org/help/docker/.
+
+The log into Rstudio with username and password 'rstudio', for more details:
+https://github.com/rocker-org/rocker/wiki/Using-the-RStudio-image

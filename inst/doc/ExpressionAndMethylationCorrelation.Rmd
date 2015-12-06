@@ -49,8 +49,8 @@ result = DisplayAndDispatchQuery(
                                  "_METHYLATION_TABLE_"=methylationTable,
                                  "_AND_WHERE_"=andWhere,
                                  "_MINIMUM_NUMBER_OF_OBSERVATIONS_"=minNumObs))
+cat("Number of rows returned by this query: ", nrow(result), "\n")
 ```
-Number of rows returned by this query: `r nrow(result)`.
 
 The result is a table with one row for each (gene,CpG-probe) pair for which at least 30 data values exist that meet the requirements in the "andWhere" clause.  The (gene,CpG-probe) pair is defined by a gene symbol and a CpG-probe ID.  In many cases, there may be multiple CpG probes associated with a single gene.
 
@@ -85,8 +85,9 @@ expressionData = DisplayAndDispatchQuery(file.path(sqlDir, "expression-data.sql"
                                          replacements=list("_EXPRESSION_TABLE_"=expressionTable,
                                                            "_GENE_"=gene,
                                                            "_AND_WHERE_"=andWhere))
+cat("Number of rows returned by this query: ", nrow(expressionData), "\n")
 ```
-Number of rows returned by this query: `r nrow(expressionData)`.
+
 
 ```{r}
 head(expressionData)
@@ -105,9 +106,8 @@ methylationData = DisplayAndDispatchQuery(file.path(sqlDir, "methylation-data.sq
                                           replacements=list("_METHYLATION_TABLE_"=methylationTable,
                                                             "_AND_WHERE_"=andWhere,
                                                             "_PROBE_"=probe))
+cat("Number of rows returned by this query: ", nrow(methylationData), "\n")
 ```
-
-Number of rows returned by this query: `r nrow(methylationData)`.
 
 ```{r}
 head(methylationData)

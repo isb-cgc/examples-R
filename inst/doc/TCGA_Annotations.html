@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<title>TCGA Annotations</title>
+
+<script type="text/javascript">
+window.onload = function() {
+  var imgs = document.getElementsByTagName('img'), i, img;
+  for (i = 0; i < imgs.length; i++) {
+    img = imgs[i];
+    // center an image if it is the only element of its parent
+    if (img.parentElement.childElementCount === 1)
+      img.parentElement.style.textAlign = 'center';
+  }
+};
+</script>
+
+<!-- Styles for R syntax highlighter -->
+<style type="text/css">
+   pre .operator,
+   pre .paren {
+     color: rgb(104, 118, 135)
+   }
+
+   pre .literal {
+     color: #990073
+   }
+
+   pre .number {
+     color: #099;
+   }
+
+   pre .comment {
+     color: #998;
+     font-style: italic
+   }
+
+   pre .keyword {
+     color: #900;
+     font-weight: bold
+   }
+
+   pre .identifier {
+     color: rgb(0, 0, 0);
+   }
+
+   pre .string {
+     color: #d14;
+   }
+</style>
+
+<!-- R syntax highlighter -->
+<script type="text/javascript">
+var hljs=new function(){function m(p){return p.replace(/&/gm,"&amp;").replace(/</gm,"&lt;")}function f(r,q,p){return RegExp(q,"m"+(r.cI?"i":"")+(p?"g":""))}function b(r){for(var p=0;p<r.childNodes.length;p++){var q=r.childNodes[p];if(q.nodeName=="CODE"){return q}if(!(q.nodeType==3&&q.nodeValue.match(/\s+/))){break}}}function h(t,s){var p="";for(var r=0;r<t.childNodes.length;r++){if(t.childNodes[r].nodeType==3){var q=t.childNodes[r].nodeValue;if(s){q=q.replace(/\n/g,"")}p+=q}else{if(t.childNodes[r].nodeName=="BR"){p+="\n"}else{p+=h(t.childNodes[r])}}}if(/MSIE [678]/.test(navigator.userAgent)){p=p.replace(/\r/g,"\n")}return p}function a(s){var r=s.className.split(/\s+/);r=r.concat(s.parentNode.className.split(/\s+/));for(var q=0;q<r.length;q++){var p=r[q].replace(/^language-/,"");if(e[p]){return p}}}function c(q){var p=[];(function(s,t){for(var r=0;r<s.childNodes.length;r++){if(s.childNodes[r].nodeType==3){t+=s.childNodes[r].nodeValue.length}else{if(s.childNodes[r].nodeName=="BR"){t+=1}else{if(s.childNodes[r].nodeType==1){p.push({event:"start",offset:t,node:s.childNodes[r]});t=arguments.callee(s.childNodes[r],t);p.push({event:"stop",offset:t,node:s.childNodes[r]})}}}}return t})(q,0);return p}function k(y,w,x){var q=0;var z="";var s=[];function u(){if(y.length&&w.length){if(y[0].offset!=w[0].offset){return(y[0].offset<w[0].offset)?y:w}else{return w[0].event=="start"?y:w}}else{return y.length?y:w}}function t(D){var A="<"+D.nodeName.toLowerCase();for(var B=0;B<D.attributes.length;B++){var C=D.attributes[B];A+=" "+C.nodeName.toLowerCase();if(C.value!==undefined&&C.value!==false&&C.value!==null){A+='="'+m(C.value)+'"'}}return A+">"}while(y.length||w.length){var v=u().splice(0,1)[0];z+=m(x.substr(q,v.offset-q));q=v.offset;if(v.event=="start"){z+=t(v.node);s.push(v.node)}else{if(v.event=="stop"){var p,r=s.length;do{r--;p=s[r];z+=("</"+p.nodeName.toLowerCase()+">")}while(p!=v.node);s.splice(r,1);while(r<s.length){z+=t(s[r]);r++}}}}return z+m(x.substr(q))}function j(){function q(x,y,v){if(x.compiled){return}var u;var s=[];if(x.k){x.lR=f(y,x.l||hljs.IR,true);for(var w in x.k){if(!x.k.hasOwnProperty(w)){continue}if(x.k[w] instanceof Object){u=x.k[w]}else{u=x.k;w="keyword"}for(var r in u){if(!u.hasOwnProperty(r)){continue}x.k[r]=[w,u[r]];s.push(r)}}}if(!v){if(x.bWK){x.b="\\b("+s.join("|")+")\\s"}x.bR=f(y,x.b?x.b:"\\B|\\b");if(!x.e&&!x.eW){x.e="\\B|\\b"}if(x.e){x.eR=f(y,x.e)}}if(x.i){x.iR=f(y,x.i)}if(x.r===undefined){x.r=1}if(!x.c){x.c=[]}x.compiled=true;for(var t=0;t<x.c.length;t++){if(x.c[t]=="self"){x.c[t]=x}q(x.c[t],y,false)}if(x.starts){q(x.starts,y,false)}}for(var p in e){if(!e.hasOwnProperty(p)){continue}q(e[p].dM,e[p],true)}}function d(B,C){if(!j.called){j();j.called=true}function q(r,M){for(var L=0;L<M.c.length;L++){if((M.c[L].bR.exec(r)||[null])[0]==r){return M.c[L]}}}function v(L,r){if(D[L].e&&D[L].eR.test(r)){return 1}if(D[L].eW){var M=v(L-1,r);return M?M+1:0}return 0}function w(r,L){return L.i&&L.iR.test(r)}function K(N,O){var M=[];for(var L=0;L<N.c.length;L++){M.push(N.c[L].b)}var r=D.length-1;do{if(D[r].e){M.push(D[r].e)}r--}while(D[r+1].eW);if(N.i){M.push(N.i)}return f(O,M.join("|"),true)}function p(M,L){var N=D[D.length-1];if(!N.t){N.t=K(N,E)}N.t.lastIndex=L;var r=N.t.exec(M);return r?[M.substr(L,r.index-L),r[0],false]:[M.substr(L),"",true]}function z(N,r){var L=E.cI?r[0].toLowerCase():r[0];var M=N.k[L];if(M&&M instanceof Array){return M}return false}function F(L,P){L=m(L);if(!P.k){return L}var r="";var O=0;P.lR.lastIndex=0;var M=P.lR.exec(L);while(M){r+=L.substr(O,M.index-O);var N=z(P,M);if(N){x+=N[1];r+='<span class="'+N[0]+'">'+M[0]+"</span>"}else{r+=M[0]}O=P.lR.lastIndex;M=P.lR.exec(L)}return r+L.substr(O,L.length-O)}function J(L,M){if(M.sL&&e[M.sL]){var r=d(M.sL,L);x+=r.keyword_count;return r.value}else{return F(L,M)}}function I(M,r){var L=M.cN?'<span class="'+M.cN+'">':"";if(M.rB){y+=L;M.buffer=""}else{if(M.eB){y+=m(r)+L;M.buffer=""}else{y+=L;M.buffer=r}}D.push(M);A+=M.r}function G(N,M,Q){var R=D[D.length-1];if(Q){y+=J(R.buffer+N,R);return false}var P=q(M,R);if(P){y+=J(R.buffer+N,R);I(P,M);return P.rB}var L=v(D.length-1,M);if(L){var O=R.cN?"</span>":"";if(R.rE){y+=J(R.buffer+N,R)+O}else{if(R.eE){y+=J(R.buffer+N,R)+O+m(M)}else{y+=J(R.buffer+N+M,R)+O}}while(L>1){O=D[D.length-2].cN?"</span>":"";y+=O;L--;D.length--}var r=D[D.length-1];D.length--;D[D.length-1].buffer="";if(r.starts){I(r.starts,"")}return R.rE}if(w(M,R)){throw"Illegal"}}var E=e[B];var D=[E.dM];var A=0;var x=0;var y="";try{var s,u=0;E.dM.buffer="";do{s=p(C,u);var t=G(s[0],s[1],s[2]);u+=s[0].length;if(!t){u+=s[1].length}}while(!s[2]);if(D.length>1){throw"Illegal"}return{r:A,keyword_count:x,value:y}}catch(H){if(H=="Illegal"){return{r:0,keyword_count:0,value:m(C)}}else{throw H}}}function g(t){var p={keyword_count:0,r:0,value:m(t)};var r=p;for(var q in e){if(!e.hasOwnProperty(q)){continue}var s=d(q,t);s.language=q;if(s.keyword_count+s.r>r.keyword_count+r.r){r=s}if(s.keyword_count+s.r>p.keyword_count+p.r){r=p;p=s}}if(r.language){p.second_best=r}return p}function i(r,q,p){if(q){r=r.replace(/^((<[^>]+>|\t)+)/gm,function(t,w,v,u){return w.replace(/\t/g,q)})}if(p){r=r.replace(/\n/g,"<br>")}return r}function n(t,w,r){var x=h(t,r);var v=a(t);var y,s;if(v){y=d(v,x)}else{return}var q=c(t);if(q.length){s=document.createElement("pre");s.innerHTML=y.value;y.value=k(q,c(s),x)}y.value=i(y.value,w,r);var u=t.className;if(!u.match("(\\s|^)(language-)?"+v+"(\\s|$)")){u=u?(u+" "+v):v}if(/MSIE [678]/.test(navigator.userAgent)&&t.tagName=="CODE"&&t.parentNode.tagName=="PRE"){s=t.parentNode;var p=document.createElement("div");p.innerHTML="<pre><code>"+y.value+"</code></pre>";t=p.firstChild.firstChild;p.firstChild.cN=s.cN;s.parentNode.replaceChild(p.firstChild,s)}else{t.innerHTML=y.value}t.className=u;t.result={language:v,kw:y.keyword_count,re:y.r};if(y.second_best){t.second_best={language:y.second_best.language,kw:y.second_best.keyword_count,re:y.second_best.r}}}function o(){if(o.called){return}o.called=true;var r=document.getElementsByTagName("pre");for(var p=0;p<r.length;p++){var q=b(r[p]);if(q){n(q,hljs.tabReplace)}}}function l(){if(window.addEventListener){window.addEventListener("DOMContentLoaded",o,false);window.addEventListener("load",o,false)}else{if(window.attachEvent){window.attachEvent("onload",o)}else{window.onload=o}}}var e={};this.LANGUAGES=e;this.highlight=d;this.highlightAuto=g;this.fixMarkup=i;this.highlightBlock=n;this.initHighlighting=o;this.initHighlightingOnLoad=l;this.IR="[a-zA-Z][a-zA-Z0-9_]*";this.UIR="[a-zA-Z_][a-zA-Z0-9_]*";this.NR="\\b\\d+(\\.\\d+)?";this.CNR="\\b(0[xX][a-fA-F0-9]+|(\\d+(\\.\\d*)?|\\.\\d+)([eE][-+]?\\d+)?)";this.BNR="\\b(0b[01]+)";this.RSR="!|!=|!==|%|%=|&|&&|&=|\\*|\\*=|\\+|\\+=|,|\\.|-|-=|/|/=|:|;|<|<<|<<=|<=|=|==|===|>|>=|>>|>>=|>>>|>>>=|\\?|\\[|\\{|\\(|\\^|\\^=|\\||\\|=|\\|\\||~";this.ER="(?![\\s\\S])";this.BE={b:"\\\\.",r:0};this.ASM={cN:"string",b:"'",e:"'",i:"\\n",c:[this.BE],r:0};this.QSM={cN:"string",b:'"',e:'"',i:"\\n",c:[this.BE],r:0};this.CLCM={cN:"comment",b:"//",e:"$"};this.CBLCLM={cN:"comment",b:"/\\*",e:"\\*/"};this.HCM={cN:"comment",b:"#",e:"$"};this.NM={cN:"number",b:this.NR,r:0};this.CNM={cN:"number",b:this.CNR,r:0};this.BNM={cN:"number",b:this.BNR,r:0};this.inherit=function(r,s){var p={};for(var q in r){p[q]=r[q]}if(s){for(var q in s){p[q]=s[q]}}return p}}();hljs.LANGUAGES.cpp=function(){var a={keyword:{"false":1,"int":1,"float":1,"while":1,"private":1,"char":1,"catch":1,"export":1,virtual:1,operator:2,sizeof:2,dynamic_cast:2,typedef:2,const_cast:2,"const":1,struct:1,"for":1,static_cast:2,union:1,namespace:1,unsigned:1,"long":1,"throw":1,"volatile":2,"static":1,"protected":1,bool:1,template:1,mutable:1,"if":1,"public":1,friend:2,"do":1,"return":1,"goto":1,auto:1,"void":2,"enum":1,"else":1,"break":1,"new":1,extern:1,using:1,"true":1,"class":1,asm:1,"case":1,typeid:1,"short":1,reinterpret_cast:2,"default":1,"double":1,register:1,explicit:1,signed:1,typename:1,"try":1,"this":1,"switch":1,"continue":1,wchar_t:1,inline:1,"delete":1,alignof:1,char16_t:1,char32_t:1,constexpr:1,decltype:1,noexcept:1,nullptr:1,static_assert:1,thread_local:1,restrict:1,_Bool:1,complex:1},built_in:{std:1,string:1,cin:1,cout:1,cerr:1,clog:1,stringstream:1,istringstream:1,ostringstream:1,auto_ptr:1,deque:1,list:1,queue:1,stack:1,vector:1,map:1,set:1,bitset:1,multiset:1,multimap:1,unordered_set:1,unordered_map:1,unordered_multiset:1,unordered_multimap:1,array:1,shared_ptr:1}};return{dM:{k:a,i:"</",c:[hljs.CLCM,hljs.CBLCLM,hljs.QSM,{cN:"string",b:"'\\\\?.",e:"'",i:"."},{cN:"number",b:"\\b(\\d+(\\.\\d*)?|\\.\\d+)(u|U|l|L|ul|UL|f|F)"},hljs.CNM,{cN:"preprocessor",b:"#",e:"$"},{cN:"stl_container",b:"\\b(deque|list|queue|stack|vector|map|set|bitset|multiset|multimap|unordered_map|unordered_set|unordered_multiset|unordered_multimap|array)\\s*<",e:">",k:a,r:10,c:["self"]}]}}}();hljs.LANGUAGES.r={dM:{c:[hljs.HCM,{cN:"number",b:"\\b0[xX][0-9a-fA-F]+[Li]?\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\b\\d+(?:[eE][+\\-]?\\d*)?L\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\b\\d+\\.(?!\\d)(?:i\\b)?",e:hljs.IMMEDIATE_RE,r:1},{cN:"number",b:"\\b\\d+(?:\\.\\d*)?(?:[eE][+\\-]?\\d*)?i?\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\.\\d+(?:[eE][+\\-]?\\d*)?i?\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"keyword",b:"(?:tryCatch|library|setGeneric|setGroupGeneric)\\b",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\.\\.\\.",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\.\\.\\d+(?![\\w.])",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\b(?:function)",e:hljs.IMMEDIATE_RE,r:2},{cN:"keyword",b:"(?:if|in|break|next|repeat|else|for|return|switch|while|try|stop|warning|require|attach|detach|source|setMethod|setClass)\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"literal",b:"(?:NA|NA_integer_|NA_real_|NA_character_|NA_complex_)\\b",e:hljs.IMMEDIATE_RE,r:10},{cN:"literal",b:"(?:NULL|TRUE|FALSE|T|F|Inf|NaN)\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"identifier",b:"[a-zA-Z.][a-zA-Z0-9._]*\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"operator",b:"<\\-(?!\\s*\\d)",e:hljs.IMMEDIATE_RE,r:2},{cN:"operator",b:"\\->|<\\-",e:hljs.IMMEDIATE_RE,r:1},{cN:"operator",b:"%%|~",e:hljs.IMMEDIATE_RE},{cN:"operator",b:">=|<=|==|!=|\\|\\||&&|=|\\+|\\-|\\*|/|\\^|>|<|!|&|\\||\\$|:",e:hljs.IMMEDIATE_RE,r:0},{cN:"operator",b:"%",e:"%",i:"\\n",r:1},{cN:"identifier",b:"`",e:"`",r:0},{cN:"string",b:'"',e:'"',c:[hljs.BE],r:0},{cN:"string",b:"'",e:"'",c:[hljs.BE],r:0},{cN:"paren",b:"[[({\\])}]",e:hljs.IMMEDIATE_RE,r:0}]}};
+hljs.initHighlightingOnLoad();
+</script>
+
+
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 13px;
+}
+
+body {
+  max-width: 800px;
+  margin: auto;
+  padding: 1em;
+  line-height: 20px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 {
+   font-size:2.2em;
+}
+
+h2 {
+   font-size:1.8em;
+}
+
+h3 {
+   font-size:1.4em;
+}
+
+h4 {
+   font-size:1.0em;
+}
+
+h5 {
+   font-size:0.9em;
+}
+
+h6 {
+   font-size:0.8em;
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre, img {
+  max-width: 100%;
+}
+pre {
+  overflow-x: auto;
+}
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code {
+  font-size: 92%;
+  border: 1px solid #ccc;
+}
+
+code[class] {
+  background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * {
+      background: transparent !important;
+      color: black !important;
+      filter:none !important;
+      -ms-filter: none !important;
+   }
+
+   body {
+      font-size:12pt;
+      max-width:100%;
+   }
+
+   a, a:visited {
+      text-decoration: underline;
+   }
+
+   hr {
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote {
+      padding-right: 1em;
+      page-break-inside: avoid;
+   }
+
+   tr, img {
+      page-break-inside: avoid;
+   }
+
+   img {
+      max-width: 100% !important;
+   }
+
+   @page :left {
+      margin: 15mm 20mm 15mm 10mm;
+   }
+
+   @page :right {
+      margin: 15mm 10mm 15mm 20mm;
+   }
+
+   p, h2, h3 {
+      orphans: 3; widows: 3;
+   }
+
+   h2, h3 {
+      page-break-after: avoid;
+   }
+}
+</style>
+
+
+
+</head>
+
+<body>
+<h1>TCGA Annotations</h1>
+
+<p>The goal of this notebook is to introduce you to the TCGA Annotations BigQuery table. You can find more detail about Annotations on the TCGA Wiki, but the key things to know are:
+an annotation can refer to any &ldquo;type&rdquo; of TCGA &ldquo;item&rdquo; (eg patient, sample, portion, slide, analyte or aliquot), and
+each annotation has a &ldquo;classification&rdquo; and a &ldquo;category&rdquo;, both of which are drawn from controlled vocabularies.
+The current set of annotation classifications includes: Redaction, Notification, CenterNotification, and Observation. The authority for Redactions and Notifications is the BCR (Biospecimen Core Resource), while CenterNotifications can come from any of the data-generating centers (GSC or GCC), and Observations from any authorized TCGA personnel. Within each classification type, there are several categories.
+We will look at these further by querying directly on the Annotations table.
+Note that annotations about patients, samples, and aliquots are separate from the clinical, biospecimen, and molecular data, and most patients, samples, and aliquots do not in fact have any annotations associated with them. It can be important, however, when creating a cohort or analyzing the molecular data associated with a cohort, to check for the existence of annotations.</p>
+
+<p>In order to work with BigQuery, you need to import the bigrquery library and you need to know the name(s) of the table(s) you are going to be working with:</p>
+
+<pre><code class="r">require(bigrquery) || install.packages(&quot;bigrquery&quot;)
+</code></pre>
+
+<pre><code>## [1] TRUE
+</code></pre>
+
+<pre><code class="r">annotationsTable &lt;- &quot;[isb-cgc:tcga_201510_alpha.Annotations]&quot;
+</code></pre>
+
+<p>From now on, we will occationally refer to this table using this variable annotationsTable, but we could just as well explicitly give the table name each time.
+Let&#39;s start by taking a look at the table schema:</p>
+
+<pre><code class="r">querySql &lt;- paste(&quot;SELECT * FROM &quot;,annotationsTable,&quot; limit 1&quot;, sep=&quot;&quot;)
+result &lt;- query_exec(querySql, project=project)
+data.frame(Columns=colnames(result))
+</code></pre>
+
+<pre><code>##                     Columns
+## 1              annotationId
+## 2      annotationCategoryId
+## 3    annotationCategoryName
+## 4  annotationClassification
+## 5        annotationNoteText
+## 6                     Study
+## 7              itemTypeName
+## 8               itemBarcode
+## 9            AliquotBarcode
+## 10       ParticipantBarcode
+## 11            SampleBarcode
+## 12                dateAdded
+## 13              dateCreated
+## 14               dateEdited
+</code></pre>
+
+<h2>Item Types</h2>
+
+<p>Most of the schema fields come directly from the TCGA Annotations. First and foremost, an annotation is associated with an itemType, as described above. This can be a patient, an aliquot, etc. Let&#39;s see what the breakdown is of annotations according to item-type:</p>
+
+<pre><code class="r">querySql &lt;- &quot;
+SELECT itemTypeName, COUNT(*) AS n
+FROM [isb-cgc:tcga_201510_alpha.Annotations]
+GROUP BY itemTypeName
+ORDER BY n DESC&quot;
+
+result &lt;- query_exec(querySql, project=project)
+head(result)
+</code></pre>
+
+<pre><code>##      itemTypeName     n
+## 1         Aliquot 12928
+## 2 Shipped Portion  1749
+## 3         Patient  1378
+## 4         Analyte   789
+## 5           Slide   552
+## 6          Sample   114
+</code></pre>
+
+<p>The length of the barcode in the itemBarcode field will depend on the value in the itemTypeName field: if the itemType is &#39;Patient&#39;, then the barcode will be something like TCGA-E2-A15J, whereas if the itemType is &ldquo;Aliquot&rdquo;, the barcode will be a full-length barcode, eg TCGA-E2-A15J-10A-01D-a12N-01.</p>
+
+<h2>Annotation Classifications and Categories</h2>
+
+<p>The next most important pieces of information about an annotation are the &ldquo;classification&rdquo; and &ldquo;category&rdquo;. Each of these comes from a controlled vocabulary and each &ldquo;classification&rdquo; has a specific set of allowed &ldquo;categories&rdquo;.
+One important thing to understand is that if an aliquot carries some sort of disqualifying annotation, in general all other data from other samples or aliquots associated with that same patient should still be usable. On the other hand, if a patient carries some sort of disqualifying annotation, then that information should be considered prior to using any of the samples or aliquots derived from that patient.</p>
+
+<p>To illustrate this, let&#39;s look at the most frequent annotation classifications and categories when the itemType is Patient:</p>
+
+<pre><code class="r">querySql &lt;- &quot;
+SELECT
+  annotationClassification,
+  annotationCategoryName,
+  COUNT(*) AS n
+FROM
+  [isb-cgc:tcga_201510_alpha.Annotations]
+WHERE
+  ( itemTypeName=&#39;Patient&#39; )
+GROUP BY
+  annotationClassification,
+  annotationCategoryName
+HAVING ( n &gt;= 50 )
+ORDER BY
+  n DESC&quot;
+
+result &lt;- query_exec(querySql, project=project)
+head(result)
+</code></pre>
+
+<pre><code>##   annotationClassification
+## 1             Notification
+## 2             Notification
+## 3             Notification
+## 4             Notification
+## 5             Notification
+## 6             Notification
+##                                                        annotationCategoryName
+## 1                                                            Prior malignancy
+## 2                                                   Alternate sample pipeline
+## 3 History of unacceptable prior treatment related to a prior/other malignancy
+## 4                                                      Synchronous malignancy
+## 5                                                         Neoadjuvant therapy
+## 6                                                        Item is noncanonical
+##     n
+## 1 407
+## 2 200
+## 3 139
+## 4 110
+## 5 102
+## 6  81
+</code></pre>
+
+<p>The results of the previous query indicate that the majority of patient-level annotations are &ldquo;Notifications&rdquo;, most frequently regarding prior malignancies. In most TCGA publications, &ldquo;history of unacceptable prior treatment&rdquo; and &ldquo;item is noncanonical&rdquo; notifications are treated as disqualifying annotations, and all data associated with those patients is not used in any analysis.
+Let&#39;s make a slight modification to the last query to see what types of annotation categories and classifications we see when the item type is not patient:</p>
+
+<pre><code class="r">querySql &lt;- &quot;
+SELECT
+  annotationClassification,
+  annotationCategoryName,
+  itemTypeName,
+  COUNT(*) AS n
+FROM
+  [isb-cgc:tcga_201510_alpha.Annotations]
+WHERE
+  ( itemTypeName!=&#39;Patient&#39; )
+GROUP BY
+  annotationClassification,
+  annotationCategoryName,
+  itemTypeName
+HAVING ( n &gt;= 50 )
+ORDER BY
+  n DESC&quot;
+
+result &lt;- query_exec(querySql, project=project)
+head(result)
+</code></pre>
+
+<pre><code>##   annotationClassification annotationCategoryName    itemTypeName     n
+## 1       CenterNotification       Item flagged DNU         Aliquot 12303
+## 2             Notification   Item is noncanonical Shipped Portion  1741
+## 3             Notification   Item is noncanonical           Slide   541
+## 4             Notification   Item is noncanonical         Analyte   464
+## 5              Observation                General         Analyte   179
+## 6       CenterNotification       Center QC failed         Aliquot   149
+</code></pre>
+
+<p>The results of the previous query indicate that the vast majority of annotations are at the aliquot level, and more specifically were submitted by one of the data-generating centers, indicating that the data derived from that aliquot is &ldquo;DNU&rdquo; (Do Not Use). In general, this should not affect any other aliquots derived from the same sample or any other samples derived from the same patient.
+We see in the output of the previous query that a Notification that an &ldquo;Item is noncanonical&rdquo; can be applied to different types of items (eg slides and analytes). Let&#39;s investigate this a little bit further, for example let&#39;s count up these types of annotations by study (ie tumor-type):</p>
+
+<pre><code class="r">querySql &lt;- &quot;
+SELECT
+  Study,
+  COUNT(*) AS n
+FROM
+  [isb-cgc:tcga_201510_alpha.Annotations]
+WHERE
+  ( annotationCategoryName=&#39;Item is noncanonical&#39; )
+GROUP BY
+  Study
+ORDER BY
+  n DESC&quot;
+
+result &lt;- query_exec(querySql, project=project)
+head(result)
+</code></pre>
+
+<pre><code>##   Study   n
+## 1    OV 743
+## 2   GBM 519
+## 3  KIRC 455
+## 4  COAD 314
+## 5  LUAD 238
+## 6  LUSC 231
+</code></pre>
+
+<p>and now let&#39;s pick one of these tumor types, and delve a little bit further:</p>
+
+<pre><code class="r">querySql &lt;- &quot;
+SELECT
+  itemTypeName,
+  COUNT(*) AS n
+FROM
+  [isb-cgc:tcga_201510_alpha.Annotations]
+WHERE
+  ( annotationCategoryName=&#39;Item is noncanonical&#39;
+    AND Study=&#39;OV&#39; )
+GROUP BY
+  itemTypeName
+ORDER BY
+  n DESC&quot;
+
+result &lt;- query_exec(querySql, project=project)
+head(result)
+</code></pre>
+
+<pre><code>##      itemTypeName   n
+## 1           Slide 409
+## 2 Shipped Portion 220
+## 3         Analyte 110
+## 4         Patient   3
+## 5          Sample   1
+</code></pre>
+
+<h2>Barcodes</h2>
+
+<p>As described above, an annotation is specific to a single TCGA &ldquo;item&rdquo; and the fields itemTypeName and itemBarcode are the most important keys to understanding which TCGA item carries the annotation. Because we use the fields ParticipantBarcode, SampleBarcode, and AliquotBarcode throughout our other TCGA BigQuery tables, we have added them to this table as well, but they should be interpreted with some care: when an annotation is specific to an aliquot (ie itemTypeName=&ldquo;Aliquot&rdquo;), the ParticipantBarcode, SampleBarcode, and AliquotBarcode fields will all be set, but this should not be interpreted to mean that the annotation applies to all data derived from that patient.</p>
+
+<p>This will be illustrated with the following two queries which extract information pertaining to a few specific patients:</p>
+
+<pre><code class="r">querySql &lt;- &quot;
+SELECT
+ Study,
+ itemTypeName,
+ itemBarcode,
+ annotationCategoryName,
+ annotationClassification,
+ ParticipantBarcode,
+ SampleBarcode,
+ AliquotBarcode,
+ LENGTH(itemBarcode) AS n
+FROM
+  [isb-cgc:tcga_201510_alpha.Annotations]
+WHERE
+  ( ParticipantBarcode=&#39;TCGA-61-1916&#39; )
+ORDER BY n ASC&quot;
+
+result &lt;- query_exec(querySql, project=project)
+head(result)
+</code></pre>
+
+<pre><code>##   Study itemTypeName          itemBarcode annotationCategoryName
+## 1    OV      Patient         TCGA-61-1916 Item in special subset
+## 2    OV      Analyte TCGA-61-1916-01A-01T   Item is noncanonical
+## 3    OV      Analyte TCGA-61-1916-01A-01W   Item is noncanonical
+## 4    OV      Analyte TCGA-61-1916-02A-01W   Item is noncanonical
+## 5    OV      Analyte TCGA-61-1916-11A-01W   Item is noncanonical
+## 6    OV      Analyte TCGA-61-1916-01A-01G   Item is noncanonical
+##   annotationClassification ParticipantBarcode    SampleBarcode
+## 1             Notification       TCGA-61-1916             &lt;NA&gt;
+## 2             Notification       TCGA-61-1916 TCGA-61-1916-01A
+## 3             Notification       TCGA-61-1916 TCGA-61-1916-01A
+## 4             Notification       TCGA-61-1916 TCGA-61-1916-02A
+## 5             Notification       TCGA-61-1916 TCGA-61-1916-11A
+## 6             Notification       TCGA-61-1916 TCGA-61-1916-01A
+##   AliquotBarcode  n
+## 1           &lt;NA&gt; 12
+## 2           &lt;NA&gt; 20
+## 3           &lt;NA&gt; 20
+## 4           &lt;NA&gt; 20
+## 5           &lt;NA&gt; 20
+## 6           &lt;NA&gt; 20
+</code></pre>
+
+<pre><code class="r">querySql &lt;- &quot;
+SELECT
+ Study,
+ itemTypeName,
+ itemBarcode,
+ annotationCategoryName,
+ annotationClassification,
+ ParticipantBarcode,
+ SampleBarcode,
+ AliquotBarcode,
+ LENGTH(itemBarcode) AS n
+FROM
+  [isb-cgc:tcga_201510_alpha.Annotations]
+WHERE
+  ( ParticipantBarcode=&#39;TCGA-GN-A261&#39; )
+ORDER BY n ASC&quot;
+
+result &lt;- query_exec(querySql, project=project)
+head(result)
+</code></pre>
+
+<pre><code>##   Study itemTypeName  itemBarcode        annotationCategoryName
+## 1  SKCM      Patient TCGA-GN-A261 Tumor tissue origin incorrect
+## 2  SKCM      Patient TCGA-GN-A261           Neoadjuvant therapy
+##   annotationClassification ParticipantBarcode SampleBarcode AliquotBarcode
+## 1                Redaction       TCGA-GN-A261          &lt;NA&gt;           &lt;NA&gt;
+## 2             Notification       TCGA-GN-A261          &lt;NA&gt;           &lt;NA&gt;
+##    n
+## 1 12
+## 2 12
+</code></pre>
+
+<p>As you can see in the results returned from the previous two queries, the SampleBarcode and the AliquotBarcode fields may or may not be filled in, depending on the itemTypeName.</p>
+
+<pre><code class="r">querySql &lt;- &quot;
+SELECT
+ Study,
+ itemTypeName,
+ itemBarcode,
+ annotationCategoryName,
+ annotationClassification,
+ annotationNoteText,
+ ParticipantBarcode,
+ SampleBarcode,
+ AliquotBarcode,
+ LENGTH(itemBarcode) AS n
+FROM
+  [isb-cgc:tcga_201510_alpha.Annotations]
+WHERE
+  ( ParticipantBarcode=&#39;TCGA-RS-A6TP&#39; )
+ORDER BY n ASC&quot;
+
+result &lt;- query_exec(querySql, project=project)
+head(result)
+</code></pre>
+
+<pre><code>##   Study itemTypeName          itemBarcode annotationCategoryName
+## 1  HNSC      Analyte TCGA-RS-A6TP-10A-01D                General
+##   annotationClassification
+## 1              Observation
+##                                                                                                                                                                                                            annotationNoteText
+## 1 DNA analyte UUID: 8304F61F-C217-4B9F-BA64-6486DA54E6C8 was involved in an extraction protocol deviation wherein an additional column purification step was used as a means of buffer exchange on the column-eluted analyte.
+##   ParticipantBarcode    SampleBarcode AliquotBarcode  n
+## 1       TCGA-RS-A6TP TCGA-RS-A6TP-10A           &lt;NA&gt; 20
+</code></pre>
+
+<p>In this example, there is just one annotation relevant to this particular patient, and one has to look at the annotationNoteText to find out what the potential issue may be with this particular analyte. Any aliquots derived from this blood-normal analyte might need to be used with care.</p>
+
+</body>
+
+</html>

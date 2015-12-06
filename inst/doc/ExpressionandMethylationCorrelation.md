@@ -14,7 +14,8 @@ library(ISBCGCExamples)
 
 # The directory in which the files containing SQL reside.
 #sqlDir = file.path("/PATH/TO/GIT/CLONE/OF/examples-R/inst/",
-sqlDir = file.path(system.file(package = "ISBCGCExamples"),"sql")
+sqlDir = file.path(system.file(package = "ISBCGCExamples"),
+                   "sql")
 ```
 
 
@@ -43,7 +44,7 @@ andWhere = "AND SampleTypeLetterCode = 'TP' AND Study = 'CESC' AND CHR = '9'"
 # Do not correlate unless there are at least this many observations available:
 minNumObs = 30
 
-# Now we are ready to run the query.  (Should return 6046 rows.)
+# Now we are ready to run the query.  (Should return 6110 rows.)
 result = DisplayAndDispatchQuery(
      file.path(sqlDir, "expression-methylation-correlation.sql"),
                project=project,
@@ -64,7 +65,7 @@ SELECT
 FROM (
   # We select the sample-barcode, gene-symbol, gene-expression, probe-id, and beta-value
   # from a "JOIN" of the gene expression data and the methylation data.  Note that we log-
-  # transform the expression since the value in the table is a normalized_count value.
+  # transform the expression since the value in the table is a normalized_count value. 
   SELECT
     expr.SampleBarcode,
     HGNC_gene_symbol,
@@ -76,7 +77,7 @@ FROM (
   JOIN EACH ( FLATTEN ( (
         # We select the sample-barcode, sample-type, study-name, probe-id, beta-value, and gene-symbol
         # from the results of a "JOIN" of the methylation data and the methylation annotation tables
-        # which are joined on the CpG probe id that exists in both tables.  Note that we need to
+        # which are joined on the CpG probe id that exists in both tables.  Note that we need to 
         # FLATTEN this because the UCSC.RefGene information is a (potentially) repeated field.
         SELECT
           SampleBarcode,
@@ -84,7 +85,7 @@ FROM (
           Study,
           Probe_ID,
           Beta_Value,
-	  CHR,
+	        CHR,
           UCSC.RefGene_Name
         FROM
           [isb-cgc:tcga_201510_alpha.DNA_Methylation_betas] AS methData
@@ -109,7 +110,14 @@ HAVING
 ORDER BY
   correlation ASC
 ```
-Number of rows returned by this query: 6046.
+
+```r
+cat("Number of rows returned by this query: ", nrow(result), "\n")
+```
+
+```
+Number of rows returned by this query:  6046 
+```
 
 The result is a table with one row for each (gene,CpG-probe) pair for which at least 30 data values exist that meet the requirements in the "andWhere" clause.  The (gene,CpG-probe) pair is defined by a gene symbol and a CpG-probe ID.  In many cases, there may be multiple CpG probes associated with a single gene.
 
@@ -121,17 +129,16 @@ head(result)
 
 ```
 ##   HGNC_gene_symbol   Probe_ID num_observations correlation
-## 1           PHYHD1 cg14299940              903  -0.8018487
+## 1           PHYHD1 cg14299940              301  -0.8018487
 ## 2            INSL6 cg13504907              301  -0.7800666
-## 3            BICD2 cg02929681              602  -0.7252331
-## 4             CRAT cg22192879              903  -0.6979521
-## 5            BICD2 cg13683626              602  -0.6953693
-## 6            BICD2 cg14181777              602  -0.6806368
+## 3            BICD2 cg02929681              301  -0.7252331
+## 4             CRAT cg22192879              301  -0.6979521
+## 5            BICD2 cg13683626              301  -0.6953693
+## 6            BICD2 cg14181777              301  -0.6806368
 ```
 
 
 ```r
-
 # Histogram overlaid with kernel density curve
 ggplot(result, aes(x=correlation)) +
     geom_histogram(aes(y=..density..),      # Histogram with density instead of count on y-axis
@@ -174,7 +181,15 @@ WHERE
 ORDER BY
   SampleBarcode
 ```
-Number of rows returned by this query: 301.
+
+```r
+cat("Number of rows returned by this query: ", nrow(expressionData), "\n")
+```
+
+```
+Number of rows returned by this query:  301 
+```
+
 
 
 ```r
@@ -183,12 +198,12 @@ head(expressionData)
 
 ```
 ##      SampleBarcode HGNC_gene_symbol normalized_count
-## 1 TCGA-02-0047-01A           PHYHD1          84.8213
-## 2 TCGA-02-0055-01A           PHYHD1         220.8830
-## 3 TCGA-02-2483-01A           PHYHD1          67.9683
-## 4 TCGA-02-2485-01A           PHYHD1          39.0476
-## 5 TCGA-02-2486-01A           PHYHD1         252.4390
-## 6 TCGA-04-1348-01A           PHYHD1        1181.5004
+## 1 TCGA-2W-A8YY-01A           PHYHD1        1467.8112
+## 2 TCGA-4J-AA1J-01A           PHYHD1         632.2085
+## 3 TCGA-BI-A0VR-01A           PHYHD1          13.3608
+## 4 TCGA-BI-A0VS-01A           PHYHD1         446.1287
+## 5 TCGA-BI-A20A-01A           PHYHD1          48.6473
+## 6 TCGA-C5-A0TN-01A           PHYHD1          49.1132
 ```
 
 ### Retrieve Methylation Data
@@ -225,7 +240,13 @@ ORDER BY
   Study
 ```
 
-Number of rows returned by this query: 9626.
+```r
+cat("Number of rows returned by this query: ", nrow(methylationData), "\n")
+```
+
+```
+Number of rows returned by this query:  303 
+```
 
 
 ```r
@@ -233,13 +254,13 @@ head(methylationData)
 ```
 
 ```
-##     SampleBarcode SampleTypeLetterCode Study   Probe_ID Beta_Value
-##1 TCGA-2W-A8YY-01A                   TP  CESC cg14299940       0.03
-##2 TCGA-4J-AA1J-01A                   TP  CESC cg14299940       0.07
-##3 TCGA-BI-A0VR-01A                   TP  CESC cg14299940       0.54
-##4 TCGA-BI-A0VS-01A                   TP  CESC cg14299940       0.08
-##5 TCGA-BI-A20A-01A                   TP  CESC cg14299940       0.56
-##6 TCGA-C5-A0TN-01A                   TP  CESC cg14299940       0.05
+##      SampleBarcode SampleTypeLetterCode Study   Probe_ID Beta_Value
+## 1 TCGA-2W-A8YY-01A                   TP  CESC cg14299940       0.03
+## 2 TCGA-4J-AA1J-01A                   TP  CESC cg14299940       0.07
+## 3 TCGA-BI-A0VR-01A                   TP  CESC cg14299940       0.54
+## 4 TCGA-BI-A0VS-01A                   TP  CESC cg14299940       0.08
+## 5 TCGA-BI-A20A-01A                   TP  CESC cg14299940       0.56
+## 6 TCGA-C5-A0TN-01A                   TP  CESC cg14299940       0.05
 ```
 
 ### Perform the correlation
@@ -259,13 +280,20 @@ head(data)
 ```
 
 ```
-##     SampleBarcode HGNC_gene_symbol normalized_count SampleTypeLetterCode Study   Probe_ID Beta_Value
-##1 TCGA-2W-A8YY-01A           PHYHD1        1467.8112                   TP  CESC cg14299940       0.03
-##2 TCGA-4J-AA1J-01A           PHYHD1         632.2085                   TP  CESC cg14299940       0.07
-##3 TCGA-BI-A0VR-01A           PHYHD1          13.3608                   TP  CESC cg14299940       0.54
-##4 TCGA-BI-A0VS-01A           PHYHD1         446.1287                   TP  CESC cg14299940       0.08
-##5 TCGA-BI-A20A-01A           PHYHD1          48.6473                   TP  CESC cg14299940       0.56
-##6 TCGA-C5-A0TN-01A           PHYHD1          49.1132                   TP  CESC cg14299940       0.05
+##      SampleBarcode HGNC_gene_symbol normalized_count SampleTypeLetterCode
+## 1 TCGA-2W-A8YY-01A           PHYHD1        1467.8112                   TP
+## 2 TCGA-4J-AA1J-01A           PHYHD1         632.2085                   TP
+## 3 TCGA-BI-A0VR-01A           PHYHD1          13.3608                   TP
+## 4 TCGA-BI-A0VS-01A           PHYHD1         446.1287                   TP
+## 5 TCGA-BI-A20A-01A           PHYHD1          48.6473                   TP
+## 6 TCGA-C5-A0TN-01A           PHYHD1          49.1132                   TP
+##   Study   Probe_ID Beta_Value
+## 1  CESC cg14299940       0.03
+## 2  CESC cg14299940       0.07
+## 3  CESC cg14299940       0.54
+## 4  CESC cg14299940       0.08
+## 5  CESC cg14299940       0.56
+## 6  CESC cg14299940       0.05
 ```
 
 And run a pearson correlation on it:
@@ -275,15 +303,24 @@ p = round(cor(x=data$normalized_count, y=data$Beta_Value, method="pearson"), 3)
 qplot(data=data, y=log2(normalized_count), x=Beta_Value, geom=c("point","smooth"),
       xlab="methylation level (beta value)", ylab="mRNA level") +
       geom_text(x = 0.7, y = 11, label = paste("Pearson Corr ", p))
+```
+
+```
+## geom_smooth: method="auto" and size of largest group is <1000, so using loess. Use 'method = x' to change the smoothing method.
+```
+
+![plot of chunk unnamed-chunk-10](figure/unnamed-chunk-10-1.png) 
+
+```r
 p
 ```
 
 ```
-## [1] -0.802
+## [1] -0.619
 ```
 
 And we can see that we have reproduced one of our results from BigQuery.
-the correlation now is -0.802 on 301 samples.
+the correlation now is -0.802 on 301 samples...
 
 ## Provenance
 
@@ -292,7 +329,7 @@ sessionInfo()
 ```
 
 ```
-R version 3.2.2 (2015-08-14)
+R version 3.2.1 (2015-06-18)
 Platform: x86_64-apple-darwin13.4.0 (64-bit)
 Running under: OS X 10.10.5 (Yosemite)
 
@@ -303,15 +340,15 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] knitr_1.11         scales_0.3.0       ggplot2_1.0.1     
-[4] bigrquery_0.1.0    dplyr_0.4.3        ISBCGCExamples_0.1
+[1] ISBCGCExamples_0.1 ggplot2_1.0.1      scales_0.3.0      
+[4] bigrquery_0.1.0    dplyr_0.4.3       
 
 loaded via a namespace (and not attached):
- [1] Rcpp_0.12.1      magrittr_1.5     MASS_7.3-43      munsell_0.4.2   
- [5] colorspace_1.2-6 R6_2.1.1         stringr_1.0.0    httr_1.0.0      
- [9] plyr_1.8.3       tools_3.2.2      parallel_3.2.2   grid_3.2.2      
-[13] gtable_0.1.2     DBI_0.3.1        lazyeval_0.1.10  assertthat_0.1  
-[17] digest_0.6.8     reshape2_1.4.1   formatR_1.2.1    curl_0.9.3      
-[21] mime_0.4         evaluate_0.8     labeling_0.3     stringi_0.5-5   
-[25] jsonlite_0.9.17  markdown_0.7.7   proto_0.3-10    
+ [1] Rcpp_0.12.2      knitr_1.11       magrittr_1.5     MASS_7.3-44     
+ [5] munsell_0.4.2    colorspace_1.2-6 R6_2.1.1         stringr_1.0.0   
+ [9] httr_1.0.0       plyr_1.8.3       tools_3.2.1      parallel_3.2.1  
+[13] grid_3.2.1       gtable_0.1.2     DBI_0.3.1        lazyeval_0.1.10 
+[17] assertthat_0.1   digest_0.6.8     reshape2_1.4.1   formatR_1.2.1   
+[21] curl_0.9.3       mime_0.4         evaluate_0.8     labeling_0.3    
+[25] stringi_1.0-1    jsonlite_0.9.17  markdown_0.7.7   proto_0.3-10    
 ```
