@@ -47,5 +47,5 @@ and then navigate to http://localhost:8787 on your local machine.
 
 For more details, see [examples-R/inst/docker](inst/docker) and http://www.bioconductor.org/help/docker/.
 
-The log into Rstudio with username and password 'rstudio', for more details:
+Then log into Rstudio with username and password 'rstudio', for more details:
 https://github.com/rocker-org/rocker/wiki/Using-the-RStudio-image
