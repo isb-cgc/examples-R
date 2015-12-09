@@ -135,11 +135,8 @@ ORDER BY
 
 result <- query_exec(querySql, project=project)
 head(result)
+table(result$Study)
 
-#' Then to count these new results.
-#' 
-## ------------------------------------------------------------------------
-table(results$Study)
 
 #' 
 #' When we counted the number of mutated samples, we found 261 THCA samples, but when we counted the number of patients, we found 258 THCA patients, so let's see what's going on there.

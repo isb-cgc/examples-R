@@ -304,7 +304,7 @@ JOIN (
     POW(STDDEV(LOG2(normalized_count+1)),2) AS sy2,
     COUNT(ParticipantBarcode) AS ny
   FROM
-    [isb-cgc:tcga_201507_alpha.mRNA_UNC_HiSeq_RSEM]
+    [isb-cgc:tcga_201510_alpha.mRNA_UNC_HiSeq_RSEM]
   WHERE
     Study = 'BRCA'
     AND HGNC_gene_symbol = 'GATA3'
@@ -362,7 +362,7 @@ result1
 #' 
 #' Finally, let's just "bang-the-hammer" and query ALL genes!
 #' 
-## ----chunk12-------------------------------------------------------------
+## ----ttest_fig1----------------------------------------------------------
 
 q <- "
 SELECT
@@ -409,7 +409,7 @@ JOIN (
    POW(STDDEV(LOG2(normalized_count+1)),2) AS sy2,
    COUNT(ParticipantBarcode) as ny
   FROM
-   [isb-cgc:tcga_201507_alpha.mRNA_UNC_HiSeq_RSEM]
+   [isb-cgc:tcga_201510_alpha.mRNA_UNC_HiSeq_RSEM]
   WHERE
    SampleTypeLetterCode = 'TP'
    and Study = 'BRCA'
@@ -469,11 +469,11 @@ qplot(data=result1, x=T, y=mean_diff, shape=as.factor(gene_label), col=as.factor
 #' the actual expression values, and use the R T-test.
 #' 
 #' 
-## ----chunk13-------------------------------------------------------------
+## ----ttest_fig2----------------------------------------------------------
 
 q <- "
 SELECT HGNC_gene_symbol, ParticipantBarcode, LOG2(normalized_count+1)
-FROM [isb-cgc:tcga_201507_alpha.mRNA_UNC_HiSeq_RSEM]
+FROM [isb-cgc:tcga_201510_alpha.mRNA_UNC_HiSeq_RSEM]
 WHERE Study = 'BRCA'
 and HGNC_gene_symbol = 'GATA3'
 and SampleTypeLetterCode = 'TP'
@@ -493,7 +493,7 @@ mutExpr <- query_exec(q, project)   # SOME DUPLCIATES
 
 q <- "
 SELECT HGNC_gene_symbol, ParticipantBarcode, LOG2(normalized_count+1)
-FROM [isb-cgc:tcga_201507_alpha.mRNA_UNC_HiSeq_RSEM]
+FROM [isb-cgc:tcga_201510_alpha.mRNA_UNC_HiSeq_RSEM]
 WHERE Study = 'BRCA'
 and HGNC_gene_symbol = 'GATA3'
 and SampleTypeLetterCode = 'TP'

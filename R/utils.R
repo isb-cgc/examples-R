@@ -4,6 +4,8 @@
 # Instead we use this internal helper function tobuild them manually and
 # check in the rendered results to inst/doc in the package.
 knitAllVignettes <- function() {
+  library(knitr)
+  opts_chunk$set(error=FALSE)
   if(FALSE == grepl('doc$', getwd())) {
     stop("be sure to setwd('PATH/TO/inst/doc') before running this command.")
   }
