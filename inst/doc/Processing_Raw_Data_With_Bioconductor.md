@@ -175,7 +175,7 @@ docker ps # get the container ID
 docker cp 1cf74ce69172:image_cel1.pdf .
 ```
 
-![plot of chunk image_cel1](figure/image_cel1.jpg)
+<img src="figure/image_cel1.jpg" title="image of SNP 6.0 array" alt="" style="display: block; margin: auto;" />
 
 So, we mounted a bucket in a docker container. Read a raw CEL file from that
 bucket, and using a bioconductor package, produced an image of that microarray.
