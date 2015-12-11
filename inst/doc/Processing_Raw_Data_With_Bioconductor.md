@@ -149,16 +149,13 @@ https://www.bioconductor.org/packages/3.3/bioc/html/SCAN.UPC.html
 
 
 ```
-# first we get the package installed
 source("https://bioconductor.org/biocLite.R")
 biocLite("SCAN.UPC")
 library(SCAN.UPC)
 
-# then we get the CEL file paths
-celfiles <- list.files("/media/dat/ccle/SNP_Arrays/", pattern="*.CEL")
+celfiles <- list.files("/media/dat/ccle/SNP_Arrays/", pattern=".CEL")
 celpath <- paste("/media/dat/ccle/SNP_Arrays/", celfiles[1], sep="")
 
-# then we normalize a sample
 normalized <- SCAN(celpath)
 ```
 
@@ -181,8 +178,11 @@ docker ps -a
 Then to save our local changes (maybe???)
 
 ```
-docker commit container_id image_name
+docker commit container_id new_image_name
 ```
+
+Then, the next time you run your docker, use your new image name,
+and the packages will already be installed!
 
 If the SCAN(celpath) function call errors out, just try it one more time.
 The platform design might not have loaded.
