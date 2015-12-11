@@ -1,5 +1,13 @@
 # Accessing low level data with R/Bioconductor
 
+When working in docker containers, there are two ways to do it: locally and
+in the cloud. It's probably a good idea to start out locally, to get things
+working on a small example before moving to the cloud, where you can start
+accruing charges.
+
+First I'm going to start a bioconductor container locally and work on some
+Affy SNP 6.0 data, and then I'll briefly go over doing the same thing in the
+cloud.
 
 # Working with a local docker container
 
@@ -137,85 +145,39 @@ OK! Let's fire up R, and see if we can read a file!
 R
 ```
 
-In moving towards personalized medicine, there will be a need for normalization
-methods that operate on single samples, since new samples will be arriving
-stochastically, and we'd like to be able to work with new samples without
-renormalizing the entire batch of CEL files. To do this we'll try the SCAN.UPC
-packages.
-
-https://www.bioconductor.org/packages/3.3/bioc/html/SCAN.UPC.html
-
+To work with the Affy SNP 6.0 CEL files, we're going to use the Bioconductor
+package "oligo". To properly read the files, we're going to have to download
+a large annotation package.
 
 ```
 source("https://bioconductor.org/biocLite.R")
-biocLite("SCAN.UPC")
-library(SCAN.UPC)
+biocLite("pd.genomewidesnp.6")
+library(oligo)
+library(pd.genomewidesnp.6)
 
 celfiles <- list.files("/media/dat/ccle/SNP_Arrays/", pattern=".CEL")
-celpath <- paste("/media/dat/ccle/SNP_Arrays/", celfiles[1], sep="")
+celpaths <- sapply(celfiles[1:3], function(a) paste("/media/dat/ccle/SNP_Arrays/", a, sep=""))
 
-normalized <- SCAN(celpath)
+rawData <- read.celfiles(celpaths)
+
+pdf("image_cel1.pdf")
+image(rawData, which=1, transfo=log2)
+dev.off()
 ```
 
-Success!!  If it's the first time you've processed a CEL file, the package
-automatically downloads the annotation for the CEL (pd.genomewidesnp.6).
-
-https://bioconductor.org/packages/release/data/annotation/html/pd.genomewidesnp.6.html
-
-At this point ... again, we might want to save the docker state to avoid
-large downloads like this in the future.
-
-To do that, we can open a new browser, configure the environment to point to
-our running docker, and use "docker ps -a" to list the various dockers.
+Success!!  Now we need to get that image out of the docker. After we exit from
+R, we can see the file. Without logging out of the docker container, I'm going
+to open another terminal window, and copy out that file.
 
 ```
 eval "$(docker-machine env default)"
-docker ps -a
+docker ps # get the container ID
+docker cp 1cf74ce69172:image_cel1.pdf .
 ```
 
-Then to save our local changes (maybe???)
-
-```
-docker commit container_id new_image_name
-```
-
-Then, the next time you run your docker, use your new image name,
-and the packages will already be installed!
-
-If the SCAN(celpath) function call errors out, just try it one more time.
-The platform design might not have loaded.
-
-```
-Loading required package: pd.genomewidesnp.6
-Attempting to obtain 'pd.genomewidesnp.6' from BioConductor website.
-Checking to see if your internet connection works...
-trying URL 'https://bioconductor.org/packages/3.2/data/annotation/src/contrib/pd.genomewidesnp.6_3.14.1.tar.gz'
-Content type 'application/x-gzip' length 642701103 bytes (612.9 MB)
-==================================================
-downloaded 612.9 MB
-
-Bioconductor version 3.2 (BiocInstaller 1.20.1), ?biocLite for help
-* installing *source* package ‘pd.genomewidesnp.6’ ...
-** R
-** inst
-** preparing package for lazy loading
-** help
-*** installing help indices
-** building package indices
-** testing if installed package can be loaded
-Bioconductor version 3.2 (BiocInstaller 1.20.1), ?biocLite for help
-* DONE (pd.genomewidesnp.6)
-
-The downloaded source packages are in
-	‘/tmp/RtmpNlUC8n/downloaded_packages’
-Loading required package: pd.genomewidesnp.6
-Loading required package: RSQLite
-Loading required package: DBI
-Platform design info loaded.
-Reading in : /media/dat/ccle/SNP_Arrays/ARLES_p_NCLE_DNAAffy2_S_GenomeWideSNP_6_A01_256002.CEL
-```
-
-
+So, we mounted a bucket in a docker container. Read a raw CEL file from that
+bucket, and using a bioconductor package, produced an image of that microarray.
+And finally copied it out to our local system.
 
 # Working In the Cloud
 
@@ -235,7 +197,7 @@ That's going bring you to the Google Developer Console where you can select the
 your current project. If you don't have a project ID yet, make sure to sign up,
 and get that free compute time!
 
-I'm going to select a 40GB disk and the "bioconductor/release_microarray" image. After you
+I'm going to select a 20GB disk and the "bioconductor/release_microarray" image. After you
 click-to-deploy, you get a screen telling us that it's going to take 5-15
 minutes to boot. It's a good time to make some coffee. Or if you haven't
 installed Google gcloud yet, you can do that (https://cloud.google.com/sdk/).
