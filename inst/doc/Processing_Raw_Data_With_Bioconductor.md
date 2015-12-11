@@ -175,6 +175,8 @@ docker ps # get the container ID
 docker cp 1cf74ce69172:image_cel1.pdf .
 ```
 
+![plot of chunk image_cel1](figure/image_cel1.jpg)
+
 So, we mounted a bucket in a docker container. Read a raw CEL file from that
 bucket, and using a bioconductor package, produced an image of that microarray.
 And finally copied it out to our local system.
