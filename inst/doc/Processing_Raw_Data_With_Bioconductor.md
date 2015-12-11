@@ -122,7 +122,6 @@ daemon -- gcsfuse isb-cgc-open  /media/dat
 ls /media/dat/ccle/SNP_Arrays | head
 ```
 
-```
 
 Hey! It works!
 
@@ -130,7 +129,6 @@ Hey! It works!
 ARLES_p_NCLE_DNAAffy2_S_GenomeWideSNP_6_A01_256002.CEL
 ARLES_p_NCLE_DNAAffy2_S_GenomeWideSNP_6_A02_256004.CEL
 ARLES_p_NCLE_DNAAffy2_S_GenomeWideSNP_6_A03_256006.CEL
-...
 ```
 
 OK! Let's fire up R, and see if we can read a file!
@@ -216,8 +214,6 @@ Loading required package: DBI
 Platform design info loaded.
 Reading in : /media/dat/ccle/SNP_Arrays/ARLES_p_NCLE_DNAAffy2_S_GenomeWideSNP_6_A01_256002.CEL
 ```
-
-
 
 
 
