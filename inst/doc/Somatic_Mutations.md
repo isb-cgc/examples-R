@@ -260,9 +260,9 @@ query_exec(querySql, project=project)
 ## 3   LUAD  27
 ## 4   COAD  25
 ## 5   KIRP   6
-## 6   CHOL   4
+## 6    LGG   4
 ## 7    GBM   4
-## 8    LGG   4
+## 8   CHOL   4
 ## 9   HNSC   2
 ## 10  BLCA   2
 ```
@@ -306,15 +306,15 @@ head(result)
 ## 5       TCGA-A6-6649  COAD        BRAF g.chr7:140453136A>T        p.V600E
 ## 6       TCGA-A6-6653  COAD        BRAF g.chr7:140453136A>T        p.V600E
 ```
-Then to count these new results.
-
 
 ```r
-table(results$Study)
+table(result$Study)
 ```
 
 ```
-## Error in table(results$Study): object 'results' not found
+## 
+## BLCA CHOL COAD  GBM HNSC KIRP  LGG LUAD READ SKCM THCA 
+##    1    1   25    4    1    1    2    8    1  170  258
 ```
 
 When we counted the number of mutated samples, we found 261 THCA samples, but when we counted the number of patients, we found 258 THCA patients, so let's see what's going on there.
@@ -354,9 +354,9 @@ head(result)
 
 ```
 ##   ParticipantBarcode m
-## 1       TCGA-EM-A2CS 2
-## 2       TCGA-J8-A3YH 2
-## 3       TCGA-EM-A2P1 2
+## 1       TCGA-J8-A3YH 2
+## 2       TCGA-EM-A2P1 2
+## 3       TCGA-EM-A2CS 2
 ```
 
 Sure enough, we see that the same mutation is reported twice for each of these three patients. Let's look at why:

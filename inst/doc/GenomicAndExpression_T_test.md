@@ -37,28 +37,28 @@ result
 
 ```
 ##      Variant_Classification     n
-## 1                    Silent 27612
-## 2                     5'UTR  1392
-## 3           Frame_Shift_Ins  3034
-## 4              In_Frame_Ins   434
-## 5            Stop_Codon_Del    16
-## 6           Start_Codon_SNP    97
-## 7         Missense_Mutation 75429
-## 8           Frame_Shift_Del  4056
-## 9           Start_Codon_Ins    13
-## 10           Stop_Codon_Ins     4
-## 11        Nonsense_Mutation  6038
-## 12             In_Frame_Del  1337
-## 13    De_novo_Start_InFrame     7
-## 14              Splice_Site  4158
-## 15                      RNA  2644
-## 16                    3'UTR  2027
-## 17         Nonstop_Mutation    94
-## 18          Start_Codon_Del    25
-## 19                   Intron  6617
-## 20                  lincRNA   661
-## 21                      IGR  1641
-## 22 De_novo_Start_OutOfFrame    26
+## 1  De_novo_Start_OutOfFrame    26
+## 2               Splice_Site  4158
+## 3                       RNA  2644
+## 4                    Silent 27612
+## 5                     5'UTR  1392
+## 6           Frame_Shift_Ins  3034
+## 7              In_Frame_Ins   434
+## 8            Stop_Codon_Del    16
+## 9           Start_Codon_SNP    97
+## 10                   Intron  6617
+## 11                  lincRNA   661
+## 12                      IGR  1641
+## 13        Missense_Mutation 75429
+## 14          Frame_Shift_Del  4056
+## 15          Start_Codon_Ins    13
+## 16           Stop_Codon_Ins     4
+## 17        Nonsense_Mutation  6038
+## 18             In_Frame_Del  1337
+## 19    De_novo_Start_InFrame     7
+## 20                    3'UTR  2027
+## 21         Nonstop_Mutation    94
+## 22          Start_Codon_Del    25
 ```
 
 
@@ -192,12 +192,12 @@ head(barcodesBRCA)
 
 ```
 ##   ParticipantBarcode
-## 1       TCGA-A8-A07R
-## 2       TCGA-BH-A1F8
-## 3       TCGA-AO-A0J8
-## 4       TCGA-AN-A0XN
-## 5       TCGA-A8-A097
-## 6       TCGA-C8-A27B
+## 1       TCGA-A2-A0T3
+## 2       TCGA-A8-A084
+## 3       TCGA-A7-A0CH
+## 4       TCGA-D8-A1JK
+## 5       TCGA-D8-A1XV
+## 6       TCGA-EW-A1IZ
 ```
 
 Then, let's get the barcodes for samples with a mutation in GATA3, since it
@@ -223,12 +223,12 @@ head(barcodesWithMutations)
 
 ```
 ##   ParticipantBarcode
-## 1       TCGA-AR-A1AS
-## 2       TCGA-BH-A0HF
-## 3       TCGA-AO-A12A
-## 4       TCGA-E9-A1RF
-## 5       TCGA-A8-A09Z
-## 6       TCGA-BH-A0C7
+## 1       TCGA-OL-A5D8
+## 2       TCGA-D8-A1J8
+## 3       TCGA-A2-A0CV
+## 4       TCGA-C8-A26V
+## 5       TCGA-E2-A15J
+## 6       TCGA-B6-A40C
 ```
 
 Next, we get the participant barcodes that do not have mutations in GATA3,
@@ -291,13 +291,13 @@ query_exec(q, project)
 
 ```
 ##                  vc num_variants_in_class
-## 1       Splice_Site                    24
-## 2   Frame_Shift_Ins                    62
-## 3   Frame_Shift_Del                    19
-## 4 Missense_Mutation                    10
-## 5 Nonsense_Mutation                     2
+## 1            Silent                     2
+## 2 Missense_Mutation                    10
+## 3       Splice_Site                    24
+## 4   Frame_Shift_Ins                    62
+## 5   Frame_Shift_Del                    19
 ## 6    Stop_Codon_Ins                     1
-## 7            Silent                     2
+## 7 Nonsense_Mutation                     2
 ```
 
 So we find that frame shift insertions are the most common type of variant,
@@ -397,7 +397,7 @@ JOIN (
     POW(STDDEV(LOG2(normalized_count+1)),2) AS sy2,
     COUNT(ParticipantBarcode) AS ny
   FROM
-    [isb-cgc:tcga_201507_alpha.mRNA_UNC_HiSeq_RSEM]
+    [isb-cgc:tcga_201510_alpha.mRNA_UNC_HiSeq_RSEM]
   WHERE
     Study = 'BRCA'
     AND HGNC_gene_symbol = 'GATA3'
@@ -439,20 +439,12 @@ GROUP BY
   T
 "
 result1 <- query_exec(q, project)
-```
-
-```
-## Error: Access Denied: Table isb-cgc:tcga_201507_alpha.mRNA_UNC_HiSeq_RSEM: The user does not have permission to query a table in dataset isb-cgc:tcga_201507_alpha
-## 
-##  accessDenied. Access Denied: Table isb-cgc:tcga_201507_alpha.mRNA_UNC_HiSeq_RSEM: The user does not have permission to query a table in dataset isb-cgc:tcga_201507_alpha
-```
-
-```r
 result1
 ```
 
 ```
-## Error in eval(expr, envir, enclos): object 'result1' not found
+##    gene study        x       sx2  nx        y      sy2  ny        T
+## 1 GATA3  BRCA 14.11414 0.4490203 116 12.44092 4.574784 872 17.52361
 ```
 
 A little about this query: We are selecting the gene expression from our two
@@ -515,7 +507,7 @@ JOIN (
    POW(STDDEV(LOG2(normalized_count+1)),2) AS sy2,
    COUNT(ParticipantBarcode) as ny
   FROM
-   [isb-cgc:tcga_201507_alpha.mRNA_UNC_HiSeq_RSEM]
+   [isb-cgc:tcga_201510_alpha.mRNA_UNC_HiSeq_RSEM]
   WHERE
    SampleTypeLetterCode = 'TP'
    and Study = 'BRCA'
@@ -550,13 +542,12 @@ system.time(result1 <- query_exec(q, project))
 ```
 
 ```
-## Error: Access Denied: Table isb-cgc:tcga_201507_alpha.mRNA_UNC_HiSeq_RSEM: The user does not have permission to query a table in dataset isb-cgc:tcga_201507_alpha
-## 
-##  accessDenied. Access Denied: Table isb-cgc:tcga_201507_alpha.mRNA_UNC_HiSeq_RSEM: The user does not have permission to query a table in dataset isb-cgc:tcga_201507_alpha
+##Retrieving data:  4.2s
 ```
 
 ```
-## Timing stopped at: 0.012 0 1.272
+##    user  system elapsed
+##   1.105   0.103   6.776
 ```
 
 ```r
@@ -566,51 +557,30 @@ compute_df <- function(d) {
 }
 
 result1$df <- compute_df(result1)
-```
-
-```
-## Error in compute_df(result1): object 'result1' not found
-```
-
-```r
 result1$p_value <- sapply(1:nrow(result1), function(i) 2*pt(abs(result1$T[i]), result1$df[i],lower=FALSE))
-```
-
-```
-## Error in nrow(result1): object 'result1' not found
-```
-
-```r
 result1$fdr <- p.adjust(result1$p_value, "fdr")
-```
-
-```
-## Error in p.adjust(result1$p_value, "fdr"): object 'result1' not found
-```
-
-```r
 result1$gene_label <- 1
-```
-
-```
-## Error in result1$gene_label <- 1: object 'result1' not found
-```
-
-```r
 result1$gene_label[result1$gene == "GATA3"] <- 2
-```
 
-```
-## Error in result1$gene_label[result1$gene == "GATA3"] <- 2: object 'result1' not found
-```
-
-```r
 # ordered by difference in means
 head(result1)
 ```
 
 ```
-## Error in head(result1): object 'result1' not found
+##     gene study mean_diff         x       sx2  nx        y       sy2  ny
+## 1  KCNJ3  BRCA  3.273704  7.485121 14.685614 116 4.211417 15.456478 872
+## 2   CPB1  BRCA  3.226143  9.392237 36.573811 116 6.166094 24.273983 872
+## 3   AGR3  BRCA  2.605398 11.179273  2.443981 116 8.573875 17.623450 872
+## 4    TRH  BRCA  2.504631  5.231328 18.403546 116 2.726697  6.268322 872
+## 5  FSIP1  BRCA  2.373198  8.866036  2.245905 116 6.492839  7.712446 872
+## 6 CRABP1  BRCA  2.321596  3.410742  7.469231 116 5.732338 13.186676 872
+##           T       df      p_value          fdr gene_label
+## 1  8.617236 149.0709 9.190821e-15 1.507825e-12          1
+## 2  5.507509 136.0631 1.756605e-07 3.090353e-06          1
+## 3 12.823558 393.6262 1.069316e-31 3.549239e-28          1
+## 4  6.150346 125.6233 9.514207e-09 2.470345e-07          1
+## 5 14.130735 237.5220 2.587392e-33 1.288198e-29          1
+## 6 -8.233218 174.0920 4.162527e-14 6.050855e-12          1
 ```
 
 ```r
@@ -619,7 +589,20 @@ head(result1[order(result1$T, decreasing=T), ])
 ```
 
 ```
-## Error in head(result1[order(result1$T, decreasing = T), ]): object 'result1' not found
+##       gene study mean_diff         x       sx2  nx         y       sy2  ny
+## 39   GATA3  BRCA  1.673222 14.114141 0.4490203 116 12.440919  4.574784 872
+## 5    FSIP1  BRCA  2.373198  8.866036 2.2459046 116  6.492839  7.712446 872
+## 54  TBC1D9  BRCA  1.583615 13.761795 1.0174506 116 12.178180  3.555983 872
+## 77   FOXA1  BRCA  1.471983 12.926657 0.2378543 116 11.454674  8.094412 872
+## 15 DNAJC12  BRCA  2.087723 10.356336 2.2985499 116  8.268613  5.297170 872
+## 3     AGR3  BRCA  2.605398 11.179273 2.4439810 116  8.573875 17.623450 872
+##           T       df      p_value          fdr gene_label
+## 39 17.52361 513.4457 3.095801e-54 6.165288e-50          2
+## 5  14.13074 237.5220 2.587392e-33 1.288198e-29          1
+## 54 13.97055 239.9444 7.424160e-33 2.957043e-29          1
+## 77 13.82704 947.9646 9.549048e-40 6.338976e-36          1
+## 15 12.97503 193.9135 4.033130e-28 8.924421e-25          1
+## 3  12.82356 393.6262 1.069316e-31 3.549239e-28          1
 ```
 
 ```r
@@ -628,7 +611,20 @@ head(result1[order(result1$fdr, decreasing=F), ])
 ```
 
 ```
-## Error in head(result1[order(result1$fdr, decreasing = F), ]): object 'result1' not found
+##       gene study mean_diff          x       sx2  nx         y       sy2
+## 39   GATA3  BRCA  1.673222 14.1141410 0.4490203 116 12.440919  4.574784
+## 77   FOXA1  BRCA  1.471983 12.9266565 0.2378543 116 11.454674  8.094412
+## 138  OPRK1  BRCA  1.283247  0.3843466 0.3377241 116  1.667593  4.605231
+## 5    FSIP1  BRCA  2.373198  8.8660364 2.2459046 116  6.492839  7.712446
+## 54  TBC1D9  BRCA  1.583615 13.7617954 1.0174506 116 12.178180  3.555983
+## 3     AGR3  BRCA  2.605398 11.1792730 2.4439810 116  8.573875 17.623450
+##      ny         T       df      p_value          fdr gene_label
+## 39  872  17.52361 513.4457 3.095801e-54 6.165288e-50          2
+## 77  872  13.82704 947.9646 9.549048e-40 6.338976e-36          1
+## 138 872 -14.17745 634.8217 7.749128e-40 6.338976e-36          1
+## 5   872  14.13074 237.5220 2.587392e-33 1.288198e-29          1
+## 54  872  13.97055 239.9444 7.424160e-33 2.957043e-29          1
+## 3   872  12.82356 393.6262 1.069316e-31 3.549239e-28          1
 ```
 
 ```r
@@ -636,8 +632,10 @@ qplot(data=result1, x=T, y=mean_diff, shape=as.factor(gene_label), col=as.factor
 ```
 
 ```
-## Error in ggplot(data, aesthetics, environment = env): object 'result1' not found
+## Warning: Removed 267 rows containing missing values (geom_point).
 ```
+
+![plot of chunk ttest_fig1](figure/ttest_fig1.png)
 
 Wow! So did we do that right? Let's check on a single gene. We'll pull down
 the actual expression values, and use the R T-test.
@@ -647,7 +645,7 @@ the actual expression values, and use the R T-test.
 ```r
 q <- "
 SELECT HGNC_gene_symbol, ParticipantBarcode, LOG2(normalized_count+1)
-FROM [isb-cgc:tcga_201507_alpha.mRNA_UNC_HiSeq_RSEM]
+FROM [isb-cgc:tcga_201510_alpha.mRNA_UNC_HiSeq_RSEM]
 WHERE Study = 'BRCA'
 and HGNC_gene_symbol = 'GATA3'
 and SampleTypeLetterCode = 'TP'
@@ -664,18 +662,10 @@ and (ParticipantBarcode IN (
   ))
 "
 mutExpr <- query_exec(q, project)   # SOME DUPLCIATES
-```
 
-```
-## Error: Access Denied: Table isb-cgc:tcga_201507_alpha.mRNA_UNC_HiSeq_RSEM: The user does not have permission to query a table in dataset isb-cgc:tcga_201507_alpha
-## 
-##  accessDenied. Access Denied: Table isb-cgc:tcga_201507_alpha.mRNA_UNC_HiSeq_RSEM: The user does not have permission to query a table in dataset isb-cgc:tcga_201507_alpha
-```
-
-```r
 q <- "
 SELECT HGNC_gene_symbol, ParticipantBarcode, LOG2(normalized_count+1)
-FROM [isb-cgc:tcga_201507_alpha.mRNA_UNC_HiSeq_RSEM]
+FROM [isb-cgc:tcga_201510_alpha.mRNA_UNC_HiSeq_RSEM]
 WHERE Study = 'BRCA'
 and HGNC_gene_symbol = 'GATA3'
 and SampleTypeLetterCode = 'TP'
@@ -700,29 +690,29 @@ and (ParticipantBarcode IN (
 )) /* end getting table of participants */
 "
 wtExpr <- query_exec(q, project)   # SOME DUPLCIATES
-```
 
-```
-## Error: Access Denied: Table isb-cgc:tcga_201507_alpha.mRNA_UNC_HiSeq_RSEM: The user does not have permission to query a table in dataset isb-cgc:tcga_201507_alpha
-## 
-##  accessDenied. Access Denied: Table isb-cgc:tcga_201507_alpha.mRNA_UNC_HiSeq_RSEM: The user does not have permission to query a table in dataset isb-cgc:tcga_201507_alpha
-```
-
-```r
 t.test(mutExpr$f0_, wtExpr$f0_)
 ```
 
 ```
-## Error in t.test(mutExpr$f0_, wtExpr$f0_): object 'mutExpr' not found
+##
+## 	Welch Two Sample t-test
+##
+## data:  mutExpr$f0_ and wtExpr$f0_
+## t = 17.524, df = 513.45, p-value < 2.2e-16
+## alternative hypothesis: true difference in means is not equal to 0
+## 95 percent confidence interval:
+##  1.485635 1.860810
+## sample estimates:
+## mean of x mean of y
+##  14.11414  12.44092
 ```
 
 ```r
 boxplot(list(Mutation_In_GATA3=mutExpr$f0_, No_Mutation_In_GATA3=wtExpr$f0_), ylab="GATA3 LOG2 expression")
 ```
 
-```
-## Error in boxplot(list(Mutation_In_GATA3 = mutExpr$f0_, No_Mutation_In_GATA3 = wtExpr$f0_), : object 'mutExpr' not found
-```
+![plot of chunk ttest_fig2](figure/ttest_fig2.png) 
 
 So, we have found the same gene expression means and standard deviation, degrees of freedom,
 and T statistic. Looks good! GATA3 has the most signficant result, interesting (or not?)
@@ -740,23 +730,22 @@ sessionInfo()
 ## R version 3.2.1 (2015-06-18)
 ## Platform: x86_64-apple-darwin13.4.0 (64-bit)
 ## Running under: OS X 10.10.5 (Yosemite)
-## 
+##
 ## locale:
 ## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
-## 
+##
 ## attached base packages:
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
-## 
+##
 ## other attached packages:
-## [1] ISBCGCExamples_0.1 ggplot2_1.0.1      scales_0.3.0      
-## [4] bigrquery_0.1.0    dplyr_0.4.3       
-## 
+## [1] ISBCGCExamples_0.1 scales_0.3.0       dplyr_0.4.3       
+## [4] bigrquery_0.1.0    ggplot2_1.0.1      knitr_1.11        
+##
 ## loaded via a namespace (and not attached):
-##  [1] Rcpp_0.12.2      knitr_1.11       magrittr_1.5     MASS_7.3-44     
-##  [5] munsell_0.4.2    colorspace_1.2-6 R6_2.1.1         stringr_1.0.0   
-##  [9] httr_1.0.0       plyr_1.8.3       tools_3.2.1      parallel_3.2.1  
-## [13] grid_3.2.1       gtable_0.1.2     DBI_0.3.1        lazyeval_0.1.10 
-## [17] assertthat_0.1   digest_0.6.8     reshape2_1.4.1   formatR_1.2.1   
-## [21] curl_0.9.3       mime_0.4         evaluate_0.8     labeling_0.3    
-## [25] stringi_1.0-1    jsonlite_0.9.17  markdown_0.7.7   proto_0.3-10
+##  [1] Rcpp_0.12.2      magrittr_1.5     MASS_7.3-44      munsell_0.4.2   
+##  [5] colorspace_1.2-6 R6_2.1.1         stringr_1.0.0    httr_1.0.0      
+##  [9] plyr_1.8.3       tools_3.2.1      parallel_3.2.1   grid_3.2.1      
+## [13] gtable_0.1.2     DBI_0.3.1        digest_0.6.8     assertthat_0.1  
+## [17] reshape2_1.4.1   formatR_1.2.1    curl_0.9.3       evaluate_0.8    
+## [21] labeling_0.3     stringi_1.0-1    jsonlite_0.9.17  proto_0.3-10
 ```
