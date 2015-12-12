@@ -1,4 +1,5 @@
 # examples-R
+
 Analysis examples based on the ISB-CGC hosted TCGA data, using R and R Markdown.
 
 To install:
@@ -27,10 +28,41 @@ The **SQL** files used in the vignettes can be found at [examples-R/inst/sql](in
 These are parsed and dispatched with arguments using the DisplayAndDispatchQuery function,
 found in the file of the same name in [examples-R/R](R).
 
-If you have trouble with the **OAuth**, see [examples-R/inst/doc/BigQueryIntroduction.html](inst/doc/BigQueryIntroduction.md)
-for some instructions on resetting it.
+## Intro to the CGC
 
-## Docker
+[Big Query Introduction](inst/doc/BigQueryIntroduction.md)
+
+[TCGA Annotations](inst/doc/TCGA_Annotations.md)
+
+[Creating TCGA cohorts part 1](examples-R/inst/doc/Creating_TCGA_cohorts_part_1.md)
+
+[Creating TCGA cohorts part 2](examples-R/inst/doc/Creating_TCGA_cohorts_part_2.md)
+
+## Available data types
+
+[microRNA expression](inst/doc/BCGSC_microRNA_expression.md)
+
+[Copy Number segments](inst/doc/Copy_Number_segments.md)
+
+[DNA Methylation](inst/doc/DNA_Methylation.md)
+
+[Protein expression](inst/doc/Protein_expression.md)
+
+[Somatic Mutations](inst/doc/Somatic_Mutations.md)
+
+[mRNAseq gene expression](inst/doc/UNC_HiSeq_mRNAseq_gene_expression_RSEM.md)
+
+## Advanced examples
+
+[Expression and Methylation Correlation](inst/doc/ExpressionandMethylationCorrelation.md)
+
+[Expression and Protein Correlation](inst/doc/ExpressionandProteinCorrelation.md)
+
+[Genomic And Expression T-test](inst/doc/GenomicAndExpression_T_test.md)
+
+## Using Docker
+
+[Processing Raw Data with Bioconductor](inst/doc/Processing_Raw_Data_With_Bioconductor.md)
 
 [Bioconductor](http://www.bioconductor.org/) provides an excellent set of docker containers which include R, RStudio Server, and the sets of Bioconductor packages appropriate for certain use cases.
 
@@ -49,3 +81,8 @@ For more details, see [examples-R/inst/docker](inst/docker) and http://www.bioco
 
 Then log into Rstudio with username and password 'rstudio', for more details:
 https://github.com/rocker-org/rocker/wiki/Using-the-RStudio-image
+
+## OAuth
+
+If you have trouble with the **OAuth**, see [examples-R/inst/doc/BigQueryIntroduction.html](inst/doc/BigQueryIntroduction.md)
+for some instructions on resetting it.
