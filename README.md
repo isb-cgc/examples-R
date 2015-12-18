@@ -5,7 +5,7 @@ Analysis examples based on the ISB-CGC hosted TCGA data, using R and R Markdown.
 To install:
 ```
 require(devtools) || install.packages("devtools")
-install_github("isb-cgc", "examples-R", build_vignettes=TRUE)
+install_github(username = "isb-cgc", repo = "examples-R", build_vignettes=TRUE)
 ```
 
 To view and run the vignettes.
