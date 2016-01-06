@@ -361,7 +361,7 @@ qplot(data=data, y=log2(normalized_count), x=protein_expression, geom=c("point",
 ## geom_smooth: method="auto" and size of largest group is <1000, so using loess. Use 'method = x' to change the smoothing method.
 ```
 
-![plot of chunk unnamed-chunk-11](figure/unnamed-chunk-11-1.png) 
+![plot of chunk protein_expression_plot](figure/protein_expression_plot.png) 
 
 The R-based Spearman correlation matches the BigQuery result.
 
