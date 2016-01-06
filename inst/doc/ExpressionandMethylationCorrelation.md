@@ -309,7 +309,7 @@ qplot(data=data, y=log2(normalized_count), x=Beta_Value, geom=c("point","smooth"
 ## geom_smooth: method="auto" and size of largest group is <1000, so using loess. Use 'method = x' to change the smoothing method.
 ```
 
-![plot of chunk unnamed-chunk-10](figure/unnamed-chunk-10-1.png) 
+![plot of chunk Methylation_and_Expression_Pearson_Corr](figure/Methylation_and_Expression_Pearson_Corr.png) 
 
 ```r
 p
