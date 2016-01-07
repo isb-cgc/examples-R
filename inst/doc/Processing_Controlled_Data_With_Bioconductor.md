@@ -1,33 +1,23 @@
-# Accessing low level *controlled* data with R/Bioconductor
+# Accessing low level *controlled* data
 
-To access controlled data, we need membership to the google group called isb-cgc-cntl (compared to isb-cgc-open).
-To join the group, we need to verify our dbGaP credentials:
+To access controlled data, you need to be a member of the isb-cgc-cntl google group (compared to isb-cgc-open).
+To join the group, you need to verify your dbGaP credentials:
 
-(a) sign in to isb-cgc.appspot.com
+(a) Sign in to isb-cgc.appspot.com
 (b) After signing in, click on the circle/picture next to your name in the upper-right corner of the app
-(c) in the middle, in the "Data Access" page, click on the "Associate with eRA Commons Account" line
-(d) this should redirect you to the NIH secure iTrust site
-(e) enter your username and password
-(f) you will magically come back to the ISB-CGC app page with a blue warning box about accessing TCGA controlled data
+(c) In the middle, in the "Data Access" page, click on the "Associate with eRA Commons Account" line
+(d) This should redirect you to the NIH secure iTrust site
+(e) Enter your username and password
+(f) You will magically come back to the ISB-CGC app page with a blue warning box about accessing TCGA controlled data
 
-After clicking on the circle/picture thing again,
-you should see a message that tells you how much time you're authorized for
-(24 hours from when you authenticated thru NIH)
+After clicking on the circle/picture thing again, you should see a message that tells you how much time you're authorized for (24 hours from when you authenticated thru NIH)
 
-Now your google identity should be on the isb-cgc-cntl google group which has access to the controlled-access CEL files so try, for example:
+## Starting Docker and getting set up
 
-gs://62f2c827-mock-mock-mock-1cde698a4f77/tcga/acc/Genome_Wide_SNP_6/broad.mit.edu__snp_cnv/Level_1/AQUAE_p_TCGA_112_304_b2_N_GenomeWideSNP_6_F04_1348258.CEL
+Let's get started! You might want to take a look at the Processing_Raw_Data_With_Bioconductor.md
+file for more information about working with Docker.
 
-(which is not *really* controlled TCGA data but just "mock")
-
-and:
-
-gs://62f2c827-93cc-4ca7-a90f-1cde698a4f77/tcga/acc/Genome_Wide_SNP_6/broad.mit.edu__snp_cnv/Level_1/AQUAE_p_TCGA_112_304_b2_N_GenomeWideSNP_6_A01_1348356.CEL
-
-
-## Starting Docker and mounting data
-
-So let's access some data!
+The first thing we need to do is start up docker.
 
 ```
 Starting machine default...
@@ -52,102 +42,58 @@ bioconductor microarray container (docker pull bioconductor/release_microarray).
 
 ```
 docker run -ti --privileged bioconductor/release_microarray /bin/bash
+```
+
+Then, on the command line, inside the docker, we'll get the files necessary to get authorized.
+Notice we are downloading the 'raw' files from github. We're going to have to
+authorize via gcloud, and then isb_auth.py.
+
+```
 curl https://sdk.cloud.google.com | bash
 bash
 gcloud init
-```
-
-
-OK, now, we need to be able to access data that sitting in a controlled access
-bucket. One way is to use gsutil to copy the data to our local drive.
-
-
-```
-gsutil cp gs://62f2c827-93cc-4ca7-a90f-1cde698a4f77/tcga/acc/\
-Genome_Wide_SNP_6/broad.mit.edu__snp_cnv/Level_1/\
-AQUAE_p_TCGA_112_304_b2_N_GenomeWideSNP_6_A01_1348356.CEL .
-```
-
-We can also use GCSFuse to mount the bucket, and work with it interactively.
-Different from working with the open access bucket, we need to use the
-"--implicit-dirs" flag to get proper directory listings.
-
-
-```
-apt-get install fuse curl daemon
-curl -L -O https://github.com/GoogleCloudPlatform/gcsfuse/releases/download/v0.12.0/gcsfuse_0.12.0_amd64.deb
-sudo dpkg --install gcsfuse_0.12.0_amd64.deb
+pip install --upgrade oauth2client
+wget https://raw.githubusercontent.com/isb-cgc/ISB-CGC-Webapp/master/scripts/isb_auth.py
+wget https://raw.githubusercontent.com/isb-cgc/ISB-CGC-Webapp/master/scripts/isb_curl.py
+python isb_auth.py --noauth_local_webserver
 mkdir /media/dat
-daemon -- gcsfuse --implicit-dirs 62f2c827-93cc-4ca7-a90f-1cde698a4f77 /media/dat
 ```
 
-
-Great! We got it! Now we can use Bioconductor workflows to process the data.
-
+The gcloud init and the isb_auth.py script will both give you
+long web links to feed into a browser, which returns verification codes from google.
+At the moment, we need to verify once to get restricted file lists from ISB, and
+once to get to the restricted google buckets containing the data. In the future,
+this will likely be a single step.
 
 ## Locating data using the GCG web service
 
-First we need to find the files. Let's suppose we are interested in a particular
-sample ID (Or set of IDs). We will use the API endpoint "datafilenamekey_list" to
-get file paths given a TCGA barcode.
-
-But, as Tyrell says in Bladerunner, "I want to see a negative before I provide you with a positive."
-So let's do that.
+Let's open up R!
+For an example, we're going to look up the files associated with a given barcode,
+TCGA-W5-AA31-01A.
 
 ```
-R
-install.packages("httr")
-library(httr)
-r <- GET("https://mvm-dot-isb-cgc.appspot.com/_ah/api/cohort_api/v1/datafilenamekey_list?sample_barcode=TCGA-Bad-Data")
-r
+library(stringr)
+x <- system("python isb_curl.py https://isb-cgc.appspot.com/_ah/api/cohort_api/v1/datafilenamekey_list?sample_barcode=TCGA-W5-AA31-01A", intern=T)
 ```
 
-And the response is ...
+We're going to need a little function to parse through what returns.
 
 ```
-Response [https://mvm-dot-isb-cgc.appspot.com/_ah/api/cohort_api/v1/datafilenamekey_list?sample_barcode=TCGA-Bad-ID]
-  Date: 2015-12-16 22:51
-  Status: 200
-  Content-Type: application/json; charset=UTF-8
-  Size: 125 B
-{
- "count": "0",
- "kind": "cohort_api#cohortsItem",
- "etag": "\"YSI636SyFAiMSbxaGP932XeRcUk/3_-4ZVfBVVlUTjAMHiYmkJAwlE0\""
+parseCurl <- function(x) {
+  y <- str_trim(strsplit(x, ",")[[1]])
+  idx <- str_detect(pattern="^u'gs://", string=y)  # lines containing files
+  z <- str_split(y[idx], "\'")
+  unlist(lapply(z, function(zi) zi[2]))
 }
+
+fileList <- parseCurl(x)
+cmd <- paste0("gsutil cp ", fileList[3], " /media/dat")
+system(cmd)
 ```
 
-The "count" is the number of files associated with the Barcode, and here, with a bad barcode,
-we get zero files asscociated. So what about a valid id?
-
-```
-r <- GET("https://isb-cgc.appspot.com/_ah/api/cohort_api/v1/datafilenamekey_list?sample_barcode=TCGA-W5-AA31-01A")
-r
-```
-Here's the response:
-
-```
-Response [https://isb-cgc.appspot.com/_ah/api/cohort_api/v1/datafilenamekey_list?sample_barcode=TCGA-W5-AA31-01A]
-  Date: 2015-12-22 07:04
-  Status: 200
-  Content-Type: application/json; charset=UTF-8
-  Size: 2.1 kB
-{
- "count": "13",
- "datafilenamekeys": [
-  "gs://isb-cgc-open/file-path-currently-unavailable",
-  "gs://isb-cgc-open/tcga/chol/Genome_Wide_SNP_6/broad.mit.edu__snp_cnv/Level...
-  "gs://isb-cgc-open/tcga/chol/Genome_Wide_SNP_6/broad.mit.edu__snp_cnv/Level...
-  "gs://isb-cgc-open/tcga/chol/HumanMethylation450/jhu-usc.edu__methylation/L...
-  "gs://isb-cgc-open/tcga/chol/IlluminaHiSeq_miRNASeq/bcgsc.ca__miRNASeq/Leve...
-  "gs://isb-cgc-open/tcga/chol/IlluminaHiSeq_miRNASeq/bcgsc.ca__miRNASeq/Leve...
-  "gs://isb-cgc-open/tcga/chol/IlluminaHiSeq_RNASeqV2/unc.edu__RNASeqV2/Level...
-...
-```
-
-Great! We have 20 files associated with this barcode. Among the data we have
-SNP 6.0, methylation array data, VCFs (DNAseq), RNAseq, miRNAseq, and RPPA data. Let's
-try accessing one of the CEL files.
+Great! We have 22 files associated with this barcode. Among the data we have
+SNP 6.0, methylation array data, VCFs (DNAseq), RNAseq, miRNAseq, and RPPA data.
+We downloaded one of the CEL files to /media/dat... now we can process it!
 
 ## Processing data with Bioconductor
 
@@ -161,10 +107,9 @@ biocLite("pd.genomewidesnp.6")
 library(oligo)
 library(pd.genomewidesnp.6)
 
-celfiles <- list.files("/media/dat/ccle/SNP_Arrays/", pattern=".CEL")
-celpaths <- sapply(celfiles[1:3], function(a) paste("/media/cntl/tcga/acc/Genome_Wide_SNP_6/broad.mit.edu__snp_cnv/Level_1/", a, sep=""))
+celfiles <- list.files("/media/dat", pattern=".CEL")
 
-rawData <- read.celfiles(celpaths)
+rawData <- read.celfiles(celfiles)
 
 pdf("image_cel1.pdf")
 image(rawData, which=1, transfo=log2)
@@ -181,6 +126,6 @@ docker ps # to get the container ID
 docker cp 1cf74ce69172:image_cel1.pdf .
 ```
 
-So, we mounted a bucket in a docker container. Read a raw PROTECTED CEL file from that
-bucket, and using a bioconductor package, produced an image of that microarray.
-And finally copied it out to our local system.
+So, gathered all the files, protected and open, associated with a barcode.
+Downloaded a raw PROTECTED CEL file, and using a bioconductor package,
+produced an image of that microarray. And finally copied it out to our local system.
