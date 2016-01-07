@@ -196,7 +196,7 @@ maintained by Bioconductor, and another link called "click-to-deploy Bioconducto
 That's the one we want. Click away!
 
 That's going bring you to the Google Developer Console where you can select the
-your current project. If you don't have a project ID yet, make sure to sign up,
+correct cloud project. If you don't have a project yet, make sure to sign up,
 and get that free compute time!
 
 I'm going to select a 20GB disk and the "bioconductor/release_microarray" image. After you
