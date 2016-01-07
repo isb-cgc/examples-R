@@ -40,8 +40,13 @@ For help getting started, check out the docs at https://docs.docker.com
 Now we can start up the docker image, assuming you have already pulled the
 bioconductor microarray container (docker pull bioconductor/release_microarray).
 
+An easy way to move data in and out of docker, involves mounting a data volume.
+Check the documentation for details [docker data volumes](https://docs.docker.com/engine/userguide/dockervolumes/).
+
 ```
-docker run -ti -v="" --privileged bioconductor/release_microarray /bin/bash
+#<< on the command line >>#
+mkdir /my_docker_workspace
+docker run -ti -v=/my_docker_workspace --privileged bioconductor/release_microarray /bin/bash
 ```
 
 Then, on the command line, inside the docker, we'll get the files necessary to get authorized.
