@@ -3,12 +3,12 @@
 To access controlled data, you need to be a member of the isb-cgc-cntl google group (compared to isb-cgc-open).
 To join the group, you need to verify your dbGaP credentials:
 
-(a) Sign in to isb-cgc.appspot.com
-(b) After signing in, click on the circle/picture next to your name in the upper-right corner of the app
-(c) In the middle, in the "Data Access" page, click on the "Associate with eRA Commons Account" line
-(d) This should redirect you to the NIH secure iTrust site
-(e) Enter your username and password
-(f) You will magically come back to the ISB-CGC app page with a blue warning box about accessing TCGA controlled data
+1. Sign in to isb-cgc.appspot.com
+2. After signing in, click on the circle/picture next to your name in the upper-right corner of the app
+3. In the middle, in the "Data Access" page, click on the "Associate with eRA Commons Account" line
+4. This should redirect you to the NIH secure iTrust site
+5. Enter your username and password
+6. You will magically come back to the ISB-CGC app page with a blue warning box about accessing TCGA controlled data
 
 After clicking on the circle/picture thing again, you should see a message that tells you how much time you're authorized for (24 hours from when you authenticated thru NIH)
 
@@ -41,7 +41,7 @@ Now we can start up the docker image, assuming you have already pulled the
 bioconductor microarray container (docker pull bioconductor/release_microarray).
 
 ```
-docker run -ti --privileged bioconductor/release_microarray /bin/bash
+docker run -ti -v="" --privileged bioconductor/release_microarray /bin/bash
 ```
 
 Then, on the command line, inside the docker, we'll get the files necessary to get authorized.
