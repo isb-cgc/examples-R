@@ -65,7 +65,7 @@ At the moment, we need to verify once to get restricted file lists from ISB, and
 once to get to the restricted google buckets containing the data. In the future,
 this will likely be a single step.
 
-## Locating data using the GCG web service
+## Locating data using the ISB-CGC endpoints API
 
 Let's open up R!
 For an example, we're going to look up the files associated with a given barcode,
