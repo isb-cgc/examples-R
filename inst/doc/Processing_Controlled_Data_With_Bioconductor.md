@@ -91,26 +91,42 @@ For an example, we're going to look up the files associated with a given barcode
 TCGA-W5-AA31-01A.
 
 ```
+#<< From within an R session >>#
+
+# handy string processing library to parse the file list returns.
 library(stringr)
+
+# getting all files associated with a barcode
 x <- system("python isb_curl.py https://isb-cgc.appspot.com/_ah/api/cohort_api/v1/datafilenamekey_list?sample_barcode=TCGA-W5-AA31-01A", intern=T)
 ```
 
 We're going to need a little function to parse through what returns.
 
 ```
+#<< Still in the R session >>#
+
+
 parseCurl <- function(x) {
+
+  # function takes the return string from isb_curl (x)
+  # and returns a list of file paths.
+
   y <- str_trim(strsplit(x, ",")[[1]])
   idx <- str_detect(pattern="^u'gs://", string=y)  # lines containing files
   z <- str_split(y[idx], "\'")
   unlist(lapply(z, function(zi) zi[2]))
 }
 
+# parse the file paths
 fileList <- parseCurl(x)
-cmd <- paste0("gsutil cp ", fileList[3], " /media/dat")
+
+# we can use gsutil to download files from a google bucket and move them to
+# our userspace dir.
+cmd <- paste0("gsutil cp ", fileList[3], " /workspace")
 system(cmd)
 ```
 
-Great! We have 22 files associated with this barcode. Among the data we have
+There were 22 files associated with this barcode. Among the data we have
 SNP 6.0, methylation array data, VCFs (DNAseq), RNAseq, miRNAseq, and RPPA data.
 We downloaded one of the CEL files to /media/dat... now we can process it!
 
@@ -126,7 +142,7 @@ biocLite("pd.genomewidesnp.6")
 library(oligo)
 library(pd.genomewidesnp.6)
 
-celfiles <- list.files("/media/dat", pattern=".CEL")
+celfiles <- list.files("/workspace", pattern=".CEL")
 
 rawData <- read.celfiles(celfiles)
 
@@ -135,16 +151,10 @@ image(rawData, which=1, transfo=log2)
 dev.off()
 ```
 
-Success!!  Now we need to get that image out of the docker. After we exit from
-R, we can see the file. Without logging out of the docker container, I'm going
-to open another terminal window, and copy out that file.
+Success!!  Since we mounted our userspace directory in docker, we don't have
+to worry about moving the results out of the docker, they will be in the directory
+named when the docker was started (/my_docker_workspace from above).
 
-```
-eval "$(docker-machine env default)"
-docker ps # to get the container ID
-docker cp 1cf74ce69172:image_cel1.pdf .
-```
-
-So, gathered all the files, protected and open, associated with a barcode.
-Downloaded a raw PROTECTED CEL file, and using a bioconductor package,
+In this script, we have gathered all the files, both protected and open, associated with a barcode.
+Then, downloaded a raw PROTECTED CEL file, and using a bioconductor package,
 produced an image of that microarray. And finally copied it out to our local system.
