@@ -1,0 +1,71 @@
+# Working with lists of barcodes
+
+Let's suppose we have gcloud installed and the authorization process completed.
+Also let us suppose we have an active isb-cgc project ID.
+
+First from the command line we need to download the scripts needed to
+authorize with ISB and access file lists.
+
+```
+#<< ON the command line >>#
+
+# the isb authorization scrips need the oauth2client library
+[sudo] pip install --upgrade oauth2client
+
+# download and run the isb authorization script.
+wget https://raw.githubusercontent.com/isb-cgc/ISB-CGC-Webapp/master/scripts/isb_auth.py
+python isb_auth.py --noauth_local_webserver
+
+# then download the isb script to access file lists.
+wget https://raw.githubusercontent.com/isb-cgc/ISB-CGC-Webapp/master/scripts/isb_curl.py
+```
+
+Now start up an R session.
+
+```
+# handy string processing library to parse the file list returns.
+library(stringr)
+
+
+parseCurl <- function(x) {
+  # function takes the return string from isb_curl (x)
+  # and returns a list of file paths.
+  y <- str_trim(strsplit(x, ",")[[1]])
+  idx <- str_detect(pattern="^u'gs://", string=y)  # lines containing files
+  z <- str_split(y[idx], "\'")
+  unlist(lapply(z, function(zi) zi[2]))
+}
+
+callCurl <- function(barcode) {
+  # here we build the command line command to query the web service with isb_curl.py
+  print(paste0("working on: ", barcode))
+  cmd <- paste0("python isb_curl.py https://isb-cgc.appspot.com/_ah/api/cohort_api/v1/datafilenamekey_list?sample_barcode=",barcode)
+  system(cmd, intern=T)
+}
+
+
+# read in a list of barcodes
+barcodes <- read.table("barcode_list.txt", stringsAsFactors=F)
+barcodes <- unique(barcodes$V1)
+
+# for each barcode we get the list of files
+filePaths <- lapply(barcodes, function(bx) parseCurl(callCurl(bx)))
+names(filePaths) <- barcodes
+
+# now to filter down the files to a particular platform of interest
+platformFilter <- function(filelist, filterby) {
+  filelist[str_detect(filelist, filterby)]
+}
+
+# then we apply the filter to each set of file paths
+rnaseqFiles <- lapply(filePaths, function(fp) platformFilter(fp, "rsem.genes.normalized_results"))
+
+methylFiles <- lapply(filePaths, function(fp) platformFilter(fp, "HumanMethylation450"))
+```
+
+If a given barcode doesn't have files associated with the particular platform,
+the list element will be empty.
+
+Now, one could use [GCSfuse](https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&ved=0ahUKEwi7mMPY5prKAhVQ4WMKHcidAdIQFggdMAA&url=https%3A%2F%2Fgithub.com%2Fgooglecloudplatform%2Fgcsfuse&usg=AFQjCNH9eZaZ6IlcwYDL_7jW_jy4hM25wQ)
+to mount a google bucket like "isb-cgc-open/tcga/luad/HumanMethylation450/jhu-usc.edu__methylation/Level_3/"
+and work as usual. Alternatively, one can download associated files and work locally.
