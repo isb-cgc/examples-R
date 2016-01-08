@@ -137,15 +137,21 @@ package "oligo". To properly read the files, we're going to have to download
 a large annotation package.
 
 ```
+#<< Inside the R session >>#
+
+# library setup
 source("https://bioconductor.org/biocLite.R")
 biocLite("pd.genomewidesnp.6")
 library(oligo)
 library(pd.genomewidesnp.6)
 
+# get a list of the data files given a directory
 celfiles <- list.files("/workspace", pattern=".CEL")
 
+# read the cel files
 rawData <- read.celfiles(celfiles)
 
+# write out a raw image of the microarray.
 pdf("image_cel1.pdf")
 image(rawData, which=1, transfo=log2)
 dev.off()
