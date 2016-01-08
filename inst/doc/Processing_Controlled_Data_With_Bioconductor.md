@@ -44,24 +44,38 @@ An easy way to move data in and out of docker, involves mounting a data volume.
 Check the documentation for details [docker data volumes](https://docs.docker.com/engine/userguide/dockervolumes/).
 
 ```
-#<< on the command line >>#
+#<< run on the command line >>#
 mkdir /my_docker_workspace
-docker run -ti -v=/my_docker_workspace --privileged bioconductor/release_microarray /bin/bash
+docker run -ti -v=/my_docker_workspace:workspace --privileged bioconductor/release_microarray /bin/bash
 ```
 
-Then, on the command line, inside the docker, we'll get the files necessary to get authorized.
-Notice we are downloading the 'raw' files from github. We're going to have to
+Then, inside docker, the directory /workspace will mirror what you have in
+your userspace director. This makes it easy to move files in and out.
+Now, we'll get authorized.
+Notice we're downloading the 'raw' files from github. We're going to have to
 authorize via gcloud, and then isb_auth.py.
 
 ```
+#<< run each of these on the command line >>#
+
+# downloads the gcloud application
 curl https://sdk.cloud.google.com | bash
+
+# need to start a new bash session to "see" gcloud
 bash
+
+# authorize the session
 gcloud init
+
+# the isb authorization scrips need the oauth2client library
 pip install --upgrade oauth2client
+
+# download and run the isb authorization script.
 wget https://raw.githubusercontent.com/isb-cgc/ISB-CGC-Webapp/master/scripts/isb_auth.py
-wget https://raw.githubusercontent.com/isb-cgc/ISB-CGC-Webapp/master/scripts/isb_curl.py
 python isb_auth.py --noauth_local_webserver
-mkdir /media/dat
+
+# then download the isb script to access file lists.
+wget https://raw.githubusercontent.com/isb-cgc/ISB-CGC-Webapp/master/scripts/isb_curl.py
 ```
 
 The gcloud init and the isb_auth.py script will both give you
