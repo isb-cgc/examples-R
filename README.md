@@ -2,7 +2,7 @@
 
 Analysis examples based on the ISB-CGC hosted TCGA data, using R and R Markdown.
 
-##NOTE: There is an incompatibility between bigrquery and the httr library. Until bigrquery is updated, please use the development branch of bigrquery or use the prior version of httr (1.0.0).
+###NOTE: There is an incompatibility between bigrquery and the httr library. Until bigrquery is updated, please use the development branch of bigrquery or use the prior version of httr (1.0.0).
 
 To install the dev version of bigrquery:
 # https://github.com/rstats-db/bigrquery
