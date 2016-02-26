@@ -123,7 +123,7 @@ head(data)
 
 And run a pearson correlation on it:
 ```{r}
-p = round(cor(x=data$normalized_count, y=data$Beta_Value, method="pearson"), 3)
+p = round(cor(x=log2(data$normalized_count+1), y=data$Beta_Value, method="pearson"), 3)
 qplot(data=data, y=log2(normalized_count), x=Beta_Value, geom=c("point","smooth"),
       xlab="methylation level (beta value)", ylab="mRNA level") +
       geom_text(x = 0.7, y = 11, label = paste("Pearson Corr ", p))

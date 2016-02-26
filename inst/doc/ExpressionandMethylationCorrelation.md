@@ -111,12 +111,16 @@ ORDER BY
   correlation ASC
 ```
 
+```
+Error in is.string(project): object 'project' not found
+```
+
 ```r
 cat("Number of rows returned by this query: ", nrow(result), "\n")
 ```
 
 ```
-Number of rows returned by this query:  6046 
+Error in nrow(result): object 'result' not found
 ```
 
 The result is a table with one row for each (gene,CpG-probe) pair for which at least 30 data values exist that meet the requirements in the "andWhere" clause.  The (gene,CpG-probe) pair is defined by a gene symbol and a CpG-probe ID.  In many cases, there may be multiple CpG probes associated with a single gene.
@@ -128,13 +132,7 @@ head(result)
 ```
 
 ```
-##   HGNC_gene_symbol   Probe_ID num_observations correlation
-## 1           PHYHD1 cg14299940              301  -0.8018487
-## 2            INSL6 cg13504907              301  -0.7800666
-## 3            BICD2 cg02929681              301  -0.7252331
-## 4             CRAT cg22192879              301  -0.6979521
-## 5            BICD2 cg13683626              301  -0.6953693
-## 6            BICD2 cg14181777              301  -0.6806368
+## Error in head(result): object 'result' not found
 ```
 
 
@@ -147,7 +145,9 @@ ggplot(result, aes(x=correlation)) +
     geom_density(alpha=.2, fill="#FF6666")  # Overlay with transparent density plot
 ```
 
-<img src="figure/density-1.png" title="plot of chunk density" alt="plot of chunk density" style="display: block; margin: auto;" />
+```
+Error in ggplot(result, aes(x = correlation)): object 'result' not found
+```
 
 ## Pearson Correlation in R
 
@@ -182,12 +182,16 @@ ORDER BY
   SampleBarcode
 ```
 
+```
+Error in is.string(project): object 'project' not found
+```
+
 ```r
 cat("Number of rows returned by this query: ", nrow(expressionData), "\n")
 ```
 
 ```
-Number of rows returned by this query:  301 
+Error in nrow(expressionData): object 'expressionData' not found
 ```
 
 
@@ -197,13 +201,7 @@ head(expressionData)
 ```
 
 ```
-##      SampleBarcode HGNC_gene_symbol normalized_count
-## 1 TCGA-2W-A8YY-01A           PHYHD1        1467.8112
-## 2 TCGA-4J-AA1J-01A           PHYHD1         632.2085
-## 3 TCGA-BI-A0VR-01A           PHYHD1          13.3608
-## 4 TCGA-BI-A0VS-01A           PHYHD1         446.1287
-## 5 TCGA-BI-A20A-01A           PHYHD1          48.6473
-## 6 TCGA-C5-A0TN-01A           PHYHD1          49.1132
+## Error in head(expressionData): object 'expressionData' not found
 ```
 
 ### Retrieve Methylation Data
@@ -240,12 +238,16 @@ ORDER BY
   Study
 ```
 
+```
+Error in is.string(project): object 'project' not found
+```
+
 ```r
 cat("Number of rows returned by this query: ", nrow(methylationData), "\n")
 ```
 
 ```
-Number of rows returned by this query:  303 
+Error in nrow(methylationData): object 'methylationData' not found
 ```
 
 
@@ -254,13 +256,7 @@ head(methylationData)
 ```
 
 ```
-##      SampleBarcode SampleTypeLetterCode Study   Probe_ID Beta_Value
-## 1 TCGA-2W-A8YY-01A                   TP  CESC cg14299940       0.03
-## 2 TCGA-4J-AA1J-01A                   TP  CESC cg14299940       0.07
-## 3 TCGA-BI-A0VR-01A                   TP  CESC cg14299940       0.54
-## 4 TCGA-BI-A0VS-01A                   TP  CESC cg14299940       0.08
-## 5 TCGA-BI-A20A-01A                   TP  CESC cg14299940       0.56
-## 6 TCGA-C5-A0TN-01A                   TP  CESC cg14299940       0.05
+## Error in head(methylationData): object 'methylationData' not found
 ```
 
 ### Perform the correlation
@@ -272,7 +268,7 @@ data = inner_join(expressionData, methylationData)
 ```
 
 ```
-## Joining by: "SampleBarcode"
+## Error in inner_join(expressionData, methylationData): object 'expressionData' not found
 ```
 
 ```r
@@ -280,43 +276,41 @@ head(data)
 ```
 
 ```
-##      SampleBarcode HGNC_gene_symbol normalized_count SampleTypeLetterCode
-## 1 TCGA-2W-A8YY-01A           PHYHD1        1467.8112                   TP
-## 2 TCGA-4J-AA1J-01A           PHYHD1         632.2085                   TP
-## 3 TCGA-BI-A0VR-01A           PHYHD1          13.3608                   TP
-## 4 TCGA-BI-A0VS-01A           PHYHD1         446.1287                   TP
-## 5 TCGA-BI-A20A-01A           PHYHD1          48.6473                   TP
-## 6 TCGA-C5-A0TN-01A           PHYHD1          49.1132                   TP
-##   Study   Probe_ID Beta_Value
-## 1  CESC cg14299940       0.03
-## 2  CESC cg14299940       0.07
-## 3  CESC cg14299940       0.54
-## 4  CESC cg14299940       0.08
-## 5  CESC cg14299940       0.56
-## 6  CESC cg14299940       0.05
+##                                                                      
+## 1 function (..., list = character(), package = NULL, lib.loc = NULL, 
+## 2     verbose = getOption("verbose"), envir = .GlobalEnv)            
+## 3 {                                                                  
+## 4     fileExt <- function(x) {                                       
+## 5         db <- grepl("\\\\.[^.]+\\\\.(gz|bz2|xz)$", x)              
+## 6         ans <- sub(".*\\\\.", "", x)
 ```
 
 And run a pearson correlation on it:
 
 ```r
-p = round(cor(x=data$normalized_count, y=data$Beta_Value, method="pearson"), 3)
+p = round(cor(x=log2(data$normalized_count+1), y=data$Beta_Value, method="pearson"), 3)
+```
+
+```
+## Error in data$Beta_Value: object of type 'closure' is not subsettable
+```
+
+```r
 qplot(data=data, y=log2(normalized_count), x=Beta_Value, geom=c("point","smooth"),
       xlab="methylation level (beta value)", ylab="mRNA level") +
       geom_text(x = 0.7, y = 11, label = paste("Pearson Corr ", p))
 ```
 
 ```
-## geom_smooth: method="auto" and size of largest group is <1000, so using loess. Use 'method = x' to change the smoothing method.
+## Error: ggplot2 doesn't know how to deal with data of class function
 ```
-
-![plot of chunk unnamed-chunk-10](figure/unnamed-chunk-10-1.png) 
 
 ```r
 p
 ```
 
 ```
-## [1] -0.619
+## Error in eval(expr, envir, enclos): object 'p' not found
 ```
 
 And we can see that we have reproduced one of our results from BigQuery.
@@ -329,9 +323,9 @@ sessionInfo()
 ```
 
 ```
-R version 3.2.1 (2015-06-18)
+R version 3.2.3 (2015-12-10)
 Platform: x86_64-apple-darwin13.4.0 (64-bit)
-Running under: OS X 10.10.5 (Yosemite)
+Running under: OS X 10.11.3 (El Capitan)
 
 locale:
 [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
@@ -340,15 +334,13 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] ISBCGCExamples_0.1 ggplot2_1.0.1      scales_0.3.0      
-[4] bigrquery_0.1.0    dplyr_0.4.3       
+[1] ISBCGCExamples_0.1   ggplot2_2.0.0        scales_0.3.0        
+[4] bigrquery_0.1.0.9000 dplyr_0.4.3         
 
 loaded via a namespace (and not attached):
- [1] Rcpp_0.12.2      knitr_1.11       magrittr_1.5     MASS_7.3-44     
- [5] munsell_0.4.2    colorspace_1.2-6 R6_2.1.1         stringr_1.0.0   
- [9] httr_1.0.0       plyr_1.8.3       tools_3.2.1      parallel_3.2.1  
-[13] grid_3.2.1       gtable_0.1.2     DBI_0.3.1        lazyeval_0.1.10 
-[17] assertthat_0.1   digest_0.6.8     reshape2_1.4.1   formatR_1.2.1   
-[21] curl_0.9.3       mime_0.4         evaluate_0.8     labeling_0.3    
-[25] stringi_1.0-1    jsonlite_0.9.17  markdown_0.7.7   proto_0.3-10    
+ [1] Rcpp_0.12.3      assertthat_0.1   grid_3.2.3       plyr_1.8.3      
+ [5] R6_2.1.2         gtable_0.1.2     DBI_0.3.1        formatR_1.2.1   
+ [9] magrittr_1.5     evaluate_0.8     httr_1.1.0       stringi_1.0-1   
+[13] tools_3.2.3      stringr_1.0.0    munsell_0.4.3    parallel_3.2.3  
+[17] colorspace_1.2-6 knitr_1.12.3    
 ```
