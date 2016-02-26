@@ -60,6 +60,8 @@ found in the file of the same name in [examples-R/R](R).
 
 [Genomic And Expression T-test](inst/doc/GenomicAndExpression_T_test.md)
 
+[Working with barcode lists](inst/doc/Working_With_Barcode_Lists.md)
+
 ## Using Docker
 
 [Processing Raw Data with Bioconductor](inst/doc/Processing_Raw_Data_With_Bioconductor.md)
