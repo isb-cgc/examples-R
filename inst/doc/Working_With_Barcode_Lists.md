@@ -12,8 +12,7 @@ Documentation is found here: http://isb-cancer-genomics-cloud.readthedocs.org/en
 If you just want info on a couple barcodes, then doing them one at a time is fine.
 But, once you have a large set of barcodes, it's much faster to create a cohort
 with that list of barcodes, and query on the whole cohort together.
-<coming soon!>
-
+*Coming soon*!
 
 ```
 #<< ON the command line >>#
@@ -61,8 +60,6 @@ barcodes <- unique(barcodes$V1)
 cmd <- paste0("python isb_curl.py https://api-dot-isb-cgc.appspot.com/_ah/api/cohort_api/v1/sample_details?sample_barcode=TCGA-44-7670-10A")
 system(cmd, intern=T)
 
-```
-
 {
  "data_details": [
   {
@@ -72,15 +69,14 @@ system(cmd, intern=T)
    "Repository": "DCC",
    "DatafileUploaded": "false",
    "Datatype": "Copy Number Results-SNP",
+```
    etc ....
 
-```
+We can also get patient details using the patient barcode ...
 
-# we can also get patient details using the patient barcode
+```
 cmd <- paste0("python isb_curl.py https://api-dot-isb-cgc.appspot.com/_ah/api/cohort_api/v1/patient_details?patient_barcode=TCGA-44-7670")
 system(cmd, intern=T)
-
-```
 
 {
  "clinical_data": {
@@ -93,11 +89,11 @@ system(cmd, intern=T)
 
 ```
 
-# for each barcode we get the list of files
-filePaths <- lapply(barcodes, function(bx) parseCurl(callCurl(bx)))
-names(filePaths) <- barcodes
+For each barcode we get the list of associated files.
 
 ```
+filePaths <- lapply(barcodes, function(bx) parseCurl(callCurl(bx)))
+names(filePaths) <- barcodes
 
 $`TCGA-NJ-A7XG-01A`
  [1] "gs://isb-cgc-open/file-path-currently-unavailable"
@@ -108,19 +104,25 @@ etc....
 
 ```
 
-# now to filter down the files to a particular platform of interest
+Now to filter down the files to a particular platform of interest
+
+```
 platformFilter <- function(filelist, filterby) {
   filelist[str_detect(filelist, filterby)]
 }
+```
 
-# then we apply the filter to each set of file paths
+Then we apply the filter to each set of file paths
+
+```
 rnaseqFiles <- lapply(filePaths, function(fp) platformFilter(fp, "rsem.genes.normalized_results"))
 
 methylFiles <- lapply(filePaths, function(fp) platformFilter(fp, "HumanMethylation450"))
+```
+
+Looking at the rnaSeq files ... we have paths to google buckets.
 
 ```
-Looking at the rnaSeq files ...
-
 $`TCGA-86-8076-01A`
 [1] "gs://isb-cgc-open/tcga/luad/IlluminaHiSeq_RNASeqV2/unc.edu__RNASeqV2/Level_3/unc.edu.c9cf5f5f-30de-4062-99c3-dcb9cfd55870.1325628.rsem.genes.normalized_results"
 
