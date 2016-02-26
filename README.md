@@ -43,9 +43,9 @@ found in the file of the same name in [examples-R/R](R).
 
 [TCGA Annotations](inst/doc/TCGA_Annotations.md)
 
-[Creating TCGA cohorts part 1](examples-R/inst/doc/Creating_TCGA_cohorts_part_1.md)
+[Creating TCGA cohorts part 1](inst/doc/Creating_TCGA_cohorts_part_1.md)
 
-[Creating TCGA cohorts part 2](examples-R/inst/doc/Creating_TCGA_cohorts_part_2.md)
+[Creating TCGA cohorts part 2](inst/doc/Creating_TCGA_cohorts_part_2.md)
 
 ## Available data types
 
