@@ -390,7 +390,7 @@ loaded via a namespace (and not attached):
  [1] Rcpp_0.12.2      knitr_1.11       magrittr_1.5     MASS_7.3-44     
  [5] munsell_0.4.2    colorspace_1.2-6 R6_2.1.1         stringr_1.0.0   
  [9] httr_1.0.0       plyr_1.8.3       tools_3.2.1      parallel_3.2.1  
-[13] grid_3.2.1       gtable_0.1.2     DBI_0.3.1        lazyeval_0.1.10 
+[13] grid_3.2.1       gtable_0.1.2     DBI_0.3.1        lazyeval_0.1.10
 [17] assertthat_0.1   digest_0.6.8     reshape2_1.4.1   formatR_1.2.1   
 [21] curl_0.9.3       mime_0.4         evaluate_0.8     labeling_0.3    
 [25] stringi_1.0-1    jsonlite_0.9.17  markdown_0.7.7   proto_0.3-10    
