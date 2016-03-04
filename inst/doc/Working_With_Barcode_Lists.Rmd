@@ -18,7 +18,8 @@ with that list of barcodes, and query on the whole cohort together.
 #<< ON the command line >>#
 
 # the isb authorization scrips need the oauth2client library
-[sudo] pip install --upgrade oauth2client
+[sudo] pip install --upgrade oauth2client   
+(if that doesn't work try: pip install --user oauth2client)
 
 # download and run the isb authorization script.
 wget https://raw.githubusercontent.com/isb-cgc/ISB-CGC-Webapp/master/scripts/isb_auth.py
