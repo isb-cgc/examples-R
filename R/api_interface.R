@@ -39,6 +39,7 @@ library(httr)
 #' \dontrun{
 #' isb_init()
 #' }
+#' @export
 isb_init <- function() {
 	library(httr)
 	# for native application - same as settings.INSTALLED_APP_CLIENT_ID
@@ -69,6 +70,7 @@ isb_init <- function() {
 #'   fs <- sample_files("TCGA-A7-A6VV-10A")
 #'   datafile_filter(sf, ".bam")
 #'  }
+#' @export
 datafile_filter <- function(filelist, filterby) {
 	x <- filelist$datafilenamekeys
   y <- x[str_detect(x, filterby)]
@@ -87,6 +89,7 @@ datafile_filter <- function(filelist, filterby) {
 #' \dontrun{
 #'   fs <- sample_files("TCGA-A7-A6VV-10A")
 #'  }
+#' @export
 sample_files <- function(sample_barcode) {
 	b <- "https://api-dot-isb-cgc.appspot.com/_ah/api/cohort_api/v1/datafilenamekey_list_from_sample"
 	content(GET(url=b, query=list(sample_barcode=sample_barcode)))
@@ -99,12 +102,13 @@ sample_files <- function(sample_barcode) {
 #'
 #' @param sample_barcode A TCGA sample barcode
 #'
-#' @returns Details on a given sample_details
+#' @returns List Details on a given sample_details
 #'
 #' @examples
 #' \dontrun{
 #'   sample_details("TCGA-A7-A6VV-10A")
 #' }
+#' @export
 sample_details <- function(sample_barcode) {
 	b <- "https://api-dot-isb-cgc.appspot.com/_ah/api/cohort_api/v1/sample_details"
 	content(GET(b, query=list(sample_barcode=sample_barcode)))
@@ -117,12 +121,13 @@ sample_details <- function(sample_barcode) {
 #'
 #' @param sample_barcode A TCGA patient barcode like "TCGA-02-0001"
 #'
-#' @returns Details on a given sample_details
+#' @returns List Details on a given sample_details
 #'
 #' @examples
 #' \dontrun{
 #'   patient_details("TCGA-A7-A6VV")
 #'  }
+#' @export
 patient_details <- function(patient_barcode) {
 	# TCGA-44-7670
 	b = "https://api-dot-isb-cgc.appspot.com/_ah/api/cohort_api/v1/patient_details"
@@ -141,6 +146,7 @@ patient_details <- function(patient_barcode) {
 #'   my
 #'   list_cohorts(mytoken)
 #'  }
+#' @export
 list_cohorts <- function(a_token) {
 	req <- GET("https://api-dot-isb-cgc.appspot.com/_ah/api/cohort_api/v1/cohorts_list", config(token = a_token))
 	stop_for_status(req)
@@ -155,12 +161,13 @@ list_cohorts <- function(a_token) {
 #' @param a_token Your auth token
 #' @param cohort_name The name of the new cohort
 #' @param filter_list The list of filter parameters defining the cohort
-#' @returns
+#' @returns List
 #'
 #' @examples
 #' \dontrun{
 #'   save_cohorts(mytoken, "new_cohort", list(list(Study="BRCA")))
 #' }
+#' @export
 save_cohorts <- function(a_token, cohort_name, filter_list) {
 	b <- paste0("https://api-dot-isb-cgc.appspot.com/_ah/api/cohort_api/v1/save_cohort?name=",cohort_name)
 	req <- POST(b, query=filter_list, config(token = a_token))
@@ -175,12 +182,13 @@ save_cohorts <- function(a_token, cohort_name, filter_list) {
 #'
 #' @param filter_list The list of filter parameters defining the cohort
 #'
-#' @returns Details on the cohort
+#' @returns List Details on the cohort
 #'
 #' @examples
 #' \dontrun{
 #'   preview_cohort(list(Study="BRCA"))
 #' }
+#' @export
 preview_cohort <- function(filter_list) {
 	# example: preview_cohort(list(Study="BRCA"))
 	require(httr)
@@ -204,6 +212,7 @@ preview_cohort <- function(filter_list) {
 #' \dontrun{
 #'   preview_cohort(list(Study="BRCA"))
 #' }
+#' @export
 datafiles_from_cohort <- function(cohort_id, pipeline=NULL, platform=NULL, a_token) {
 	require(httr)
 	b <- "https://api-dot-mvm-dot-isb-cgc.appspot.com/_ah/api/cohort_api/v1/datafilenamekey_list_from_cohort"
