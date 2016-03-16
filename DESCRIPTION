@@ -10,11 +10,17 @@ Authors@R: c(person("Sheila", "Reynolds", role = c("aut", "cre"),
 Depends:
     R (>= 3.1.0)
 Imports:
-    bigrquery, RCurl
+    bigrquery,
+    RCurl
 Suggests:
-    ggplot2, httpuv, knitr, rmarkdown
-Description: Provides several vignettes for analysis examples on the ISB-CGC hosted TCGA data.
+    ggplot2,
+    httpuv,
+    knitr,
+    rmarkdown
+Description: Provides several vignettes for analysis examples on the ISB-CGC
+    hosted TCGA data.
 VignetteBuilder: knitr
 License: Apache License (== 2.0) | file LICENSE
 URL: http://datascience.systemsbiology.net/portfolio/cancer-genome-cloud-at-isb/
 BugReports: https://github.com/isb-cgc/examples-R/issues
+RoxygenNote: 5.0.1
