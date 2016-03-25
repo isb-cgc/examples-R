@@ -210,11 +210,53 @@ preview_cohort <- function(filter_list) {
 #'
 #' @examples
 #' \dontrun{
-#'   preview_cohort(list(Study="BRCA"))
+#'   datafiles_from_cohort("69", NULL, "IlluminaHiSeq_RNASeqV2", mytoken)
 #' }
 #' @export
 datafiles_from_cohort <- function(cohort_id, pipeline=NULL, platform=NULL, a_token) {
 	require(httr)
-	b <- "https://api-dot-mvm-dot-isb-cgc.appspot.com/_ah/api/cohort_api/v1/datafilenamekey_list_from_cohort"
+	b <- "https://api-dot-isb-cgc.appspot.com/_ah/api/cohort_api/v1/datafilenamekey_list_from_cohort"
 	content(GET(b, query=list(cohort_id=cohort_id, pipeline=pipeline, platform=platform), config(token = mytoken)))
 }
+
+#' List of barcodes from a cohort
+#'
+#' Using a defined cohort, get sample and patient barcodes
+#'
+#' @param cohort_id The list of filter parameters defining the cohort
+#' @param token Your auth token
+#'
+#' @returns List of barcodes
+#'
+#' @examples
+#' \dontrun{
+#'   sample_list_cohort(list("29"), mytoken)
+#' }
+#' @export
+barcodes_from_cohort <- function(cohort_id, a_token) {
+  require(httr)
+  b <- "https://api-dot-isb-cgc.appspot.com/_ah/api/cohort_api/v1/cohort_patients_samples_list"
+  content(GET(b, query=list(cohort_id=cohort_id), config(token = mytoken)))
+}
+
+
+
+#' Search data details list
+#'
+#' sample_details brings a list of data_details, this function assists in searching the list
+#'
+#' @param deets sample_details returned list
+#' @param platform data platform used for data generation
+#' @param level the TCGA level of the data
+#'
+#' @returns list of particulars about a given platform / level
+#'
+#' @examples
+#' \dontrun{
+#'   search_sample_details(deets)
+#' }
+#' @export
+search_sample_details <- function(deets, platform, level) {
+  n <- length(deets)
+
+  }
