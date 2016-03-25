@@ -207,7 +207,7 @@ resOrdered <- res[order(res$padj),]
 # make a plot of the differentially expressed genes.
 plotMA(res, main="DESeq2", ylim=c(-2,2))
 ```
-[!fig](inst/doc/figure/DESeq2_Example.png)
+![deseq_fig](figure/DESeq2_Example.png)
 
 So, to recap, using a predefined cohort, we gathered the sample and patient barcodes, the clincial information (which was transformed into a data.frame),
 gathered the sample data, parsed out the appropriate file paths, downloaded the file set, parsed out the raw data, and ran DESeq2.
