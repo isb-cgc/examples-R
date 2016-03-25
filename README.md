@@ -54,6 +54,8 @@ found in the file of the same name in [examples-R/R](R).
 
 ## Advanced examples
 
+[DESeq2 workflow on raw data](inst/doc/DESeq2_tutorial.md)
+
 [Expression and Methylation Correlation](inst/doc/ExpressionandMethylationCorrelation.md)
 
 [Expression and Protein Correlation](inst/doc/ExpressionandProteinCorrelation.md)
