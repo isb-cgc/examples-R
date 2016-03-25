@@ -9,6 +9,8 @@ This short tutorial will show you how to reprocess raw TCGA data. We will be usi
 
 ```{r}
 library(ISBCGCExamples)
+library(stringr)
+library(dplyr)
 ```
 
 Let's suppose you've already created a cohort using the web-app or "save_cohorts" R function. Earlier I created a cohort of all TCGA samples from brain tissue. I'll use the cohort functions to wrangle that data.
@@ -42,8 +44,7 @@ clinList <- vector("list", length(barcodes$patients))
 clinList <- sapply(barcodes$patients, function(x) patient_details(patient_barcode=x))
 
 # now we'll name the clinical list and take a look at the components of the list.
-names(clinList)[i] <- barcodes$patients
-names(clinList[[1]])
+names(clinList[[2]]) # first one is actually not found!
 ```
 
 Each element of clinList is itself a list, with clinical data, aliquots, and sample barcodes.
@@ -52,11 +53,11 @@ Let's create a clinical information data.frame, which will become our design mat
 ```{r}
 clinData <- lapply(clinList, function(a) a$clinical_data)
 clinData <- clinData[lapply(clinData, length) > 0]
-clinDF <- as.data.frame(matrix(unlist(clinData), ncol=length(clinData[[1]]), byrow=T))
+clinDF   <- as.data.frame(matrix(unlist(clinData), ncol=length(clinData[[1]]), byrow=T))
 colnames(clinDF) <- names(clinData[[1]])
 
 # can get the patient barcodes in this column:
-clinDF$ParticipantBarcode
+head(clinDF$ParticipantBarcode)
 ```
 
 Now we have a data.frame of clinical data. Let's download the sample data, and pair that with clinical.
@@ -66,7 +67,7 @@ the sample with the greatest amount data, or the data type we're interested in.
 
 ```{r}
 sample_barcodes <- unlist(lapply(clinList, function(a) a$samples))
-sampList <- sapply(sample_barcodes, function(x) sample_details(x))
+sampList        <- sapply(sample_barcodes, function(x) sample_details(x))
 ```
 
 I'm interested in this platform: IlluminaHiSeq_RNASeqV2.
@@ -109,8 +110,8 @@ DESeq2 needs raw counts. That data is found in files with suffix "rsem.genes.res
 
 
 ```{r}
-dataSet <- filter(sampleDF, str_detect(CloudStoragePath, "rsem.genes.results"))
-clinSet <- filter(clinDF, ParticipantBarcode %in% dataSet$Patient)
+dataSet <- filter(sampleDF, str_detect(sampleDF$CloudStoragePath, "rsem.genes.results"))
+clinSet <- filter(clinDF, clinDF$ParticipantBarcode %in% dataSet$Patient)
 smallClinSet <- select(clinSet, ParticipantBarcode, race, gender, age_at_initial_pathologic_diagnosis, days_to_birth, vital_status)
 dataSet <- dataSet[,-11]  # going to take one sample for this patient
 ```
