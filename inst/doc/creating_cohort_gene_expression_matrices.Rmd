@@ -29,7 +29,7 @@ mycohorts$items[[2]]$id     # ID number of the cohort.
 ```
 
 To get the list of barcodes, use the barcodes_from_cohort function,
-substituting the cohord ID.
+substituting the cohort ID.
 
 ```{r}
 barcodes  <- barcodes_from_cohort("your_cohort_id_here", mytoken)
