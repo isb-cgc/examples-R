@@ -7,7 +7,7 @@ output: html_document
 
 The goal is to use a predifined cohort, and a gene set, along with bigquery to create a small matrix of gene expression.
 
-If you don't have our ISBCGCExamples downloaded, go to https://github.com/isb-cgc/examples-R
+If you don't have our ISBCGCExamples, check out https://github.com/isb-cgc/examples-R
 
 ```{r}
 library(ISBCGCExamples)
@@ -16,7 +16,7 @@ library(dplyr)
 ```
 
 Let's suppose you've already created a cohort using the web-app or "save_cohorts" R function.
-Earlier I created a cohort of all TCGA samples from brain tissue. I'll use the cohort functions to wrangle that data.
+Earlier, I created a cohort of all TCGA samples from brain tissue. I'll use the cohort functions to wrangle that data.
 
 ```{r}
 mytoken <- isb_init()       # get authorized
@@ -42,15 +42,12 @@ barcodes is a list with both sample and patient barcodes, and counts of both.
 sample_barcodes <- unlist(barcodes$samples)
 ```
 
-Secondly, let's suppose you have a list of genes in a file.
+Secondly, let's suppose you have a list of genes in a file.. on your desktop.
 
 ```{r}
 gene_table <- read.table("~/Desktop/notch_pathway_genes.txt", sep="\t", header=T, stringsAsFactors=F)
 notch_genes - gene_table$Gene.Name
 ```
-
-We're interested in this platform: IlluminaHiSeq_RNASeqV2 which is found
-in "[isb-cgc:tcga_201510_alpha.mRNA_UNC_HiSeq_RSEM]"
 
 Now we'll build the query. I'm first going to define a helper function
 that creates lists of things in the SQL format.
