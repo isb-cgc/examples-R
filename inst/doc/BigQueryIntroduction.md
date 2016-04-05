@@ -101,11 +101,12 @@ result
 
 And we see that the table has 1 row - this is the number of unique patients or participants across all of the various TCGA studies.
 
-
+## Resetting the OAuth
 ```r
 ######################[ TIP ]########################################
 ## If you have any trouble with OAuth and need to redo/reset OAuth,
 ## run the following code.
+## If nothing else works, just delete the .httr-oauth directory and reauthorize
 
 #if (FALSE != getOption("httr_oauth_cache")) {
 #  file.remove(getOption("httr_oauth_cache"))
