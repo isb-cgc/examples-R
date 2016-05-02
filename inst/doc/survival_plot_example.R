@@ -1,7 +1,10 @@
+#' Kaplan-Meier plots
+#' 
+#' This Rscript demonstrates joining BigQuery tables to compare survival rates conditional on somatic mutations. 
+#' 
 #required packages
 require(bigrquery) || install.packages('bigrquery')
 library(survival)
-library(unique)
 source('ggsurv.R')
 
 # specify cloud project name
@@ -33,10 +36,12 @@ resultDF = data.frame(result)
 #view results
 resultDF
 
-#######################################################################
 
 #2. Now, for the most frequent protein change, let's count the number of samples per tumor type with this protein change
-top_protein_change = resultDF[2,1]
+#Note: The example protein changes used here are unique to their genes, but generally a protein change can be associated with
+#more than one genes
+
+top_protein_change = resultDF[1,1]
 
 sqlQuery = paste("SELECT Study, count(*) as n ",
                  "FROM (SELECT ParticipantBarcode, Study ", 
@@ -51,7 +56,6 @@ resultDF
 #let's look at only top 10 studies for survival comparison.
 top_ten_studies = resultDF$Study[1:10]
 
-#######################################################################
 
 #3. let's see how survival trends look across different tumor types with the most common protein change
 sqlQuery = paste("SELECT clin.ParticipantBarcode,vital_status, clin.Study, days_to_last_known_alive ",
@@ -73,7 +77,7 @@ class(resultDF$vital_status) = "numeric"
 resultDF$clin_Study = factor(resultDF$clin_Study)
 
 #normalize days_to_last_known_alive within each tumor type to mitigate inherent survival differences across tumor types
-for (tumor_type in unique(resultDF$clin_Study))
+for (tumor_type in levels(resultDF$clin_Study))
 {
   survival_this_tumor = resultDF$days_to_last_known_alive[resultDF$clin_Study==tumor_type]
   
@@ -89,16 +93,14 @@ tcga.surv = survfit(Surv(resultDF$days_to_last_known_alive,resultDF$vital_status
 #plot survival curve
 ggsurv(tcga.surv,main = paste("Protein Change = ",top_protein_change))
 
-#############################################################
 
-#4. that's too many curves in a single plot. Let's only plot top_ten_studies
+#4. Let's only plot top_ten_studies (if there are more than 10 curves in the previous plot)
 resultDF = resultDF[resultDF$clin_Study %in% top_ten_studies,]
 #fit survival curve to data
 tcga.surv = survfit(Surv(resultDF$days_to_last_known_alive,resultDF$vital_status)~resultDF$clin_Study,data = resultDF)
 #plot survival curve
 ggsurv(tcga.surv,main = paste("Protein Change = ",top_protein_change))
 
-##############################################################
 
 #5. let's add a baseline survival curve to this plot. For this, we'll pull all the samples from top_ten_studies that do not have 
 #the top_protein_change
@@ -147,12 +149,11 @@ tcga.surv = survfit(Surv(resultDF$days_to_last_known_alive,resultDF$vital_status
 #plot survival curve
 ggsurv(tcga.surv,main = paste("Protein Change = ",top_protein_change))
 
-##################################################################
 
-#6. Since top_protein_change is most frequent in SKCM tumors, let's look at the survival curve just for that tumor type.
+#6. Let's look at the survival curve for the tumor type where the top_protein_change is most common.
 #For this, we need one simple change to the previous sql query.
-#* edit the WHERE claus to return only SKCM samples
-top_study='SKCM' #Also try top_protein_change='p.V600E' and top_study='THCA' 
+#* edit the WHERE claus to return only top_ten_studies[1] records
+# Note: Also try top_protein_change='p.V600E' and top_study='THCA' 
 
 sqlQuery = paste("SELECT clin.ParticipantBarcode,vital_status, clin.Study, days_to_last_known_alive, Protein_Change ",
                  "FROM ",clinical_table," as clin LEFT JOIN (SELECT ParticipantBarcode, Protein_Change, Study ", 
@@ -160,7 +161,7 @@ sqlQuery = paste("SELECT clin.ParticipantBarcode,vital_status, clin.Study, days_
                  " WHERE Protein_Change='",top_protein_change,"'",   
                  " GROUP BY ParticipantBarcode,Protein_Change, Study) as mut", 
                  " ON clin.ParticipantBarcode=mut.ParticipantBarcode",
-                 " WHERE clin.Study='",top_study,"'",sep="")
+                 " WHERE clin.Study='",top_ten_studies[1],"'",sep="")
 
 result = query_exec(sqlQuery,project = cloudProject)
 resultDF = data.frame(result)
@@ -177,5 +178,5 @@ resultDF$Protein_Change = as.logical(!is.na(resultDF$Protein_Change))
 #fit survival curve to data
 tcga.surv = survfit(Surv(resultDF$days_to_last_known_alive,resultDF$vital_status)~resultDF$Protein_Change,data = resultDF)
 #plot survival curve
-ggsurv(tcga.surv,main = paste("Protein Change = ",top_protein_change,", Study = ",top_study))
-#plot(ctga.surv)
+ggsurv(tcga.surv,main = paste("Protein Change = ",top_protein_change,", Study = ",top_ten_studies[1]))
+
