@@ -2,10 +2,19 @@
 
 Analysis examples based on the ISB-CGC hosted TCGA data, using R and R Markdown.
 
+###NOTE: There is an incompatibility between bigrquery and the httr library. Until bigrquery is updated, please use the development branch of bigrquery or use the prior version of httr (1.0.0).
+
+To install the dev version of bigrquery:
+```
+   https://github.com/rstats-db/bigrquery
+   install.packages('devtools')
+   devtools::install_github("rstats-db/bigrquery")
+```
+
 To install:
 ```
 require(devtools) || install.packages("devtools")
-install_github("isb-cgc", "examples-R", build_vignettes=TRUE)
+install_github("isb-cgc/examples-R", build_vignettes=TRUE)
 ```
 
 To view and run the vignettes.
@@ -83,7 +92,7 @@ and then navigate to http://localhost:8787 on your local machine.
 
 For more details, see [examples-R/inst/docker](inst/docker) and http://www.bioconductor.org/help/docker/.
 
-The log into Rstudio with username and password 'rstudio', for more details:
+Then log into Rstudio with username and password 'rstudio', for more details:
 https://github.com/rocker-org/rocker/wiki/Using-the-RStudio-image
 
 ## OAuth
