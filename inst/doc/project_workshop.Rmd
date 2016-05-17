@@ -1,0 +1,195 @@
+---
+title: "Differential gene expression associated with HPV integration"
+output: html_document
+---
+
+In this example, we will study the effect of HPV integration on the expression of recurrent target genes in CESC and HNSC tumors.
+This example demonstrates using R to issue BigQuery queries involving multiple tables across multiple data sets. We will also show users
+how to bring in their own data to use in conjunction with the TCGA data already available as BigQuery tables. In this exercise,
+we will reproduce some figures from Tang et. al. [1] to visualize altered expression of host genes frequently targeted by HPV.
+
+References:
+1. Tang et. al. The landscape of viral expression and host gene fusion and adaptation in human cancer. Nature Communications 4, Article number:2513|doi:10.1038/ncomms3513
+
+-------------------------------------------------------------------------
+
+Let's get started then! Let's first load all the required libraries and initialize all global variables
+```{r}
+require(bigrquery,quietly = TRUE) || install.packages('bigrquery',verbose = FALSE)
+require(tidyr,quietly = TRUE) || install.packages('tidyr',verbose = FALSE)
+library(gplots,verbose = FALSE)
+```
+Specify cloud project name(s)
+```{r}
+cloud_project_main = "isb-cgc"
+cloud_project_workshop = "isb-cgc-04-0030"
+```
+I'm going to define a small convenience function, to help with reading our sql.
+```{r}
+printSQL <- function(x) {
+	require("stringr")
+	y <- str_replace_all(x, pattern="FROM", replacement="\nFROM")
+	y <- str_replace_all(y, pattern="WHERE", replacement="\nWHERE")
+	y <- str_replace_all(y, pattern="GROUP BY", replacement="\nGROUP BY")
+	cat(y, "\n")
+}
+```
+
+Specify BigQuery datasets you want to work with
+```{r}
+tcga_ds = "tcga_201510_alpha"
+workshop_ds = "workspace"
+```
+List tables in the TCGA dataset
+```{r}
+bigrquery::list_tables(cloud_project_main,tcga_ds)
+```
+Tables we will be using in this example...
+```{r}
+clinical_table = paste("[",cloud_project_main,":",tcga_ds,".Clinical_data",']',sep="")
+gexp_table = paste("[",cloud_project_main,":",tcga_ds,".mRNA_UNC_HiSeq_RSEM",']',sep="")
+ncomms_gene_table = paste("[",cloud_project_workshop,":",workshop_ds,".ncomms3513_s3",']',sep="")
+```
+Studies we are interested in...
+```{r}
+study=c('CESC','HNSC')
+```
+Now, let's get relevant data from BigQuery
+
+1. Get all CESC and HNSC samples and their hpv status from clinical data
+```{r}
+sqlQuery = paste("SELECT ParticipantBarcode,Study,hpv_calls,hpv_status ",
+                 "FROM ", clinical_table,
+                 " WHERE Study in (",paste(shQuote(study),collapse = ','),")",sep="")
+
+printSQL(sqlQuery)
+
+hpv_status = query_exec(sqlQuery,project = cloud_project_workshop) # didn't work for me. change main to workshop
+# hpv_status is already a data frame here
+dim(hpv_status)
+head(hpv_status)
+
+#Assert that if hpv_calls is NA, hpv_status is Negative
+stopifnot((is.na(hpv_status$hpv_calls) && hpv_status$hpv_status=="Negative") || !is.na(hpv_status$hpv_calls))
+
+# Let's explore the cohort
+ggplot(data=hpv_status, aes(x=hpv_status, fill=Study)) + geom_bar(stat="count", position=position_dodge())
+```
+
+2. TCGA data or BBT analysis does not give us the location of HPV integration into host sequences.
+So, we'll get a list of frequently targeted genes published with this paper:
+Ka-Wei Tang et. al. The Landscape of viral expression and host gene fusion and adaptation in human cancer. doi:10.1038/ncomms3513
+
+Supplementary Data 2: Integration analysis results
+
+We will get the data from our cloud bucket by either using the command line
+or from the browser.
+
+Using the google command line tool:
+gsutil cp gs://isb-cgc-workshop-data/ncomms3513-s3.tsv .
+gsutil cp gs://isb-cgc-workshop-data/ncomms3513-s3_Schema.json .
+
+Using the cloud console, go to https://console.cloud.google.com and find the
+workshop bucket.
+
+The, to load the data into a BQ table, we use the 'bq' command.
+Make sure to change the table directory!
+bq load --source_format CSV --field_delimiter "\t"  --schema ncomms3513-s3_Schema.json  DG.ncomms3513_s3 ncomms3513-s3.tsv
+
+
+```{r}
+sqlQuery = paste("SELECT Overlapping_genes, Cancer as Study",
+                 "FROM ", ncomms_gene_table,
+                 " WHERE Cancer in (",paste(shQuote(study),collapse = ","),") AND Overlapping_genes <> 'Intergenic'"," GROUP BY Cancer,Overlapping_genes",sep="")
+
+printSQL(sqlQuery)
+
+affected_genes = query_exec(sqlQuery,project = cloud_project_main)
+head(affected_genes)
+
+table(affected_genes$Cancer)
+```
+3. Now, we want to get gene expression data for affected_genes for the tumor types they are affected in
+
+NOTE: we could use the affected_genes list with 'WHERE..IN' clause in an sql query, but this is not advisable as the query string can get very long if the gene list is long.
+We will instead use JOIN.
+
+Also NOTE: how easy it is to use tables from multiple cloud projects in the same query
+```{r}
+sqlQuery = "
+SELECT ParticipantBarcode, SampleBarcode, Study, HGNC_gene_symbol, normalized_count
+FROM [isb-cgc:tcga_201510_alpha.mRNA_UNC_HiSeq_RSEM] as gexp
+JOIN
+  (SELECT Overlapping_genes, Cancer
+   FROM [isb-cgc-04-0030:workspace.ncomms3513_s3]
+   WHERE Cancer in ('CESC','HNSC') AND Overlapping_genes <> 'Intergenic'
+   GROUP BY Cancer,Overlapping_genes
+   ) as gene_list
+ON gexp.HGNC_gene_symbol = gene_list.Overlapping_genes AND gexp.Study = gene_list.Cancer
+WHERE
+  Study in ('CESC','HNSC') AND SampleTypeLetterCode = 'TP'"
+
+
+#sqlQuery = paste("SELECT ParticipantBarcode, SampleBarcode, Study, HGNC_gene_symbol,normalized_count",
+#" FROM ",gexp_table," as gexp JOIN",
+#" (SELECT Overlapping_genes,Cancer",
+#" FROM ",ncomms_gene_table,
+#" WHERE Cancer in (",paste(shQuote(study),collapse = ","),") AND Overlapping_genes <> 'Intergenic'",
+#" GROUP BY Cancer,Overlapping_genes) as gene_list",
+#" ON gexp.HGNC_gene_symbol = gene_list.Overlapping_genes AND gexp.Study = gene_list.Cancer",
+#" WHERE Study in (",paste(shQuote(study),collapse = ","),")",sep="")
+
+gexp_affected_genes = query_exec(sqlQuery,project = cloud_project_main)
+
+#view results
+head(gexp_affected_genes)
+
+# a couple different ways to look at the results
+qplot(data=gexp_affected_genes, x=Study, y=normalized_count, col=HGNC_gene_symbol, geom="boxplot")
+qplot(data=gexp_affected_genes, x=Study, y=log2(normalized_count), col=HGNC_gene_symbol, geom="boxplot")
+qplot(data=gexp_affected_genes, x=log2(normalized_count), col=HGNC_gene_symbol, geom="density") + facet_wrap(~ Study)
+```
+
+
+
+Not all samples listed in the clinical data have gene expression data. Let's filter hpv_status_df to match the samples to those in gexp_affected_genes_df
+```{r}
+# let's get rid of 'indeterminate' samples
+hpv_status = hpv_status[hpv_status$hpv_status != "Indeterminate",]
+hpv_status = hpv_status[hpv_status$ParticipantBarcode %in% gexp_affected_genes$ParticipantBarcode,]
+```
+
+Then we are going to use a couple nice libraries to perform t.tests on expression by hpv_status
+```{r}
+gxps <- merge(x=gexp_affected_genes, y=hpv_status, by=c("Study","ParticipantBarcode"))
+
+df_neg <- function(x) {gxps$normalized_count[gxps$HGNC_gene_symbol == x & gxps$hpv_status == "Negative"]}
+df_pos <- function(x) {gxps$normalized_count[gxps$HGNC_gene_symbol == x & gxps$hpv_status == "Positive"]}
+
+res0 <- gxps %>% group_by(Study, HGNC_gene_symbol) %>%
+do(tidy(t.test(df_neg(.$HGNC_gene_symbol), df_pos(.$HGNC_gene_symbol)))) %>%
+ungroup() %>% arrange(desc(statistic))
+```
+
+Transform gexp_affected_genes_df into a gexp-by-samples feature matrix
+```{r}
+gexp_fm = tidyr::spread(gexp_affected_genes,HGNC_gene_symbol,normalized_count)
+gexp_fm[1:5,1:5]
+```
+
+
+```{r}
+# ng-chm
+
+#library(NGCHM)
+#library(ISBCHM)
+#library(magrittr)
+# NOTE: ip address of the NGCHM server is hard coded. Make usre it's the correct one by checking the VM instance on the Google Cloud Console.
+#chmCreateManagedServer('cloud','ng-chm','104.154.59.99')
+#options(cloudproject='isb-cgc')
+
+#chm= exprCHM('GEXP_Hpv Status',study,getStudyCohort(study),affected_genes_df[,],'Comparison of mRNA expression levels between HPV positive and HPV negative CESC samples')
+
+#exprCHM() from ISBCHM ends here    
+#plot(chm)
+```
