@@ -102,6 +102,9 @@ ORDER BY
   HGNC_gene_symbol"
 
 result <- query_exec(querySql, project=project)
+```
+
+```r
 head(result)
 ```
 

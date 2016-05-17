@@ -36,6 +36,13 @@ Let's start by taking a look at the table schema:
 ```r
 querySql <- paste("SELECT * FROM ",mutTable," limit 1", sep="")
 result <- query_exec(querySql, project=project)
+```
+
+```
+## Auto-refreshing stale OAuth token.
+```
+
+```r
 data.frame(Columns=colnames(result))
 ```
 
@@ -260,9 +267,9 @@ query_exec(querySql, project=project)
 ## 3   LUAD  27
 ## 4   COAD  25
 ## 5   KIRP   6
-## 6    LGG   4
-## 7    GBM   4
-## 8   CHOL   4
+## 6   CHOL   4
+## 7    LGG   4
+## 8    GBM   4
 ## 9   HNSC   2
 ## 10  BLCA   2
 ```
@@ -355,8 +362,8 @@ head(result)
 ```
 ##   ParticipantBarcode m
 ## 1       TCGA-J8-A3YH 2
-## 2       TCGA-EM-A2P1 2
-## 3       TCGA-EM-A2CS 2
+## 2       TCGA-EM-A2CS 2
+## 3       TCGA-EM-A2P1 2
 ```
 
 Sure enough, we see that the same mutation is reported twice for each of these three patients. Let's look at why:
@@ -577,21 +584,17 @@ brafScores <- rbind(tcgaScores, tuteScores)
 qplot(brafScores$TUTE, color=Source, data=brafScores, geom="density", xlab="TUTE scores")
 ```
 
-![plot of chunk som_mut_fig1](figure/som_mut_fig1-1.png) 
+![plot of chunk som_mut_fig1](figure/som_mut_fig1-1.png)
 
 ```r
 qplot(brafScores$MutationAssessor_score, color=Source, data=brafScores, geom="density", xlab="MutationAssessor score")
 ```
 
 ```
-## Warning: Removed 79 rows containing non-finite values (stat_density).
+## Warning: Removed 2006 rows containing non-finite values (stat_density).
 ```
 
-```
-## Warning: Removed 1927 rows containing non-finite values (stat_density).
-```
-
-![plot of chunk som_mut_fig1](figure/som_mut_fig1-2.png) 
+![plot of chunk som_mut_fig1](figure/som_mut_fig1-2.png)
 
 Both of these plots suggest that some of the somatic BRAF mutations observed in TCGA tumor samples are scored as more deleterious by both TUTE and MutationAssessor. In the TUTE histogram, a larger fraction of somatic mutations also get a score of 0.
 Note that in these histograms, each count represents a single variant, ie a specific protein change. Mutations that are seen across multiple patients are not being counted multiple times.
