@@ -2,15 +2,6 @@
 
 Analysis examples based on the ISB-CGC hosted TCGA data, using R and R Markdown.
 
-###NOTE: There is an incompatibility between bigrquery and the httr library. Until bigrquery is updated, please use the development branch of bigrquery or use the prior version of httr (1.0.0).
-
-To install the dev version of bigrquery:
-```
-   https://github.com/rstats-db/bigrquery
-   install.packages('devtools')
-   devtools::install_github("rstats-db/bigrquery")
-```
-
 To install:
 ```
 require(devtools) || install.packages("devtools")
@@ -99,3 +90,12 @@ https://github.com/rocker-org/rocker/wiki/Using-the-RStudio-image
 
 If you have trouble with the **OAuth**, see [examples-R/inst/doc/BigQueryIntroduction.html](inst/doc/BigQueryIntroduction.md)
 for some instructions on resetting it.
+
+#NOTE: There was an incompatibility between bigrquery and the httr library. If you are having trouble, try installing the development version of bigrquery or use the prior version of httr (1.0.0).
+
+To install the dev version of bigrquery:
+```
+   https://github.com/rstats-db/bigrquery
+   install.packages('devtools')
+   devtools::install_github("rstats-db/bigrquery")
+```
