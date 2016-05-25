@@ -38,6 +38,10 @@ found in the file of the same name in [examples-R/R](R).
 
 [Creating TCGA cohorts part 2](inst/doc/Creating_TCGA_cohorts_part_2.md)
 
+[Working with barcode lists](inst/doc/Working_With_Barcode_Lists.md)
+
+[API Endpoints Interface](R/api_interface.R)
+
 ## Available data types
 
 [microRNA expression](inst/doc/BCGSC_microRNA_expression.md)
@@ -61,8 +65,6 @@ found in the file of the same name in [examples-R/R](R).
 [Expression and Protein Correlation](inst/doc/ExpressionandProteinCorrelation.md)
 
 [Genomic And Expression T-test](inst/doc/GenomicAndExpression_T_test.md)
-
-[Working with barcode lists](inst/doc/Working_With_Barcode_Lists.md)
 
 ## Using Docker
 
