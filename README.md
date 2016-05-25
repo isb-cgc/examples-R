@@ -10,6 +10,7 @@ install_github("isb-cgc/examples-R", build_vignettes=TRUE)
 
 To view and run the vignettes.
 ```
+  library(ISBCGCExamples)
   help(package="ISBCGCExamples")
 ```
 
