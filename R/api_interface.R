@@ -138,12 +138,11 @@ patient_details <- function(patient_barcode) {
 #'
 #' Using your auth token, get a list of saved cohorts
 #'
-#' @param sample_barcode A TCGA patient barcode like "TCGA-02-0001"
+#' @param a_token Auth token as returned by isb_init()
 #'
 #'
 #' @examples
 #' \dontrun{
-#'   my
 #'   list_cohorts(mytoken)
 #'  }
 #' @export
