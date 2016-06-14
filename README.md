@@ -43,6 +43,8 @@ found in the file of the same name in [examples-R/R](R).
 
 [API Endpoints Interface](R/api_interface.R)
 
+[Constructing small matrices](inst/doc/creating_cohort_gene_expression_matrices.md)
+
 ## Available data types
 
 [microRNA expression](inst/doc/BCGSC_microRNA_expression.md)
@@ -60,6 +62,8 @@ found in the file of the same name in [examples-R/R](R).
 ## Advanced examples
 
 [DESeq2 workflow on raw data](inst/doc/DESeq2_tutorial.md)
+
+[Expression and Copy Number Correlation](inst/doc/ExpressionAndCopyNumberCorrelation.md)
 
 [Expression and Methylation Correlation](inst/doc/ExpressionandMethylationCorrelation.md)
 

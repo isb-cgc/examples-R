@@ -1,0 +1,54 @@
+
+# Accessing the GDC endpoints #
+The new GDC website went live June 6, 2016. A new feature was the availablity of
+endpoint APIs for accessing data programatically. This tutorial will show
+how to do that via R, using the httr package. Additionally, we'll compare that
+data with what's found in our BigQuery tables.
+
+The GDC endpoint information is found at:
+
+https://gdc-docs.nci.nih.gov/API/Users_Guide/Getting_Started/#api-endpoints
+
+## First let's check that the system is online.
+```{r message=FALSE}
+library(httr)
+b <- "https://gdc-api.nci.nih.gov/status"
+content(GET(url=b))
+```
+
+## Finding files at the GDC
+The https://gdc-api.nci.nih.gov/cases endpoint enables search and retrieval of
+information related to a specific case, or sample donor.
+
+```{r}
+b <- "https://gdc-api.nci.nih.gov/cases"
+q <- list(cases.samples.portions.analytes.aliquots.aliquot_id="TCGA-DX-A3UC-01A-11R-A30C-07",pretty="true")
+res0 <- (GET(url=b, query=q))
+resParse <- xmlParse(content(res0, "text"))
+```
+
+
+```{r}
+library(XML)
+
+b <- "https://gdc-api.nci.nih.gov/cases"
+q <- list(submitter_id="TCGA-DX-A3UC-01A-11R-A30C-07")
+res0 <- (GET(url=b, query=q))
+resParse <- xmlParse(content(res0, "text"))
+resParse
+```
+
+We can also retrieve the information as a tab separated table,
+although, it's a bit hard to parse/understand.
+
+```{r}
+b <- "https://gdc-api.nci.nih.gov/cases"
+q <- list(submitter_id="TCGA-BH-A0EA", format="TSV")
+res0 <- (GET(url=b, query=q))
+res0
+headers(res0)
+content(res0, as="text")
+resText <- content(res0, as="text")
+resTable <- read.table(text=resText, sep="\t", header=T, stringsAsFactors=F)
+
+```
