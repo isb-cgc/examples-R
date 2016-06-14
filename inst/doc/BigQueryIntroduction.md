@@ -101,12 +101,11 @@ result
 
 And we see that the table has 1 row - this is the number of unique patients or participants across all of the various TCGA studies.
 
-## Resetting the OAuth
+
 ```r
 ######################[ TIP ]########################################
 ## If you have any trouble with OAuth and need to redo/reset OAuth,
 ## run the following code.
-## If nothing else works, just delete the .httr-oauth directory and reauthorize
 
 #if (FALSE != getOption("httr_oauth_cache")) {
 #  file.remove(getOption("httr_oauth_cache"))
@@ -280,9 +279,9 @@ sessionInfo()
 ```
 
 ```
-R version 3.2.1 (2015-06-18)
+R version 3.2.4 (2016-03-10)
 Platform: x86_64-apple-darwin13.4.0 (64-bit)
-Running under: OS X 10.10.5 (Yosemite)
+Running under: OS X 10.11.4 (El Capitan)
 
 locale:
 [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
@@ -291,15 +290,14 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] ISBCGCExamples_0.1 ggplot2_1.0.1      scales_0.3.0      
-[4] bigrquery_0.1.0    dplyr_0.4.3       
+[1] ISBCGCExamples_0.1.1 ggplot2_2.1.0        scales_0.4.0        
+[4] bigrquery_0.2.0      dplyr_0.4.3          knitr_1.12.3        
 
 loaded via a namespace (and not attached):
- [1] Rcpp_0.12.2      knitr_1.11       magrittr_1.5     MASS_7.3-44     
- [5] munsell_0.4.2    colorspace_1.2-6 R6_2.1.1         stringr_1.0.0   
- [9] httr_1.0.0       plyr_1.8.3       tools_3.2.1      parallel_3.2.1  
-[13] grid_3.2.1       gtable_0.1.2     DBI_0.3.1        lazyeval_0.1.10 
-[17] assertthat_0.1   digest_0.6.8     reshape2_1.4.1   formatR_1.2.1   
-[21] curl_0.9.3       mime_0.4         evaluate_0.8     labeling_0.3    
-[25] stringi_1.0-1    jsonlite_0.9.17  markdown_0.7.7   proto_0.3-10    
+ [1] Rcpp_0.12.4      magrittr_1.5     munsell_0.4.3    colorspace_1.2-6
+ [5] R6_2.1.2         stringr_1.0.0    httr_1.1.0       plyr_1.8.3      
+ [9] tools_3.2.4      parallel_3.2.4   grid_3.2.4       gtable_0.2.0    
+[13] DBI_0.3.1        openssl_0.9.2    lazyeval_0.1.10  assertthat_0.1  
+[17] digest_0.6.9     formatR_1.3      curl_0.9.6       evaluate_0.8.3  
+[21] labeling_0.3     stringi_1.0-1    jsonlite_0.9.19 
 ```
