@@ -33,3 +33,16 @@ knitAllVignettes <- function() {
   )
 }
 # last comment.
+
+
+knitOneVignettes <- function(rmd) {
+    # knit one .rmd file.
+    library(knitr)
+    opts_chunk$set(error=FALSE)
+    if(FALSE == grepl('doc$', getwd())) {
+        stop("be sure to setwd('PATH/TO/inst/doc') before running this command.")
+    }
+    knitr::purl(rmd, documentation=2)
+    knitr::knit(rmd)
+    knitr::knit2html(rmd)
+}
