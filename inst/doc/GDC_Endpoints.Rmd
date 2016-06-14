@@ -1,0 +1,16 @@
+
+# Accessing the GDC endpoints #
+The new GDC website went live June 6, 2016. A new feature was the availablity of
+endpoint APIs for accessing data programatically. This tutorial will show
+how to do that via R, using the httr package. Additionally, we'll compare that
+data with what's found in our BigQuery tables.
+
+The GDC endpoint information is found at:
+
+https://gdc-docs.nci.nih.gov/API/Users_Guide/Getting_Started/#api-endpoints
+
+## First let's check that the system is online.
+```{r message=FALSE}
+b <- "https://gdc-api.nci.nih.gov/status"
+content(GET(url=b))
+```
