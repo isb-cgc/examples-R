@@ -244,6 +244,78 @@ ggtitle(gene_info$gene_name)
 
 <img src="figure/barplot-1.png" title="plot of chunk barplot" alt="plot of chunk barplot" style="display: block; margin: auto;" />
 
+Looks like the MESO has one of the strongest correlations. Let's check the data.
+
+
+```r
+q <- "
+SELECT
+  expr.Study as Study,
+  expr.HGNC_gene_symbol as Gene,
+  expr.SampleBarcode as SampleBarcode,
+  log2(expr.normalized_count+1) as expr,
+  cn.mean_segment_mean as mean_cn
+FROM
+  [isb-cgc:tcga_201510_alpha.mRNA_UNC_HiSeq_RSEM] AS expr
+JOIN (
+  SELECT
+    Study,
+    SampleBarcode,
+    Num_Probes,
+    AVG(Segment_Mean) AS mean_segment_mean,
+  FROM
+    [isb-cgc:tcga_201510_alpha.Copy_Number_segments]
+  WHERE
+    SampleTypeLetterCode = 'TP'
+    AND Study = 'LIHC'
+    AND Chromosome = '17'
+    AND ((start <= 7565097 AND END >= 7590856)
+      OR (start >= 7565097 AND start <= 7590856)
+      OR (END >= 7565097   AND END <= 7590856)
+      OR (start >= 7565097 AND END <= 7590856))
+  GROUP BY
+    Study,
+    SampleBarcode,
+    Num_Probes ) AS cn
+ON
+  expr.SampleBarcode = cn.SampleBarcode
+  AND expr.Study = cn.Study
+WHERE
+  expr.HGNC_gene_symbol = 'TP53'
+  AND expr.Study = 'LIHC'
+GROUP BY
+  Study,
+  Gene,
+  SampleBarcode,
+  expr,
+  mean_cn
+"
+
+data <- query_exec(q, project)
+head(data)
+```
+
+```
+##   Study Gene    SampleBarcode      expr mean_cn
+## 1  LIHC TP53 TCGA-DD-A4NS-01A 10.039070  0.0137
+## 2  LIHC TP53 TCGA-DD-A4NK-01A  9.546030 -0.0762
+## 3  LIHC TP53 TCGA-GJ-A3OU-01A 10.024997 -0.2271
+## 4  LIHC TP53 TCGA-CC-A8HT-01A  9.693517 -0.3713
+## 5  LIHC TP53 TCGA-EP-A2KB-01A 11.535877  0.2011
+## 6  LIHC TP53 TCGA-2Y-A9H0-01A  9.368493 -0.9768
+```
+
+```r
+# Plot comparing the CN ~ Expr correlation across studies.
+ggplot(data, aes(x=expr, y=mean_cn)) +
+geom_point() +
+geom_smooth(method="lm") +
+xlab("Log2 RNA-seq expression level") + ylab("Mean copy number change") +
+ggtitle(gene_info$gene_name)
+```
+
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6-1.png)
+
 
 ## Provenance
 
