@@ -124,7 +124,9 @@ ORDER BY
 
 result <- query_exec(querySql, project=project)
 
-qplot(x=factor(lin_bin), y=n, data=result, geom="bar", stat="identity", xlab="bin", ylab="Count")
+ggplot(data=result, aes(x=factor(lin_bin), y=n)) +
+geom_bar(stat="identity") + xlab("bin") + ylab("Count")
+
 ```
 
 The histogram illustrates that the vast majority of the CN segments have a copy-number value near 2, as expected, with significant tails on either side representing deletions (left) and amplifications (right).
@@ -151,7 +153,8 @@ ORDER BY
 
 result <- query_exec(querySql, project=project)
 
-qplot(x=bin, y=n, data=result, geom="bar", stat="identity", ylab="Count", xlab="Bin")
+ggplot(data=result, aes(x=factor(bin), y=n)) +
+geom_bar(stat="identity") + xlab("bin") + ylab("Count")
 ```
 
 As expected, shorter segment lengths dominate, and between 1Kb and 1Mb it appears that segment lengths follow a power-law distribution.

@@ -38,24 +38,24 @@ result
 ```
 ##      Variant_Classification     n
 ## 1  De_novo_Start_OutOfFrame    26
-## 2               Splice_Site  4158
-## 3                       RNA  2644
-## 4                    Silent 27612
-## 5                     5'UTR  1392
-## 6           Frame_Shift_Ins  3034
-## 7              In_Frame_Ins   434
-## 8            Stop_Codon_Del    16
-## 9           Start_Codon_SNP    97
-## 10                   Intron  6617
-## 11                  lincRNA   661
-## 12                      IGR  1641
-## 13        Missense_Mutation 75429
-## 14          Frame_Shift_Del  4056
-## 15          Start_Codon_Ins    13
-## 16           Stop_Codon_Ins     4
-## 17        Nonsense_Mutation  6038
-## 18             In_Frame_Del  1337
-## 19    De_novo_Start_InFrame     7
+## 2         Missense_Mutation 75429
+## 3           Frame_Shift_Del  4056
+## 4           Start_Codon_Ins    13
+## 5            Stop_Codon_Ins     4
+## 6                    Silent 27612
+## 7                     5'UTR  1392
+## 8           Frame_Shift_Ins  3034
+## 9              In_Frame_Ins   434
+## 10           Stop_Codon_Del    16
+## 11                      IGR  1641
+## 12                   Intron  6617
+## 13                  lincRNA   661
+## 14        Nonsense_Mutation  6038
+## 15             In_Frame_Del  1337
+## 16    De_novo_Start_InFrame     7
+## 17                      RNA  2644
+## 18              Splice_Site  4158
+## 19          Start_Codon_SNP    97
 ## 20                    3'UTR  2027
 ## 21         Nonstop_Mutation    94
 ## 22          Start_Codon_Del    25
@@ -90,7 +90,8 @@ query_exec(q, project)
 ```
 
 ```
-## NULL
+## [1] ParticipantBarcode
+## <0 rows> (or 0-length row.names)
 ```
 
 It turns out there's no data for that gene in the BRCA study. Maybe we should find out
@@ -192,12 +193,12 @@ head(barcodesBRCA)
 
 ```
 ##   ParticipantBarcode
-## 1       TCGA-A2-A0T3
-## 2       TCGA-A8-A084
-## 3       TCGA-A7-A0CH
-## 4       TCGA-D8-A1JK
-## 5       TCGA-D8-A1XV
-## 6       TCGA-EW-A1IZ
+## 1       TCGA-A8-A07R
+## 2       TCGA-BH-A1F8
+## 3       TCGA-AO-A0J8
+## 4       TCGA-AN-A0XN
+## 5       TCGA-A8-A097
+## 6       TCGA-C8-A27B
 ```
 
 Then, let's get the barcodes for samples with a mutation in GATA3, since it
@@ -291,13 +292,13 @@ query_exec(q, project)
 
 ```
 ##                  vc num_variants_in_class
-## 1            Silent                     2
-## 2 Missense_Mutation                    10
+## 1   Frame_Shift_Ins                    62
+## 2 Nonsense_Mutation                     2
 ## 3       Splice_Site                    24
-## 4   Frame_Shift_Ins                    62
-## 5   Frame_Shift_Del                    19
-## 6    Stop_Codon_Ins                     1
-## 7 Nonsense_Mutation                     2
+## 4 Missense_Mutation                    10
+## 5    Stop_Codon_Ins                     1
+## 6   Frame_Shift_Del                    19
+## 7            Silent                     2
 ```
 
 So we find that frame shift insertions are the most common type of variant,
@@ -542,12 +543,12 @@ system.time(result1 <- query_exec(q, project))
 ```
 
 ```
-##Retrieving data:  4.2s
+## Retrieving data:  2.9sRetrieving data:  5.2s
 ```
 
 ```
-##    user  system elapsed
-##   1.105   0.103   6.776
+##    user  system elapsed 
+##   1.280   0.114   9.194
 ```
 
 ```r
@@ -635,7 +636,7 @@ qplot(data=result1, x=T, y=mean_diff, shape=as.factor(gene_label), col=as.factor
 ## Warning: Removed 267 rows containing missing values (geom_point).
 ```
 
-![plot of chunk ttest_fig1](figure/ttest_fig1.png)
+![plot of chunk ttest_fig1](figure/ttest_fig1-1.png)
 
 Wow! So did we do that right? Let's check on a single gene. We'll pull down
 the actual expression values, and use the R T-test.
@@ -695,16 +696,16 @@ t.test(mutExpr$f0_, wtExpr$f0_)
 ```
 
 ```
-##
+## 
 ## 	Welch Two Sample t-test
-##
+## 
 ## data:  mutExpr$f0_ and wtExpr$f0_
 ## t = 17.524, df = 513.45, p-value < 2.2e-16
 ## alternative hypothesis: true difference in means is not equal to 0
 ## 95 percent confidence interval:
 ##  1.485635 1.860810
 ## sample estimates:
-## mean of x mean of y
+## mean of x mean of y 
 ##  14.11414  12.44092
 ```
 
@@ -712,7 +713,7 @@ t.test(mutExpr$f0_, wtExpr$f0_)
 boxplot(list(Mutation_In_GATA3=mutExpr$f0_, No_Mutation_In_GATA3=wtExpr$f0_), ylab="GATA3 LOG2 expression")
 ```
 
-![plot of chunk ttest_fig2](figure/ttest_fig2.png) 
+![plot of chunk ttest_fig2](figure/ttest_fig2-1.png)
 
 So, we have found the same gene expression means and standard deviation, degrees of freedom,
 and T statistic. Looks good! GATA3 has the most signficant result, interesting (or not?)
@@ -727,25 +728,26 @@ sessionInfo()
 ```
 
 ```
-## R version 3.2.1 (2015-06-18)
+## R version 3.2.4 (2016-03-10)
 ## Platform: x86_64-apple-darwin13.4.0 (64-bit)
-## Running under: OS X 10.10.5 (Yosemite)
-##
+## Running under: OS X 10.11.4 (El Capitan)
+## 
 ## locale:
 ## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
-##
+## 
 ## attached base packages:
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
-##
+## 
 ## other attached packages:
-## [1] ISBCGCExamples_0.1 scales_0.3.0       dplyr_0.4.3       
-## [4] bigrquery_0.1.0    ggplot2_1.0.1      knitr_1.11        
-##
+## [1] ISBCGCExamples_0.1.1 ggplot2_2.1.0        scales_0.4.0        
+## [4] bigrquery_0.2.0      dplyr_0.4.3         
+## 
 ## loaded via a namespace (and not attached):
-##  [1] Rcpp_0.12.2      magrittr_1.5     MASS_7.3-44      munsell_0.4.2   
-##  [5] colorspace_1.2-6 R6_2.1.1         stringr_1.0.0    httr_1.0.0      
-##  [9] plyr_1.8.3       tools_3.2.1      parallel_3.2.1   grid_3.2.1      
-## [13] gtable_0.1.2     DBI_0.3.1        digest_0.6.8     assertthat_0.1  
-## [17] reshape2_1.4.1   formatR_1.2.1    curl_0.9.3       evaluate_0.8    
-## [21] labeling_0.3     stringi_1.0-1    jsonlite_0.9.17  proto_0.3-10
+##  [1] Rcpp_0.12.4      knitr_1.12.3     magrittr_1.5     munsell_0.4.3   
+##  [5] colorspace_1.2-6 R6_2.1.2         stringr_1.0.0    httr_1.1.0      
+##  [9] plyr_1.8.3       tools_3.2.4      parallel_3.2.4   grid_3.2.4      
+## [13] gtable_0.2.0     DBI_0.3.1        digest_0.6.9     openssl_0.9.2   
+## [17] assertthat_0.1   formatR_1.3      curl_0.9.6       evaluate_0.8.3  
+## [21] mime_0.4         labeling_0.3     stringi_1.0-1    jsonlite_0.9.19 
+## [25] markdown_0.7.7
 ```

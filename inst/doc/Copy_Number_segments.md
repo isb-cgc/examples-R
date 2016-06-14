@@ -96,8 +96,8 @@ query_exec(querySql, project=project)
 ## 5                   TB   191
 ## 6                   TR    59
 ## 7                  TAP     9
-## 8                  NBM     4
-## 9                  NBC     4
+## 8                  NBC     4
+## 9                  NBM     4
 ```
 
 As shown in the results of this last query, most samples are primary tumor samples (TP), and in most cases the matched-normal sample is a "normal blood" (NB) sample, although many times it is a "normal tissue" (NT) sample. You can find a description for each of these sample type codes in the TCGA Code Tables Report.
@@ -180,10 +180,11 @@ ORDER BY
 
 result <- query_exec(querySql, project=project)
 
-qplot(x=factor(lin_bin), y=n, data=result, geom="bar", stat="identity", xlab="bin", ylab="Count")
+ggplot(data=result, aes(x=factor(lin_bin), y=n)) +
+geom_bar(stat="identity") + xlab("bin") + ylab("Count")
 ```
 
-![plot of chunk cn_fig1](figure/cn_fig1-1.png) 
+![plot of chunk cn_fig1](figure/cn_fig1-1.png)
 
 The histogram illustrates that the vast majority of the CN segments have a copy-number value near 2, as expected, with significant tails on either side representing deletions (left) and amplifications (right).
 
@@ -210,10 +211,11 @@ ORDER BY
 
 result <- query_exec(querySql, project=project)
 
-qplot(x=bin, y=n, data=result, geom="bar", stat="identity", ylab="Count", xlab="Bin")
+ggplot(data=result, aes(x=factor(bin), y=n)) +
+geom_bar(stat="identity") + xlab("bin") + ylab("Count")
 ```
 
-![plot of chunk cn_fig2](figure/cn_fig2-1.png) 
+![plot of chunk cn_fig2](figure/cn_fig2-1.png)
 
 As expected, shorter segment lengths dominate, and between 1Kb and 1Mb it appears that segment lengths follow a power-law distribution.
 
@@ -244,7 +246,7 @@ result <- query_exec(querySql, project=project)
 qplot(x=log10(bin), y=log10(n), data=result, ylab="log number of segments", xlab="segment length in log kb")
 ```
 
-![plot of chunk cn_fig3](figure/cn_fig3-1.png) 
+![plot of chunk cn_fig3](figure/cn_fig3-1.png)
 
 At this finer scale, we see that the most comment segment length is ~15bp.
 
@@ -296,7 +298,7 @@ SLhist <- rbind(SLhistDel,SLhistAmp)
 qplot(data=SLhist, x=log10(bin), y=log10(n), color=Type)
 ```
 
-![plot of chunk cn_fig4](figure/cn_fig4-1.png) 
+![plot of chunk cn_fig4](figure/cn_fig4-1.png)
 
 The amplification and deletion distributions are nearly identical and still seem to roughly follow a power-law distribution. We can also infer from this graph that a majority of the segments less than 10Kb in length are either amplifications or deletions, while ~90% of the segments of lengths >100Kb are copy-number neutral.
 
@@ -338,7 +340,7 @@ ggplot(allResults, aes(avgCN, colour=gene)) + geom_freqpoly(aes(group = gene))
 ```
 
 ```
-## stat_bin: binwidth defaulted to range/30. Use 'binwidth = x' to adjust this.
+## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 ```
 
-![plot of chunk cn_fig5](figure/cn_fig5-1.png) 
+![plot of chunk cn_fig5](figure/cn_fig5-1.png)
