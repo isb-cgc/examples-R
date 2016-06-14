@@ -1,4 +1,3 @@
-
 SELECT
   expr.Study as Study,
   expr.HGNC_gene_symbol as Gene,
@@ -29,7 +28,6 @@ ON
   AND expr.Study = cn.Study
 WHERE
   expr.HGNC_gene_symbol = '_GENE_'
-  AND expr.Study = '_STUDY_'
 GROUP BY
   Study,
   Gene

@@ -35,7 +35,7 @@ knitAllVignettes <- function() {
 # last comment.
 
 
-knitOneVignettes <- function(rmd) {
+knitOneVignette <- function(rmd) {
     # knit one .rmd file.
     library(knitr)
     opts_chunk$set(error=FALSE)
