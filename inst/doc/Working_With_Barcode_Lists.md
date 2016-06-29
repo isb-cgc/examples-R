@@ -1,5 +1,9 @@
 # Working with barcode lists
 
+As part of working with the ISB-CGC web app, you will have created various cohorts, represented by lists
+of barcodes. This short tutorial shows how to retrieve your cohorts, query information about patients,
+and even test and create new cohorts, from within the R environment.
+
 The isb-cgc project has a collection of web services called 'endpoints', which accept
 and return information. The endpoints allow the user to interact with the isb-cgc system programmatically,
 or for a client application to do so on behalf of the user.
