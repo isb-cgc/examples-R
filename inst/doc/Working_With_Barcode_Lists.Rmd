@@ -1,8 +1,8 @@
 # Working with barcode lists
 
 As part of working with the ISB-CGC web app, you will have created cohorts, represented by lists
-of barcodes. This short tutorial shows how to retrieve your cohorts, and even create new ones,
-from within the R environment.
+of barcodes. This short tutorial shows how to retrieve your cohorts, query for sample details,
+and compose a BigQuery, all from within the R environment.
 
 The isb-cgc project has a collection of web services called 'endpoints', which accept
 and return information. The endpoints allow the user to interact with the isb-cgc system programmatically,
@@ -18,6 +18,7 @@ To get started, we load up R, and import the ISBCGCExamples library.
 
 ```{r}
 library(ISBCGCExamples)
+library(bigrquery)
 ```
 
 ### Creating a token
@@ -31,3 +32,150 @@ my_token <- isb_init()
 
 Calling the isb_init function is going to open a browser window that lets you
 authenticate with Google.
+
+### Listing cohorts
+
+To get a listing of the previously created cohorts, we can use the list_cohorts
+function that takes a token, and returns a list with items including 'count',
+'items', 'kind', and 'etag'. The count shows the number of saved cohorts and
+the items contains information about the cohorts.
+
+```{r}
+my_cohorts <- list_cohorts(my_token)
+names(my_cohorts)
+```
+
+If there is a count of four, then the my_cohorts$items list will have length four.
+Each item has a name. We can use the lapply function (list-apply) to get the
+names out of each list element.
+
+```{r}
+lapply(my_cohorts$items, function(x) x$name)
+```
+
+Also, importantly, each element in 'items' has an 'id', which is used when we
+do further queries on the cohort.
+
+```{r}
+lapply(my_cohorts$items, function(x) x$id)
+```
+
+### Getting barcode lists from a cohorts
+
+Now that we have the cohort IDs, we can collect the various barcodes contained
+in the cohort. These include patient barcodes, sample barcodes, and platform
+specific aliquot barcodes. To do this, we can use the barcodes_from_cohort function.
+
+```{r}
+my_cohort_id <- lapply(my_cohorts$items, function(x) x$id)[[4]]
+my_barcodes <- barcodes_from_cohort(my_cohort_id, my_token)
+names(my_barcodes)
+```
+
+The object returned from barcodes_from_cohort is again a list, this time with
+elements 'cohort_id', 'sample_count', 'patient_count', 'patients', and 'samples'.
+The patients and samples elements are also lists, but lists of patients or
+sample barcodes.
+
+```{r}
+my_barcodes$patients[1:5]
+
+my_barcodes$samples[1:5]
+```
+
+### Getting details on a sample
+
+Suppose you have a particular sample of interest. We can use the endpoints to
+get details about the sample.
+
+```{r}
+my_sample_barcode <- my_barcodes$samples[1]
+my_sample_details <- sample_details(a_sample_barcode)
+
+names(my_sample_details)
+
+my_sample_details$data_details_count
+
+length(my_sample_details$data_details)
+```
+
+Here the data_details_count list element tells us that there are 18 "data details"
+which contain information like data platforms, file names, paths to cloud storage,
+the TCGA data level.
+
+For example, let's see what platforms are represented.
+
+```{r}
+lapply(my_sample_details$data_details, function(x) x$Platform)
+```
+
+So we see that some platforms are listed more than once. What's the difference?
+If we bring in the data type, we can see some differences.
+
+```{r}
+lapply(my_sample_details$data_details, function(x) paste(x$Platform, "__", x$Datatype))[6:7]
+```
+
+So, for example, list elements 6 and 7 are both IlluminaHiSeq_RNASeqV2 but
+one represents exon_quantification while the other represents RSEM_isoforms.
+The file names and cloud storage locations are found within the lists of each.
+
+### Moving from the endpoints API to BigQuery
+
+If we have a list of barcodes, then we can programmatically construct a BigQuery.
+
+First let's flatten the list of sample barcodes to a character vector.
+
+```{r}
+# get the character vector of samples
+samples <- unlist(my_barcodes$samples)
+
+# SQL strings need to be surrounded by single quotes
+samples_with_quotes <- sapply(samples, function(x) paste("'",x,"'", sep=""))
+
+# then the samples need to be surrounded by parenthesis.
+query_samples <- paste("( ", paste(samples_with_quotes, collapse=","), " )")
+
+bq <- paste("
+SELECT
+   Study,
+   AVG(LOG2(normalized_count+1)) as mean_log2_expression
+FROM
+   [isb-cgc:tcga_201510_alpha.mRNA_UNC_HiSeq_RSEM]
+WHERE
+   HGNC_gene_symbol = 'EGFR' AND
+   SampleBarcode IN ", query_samples,"
+GROUP BY
+   Study"
+)
+
+results <- query_exec(bq, project)
+results
+```
+
+At this point, if this is your first query, a browser window will pop-up, and
+you will need to authenticate for BigQuery.
+
+Since we're working in R, we can take advantage of the great visualization libraries.
+
+```{r}
+ggplot(data=results, aes(x=Study, y=mean_log2_expression)) + geom_bar(stat="identity")
+```
+
+### Wrap up
+
+To reiterate, using the endpoints API, we got the list of previously created cohorts, retrieved the
+list of sample barcodes, examined data associated with the samples, and constructed
+a BigQuery.
+
+More information on the endpoints API and R package example functions can be found at:
+
+http://isb-cancer-genomics-cloud.readthedocs.io/en/latest/sections/progapi/Programmatic-API.html#isb-cgc-api
+
+https://github.com/Gibbsdavidl/examples-R/blob/master/inst/doc/Working_With_Barcode_Lists.md
+
+
+
+```{r}
+sessionInfo()
+```
