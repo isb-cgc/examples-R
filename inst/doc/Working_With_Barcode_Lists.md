@@ -1,4 +1,4 @@
-# Working with lists of barcodes
+# Working with barcode lists
 
 The isb-cgc project has a collection of web services called 'endpoints', which accept
 and return information. The endpoints allow the user to interact with the isb-cgc system programmatically,
