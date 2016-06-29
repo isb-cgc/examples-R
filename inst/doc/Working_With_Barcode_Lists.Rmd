@@ -60,7 +60,7 @@ do further queries on the cohort.
 lapply(my_cohorts$items, function(x) x$id)
 ```
 
-### Getting barcode lists from a cohorts
+### Getting barcode lists from a cohort
 
 Now that we have the cohort IDs, we can collect the various barcodes contained
 in the cohort. These include patient barcodes, sample barcodes, and platform
