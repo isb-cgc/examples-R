@@ -237,7 +237,7 @@ datafiles_from_cohort <- function(cohort_id, pipeline=NULL, platform=NULL, a_tok
 barcodes_from_cohort <- function(cohort_id, a_token) {
   require(httr)
   b <- "https://api-dot-isb-cgc.appspot.com/_ah/api/cohort_api/v1/cohort_patients_samples_list"
-  content(GET(b, query=list(cohort_id=cohort_id), config(token = mytoken)))
+  content(GET(b, query=list(cohort_id=cohort_id), config(token = a_token)))
 }
 
 

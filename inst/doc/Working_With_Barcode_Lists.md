@@ -1,12 +1,12 @@
 # Working with barcode lists
 
-In the ISB-CGC web app, you can have create and save various cohorts. These cohorts can
-be represented by lists of barcodes. This short tutorial shows how to retrieve your cohorts,
-query information about patients, and even test and create new cohorts, all from within the R environment.
+As part of working with the ISB-CGC web app, you will have created cohorts, represented by lists
+of barcodes. This short tutorial shows how to retrieve your cohorts, and even create new ones,
+from within the R environment.
 
 The isb-cgc project has a collection of web services called 'endpoints', which accept
-and return information using http calls. The endpoints allow the user to interact with
-the isb-cgc system programmatically, or for a client application to do so on behalf of the user.
+and return information. The endpoints allow the user to interact with the isb-cgc system programmatically,
+or for a client application to do so on behalf of the user.
 
 The ISBCGCExamples package contains a number of "wrapper" functions, that make calling
 the endpoints possible from the R environment. These are just examples, and much
@@ -16,7 +16,8 @@ http://isb-cancer-genomics-cloud.readthedocs.io/en/latest/sections/progapi/Progr
 
 To get started, we load up R, and import the ISBCGCExamples library.
 
-```
+
+```r
 library(ISBCGCExamples)
 ```
 
@@ -25,7 +26,8 @@ library(ISBCGCExamples)
 The first step is creating a token. This token contains your authentication
 status, and lets the service know about what information is available to you.
 
-```
+
+```r
 my_token <- isb_init()
 ```
 
