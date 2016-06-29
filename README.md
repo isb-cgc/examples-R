@@ -14,6 +14,12 @@ To view and run the vignettes.
   help(package="ISBCGCExamples")
 ```
 
+### OAuth
+
+If you are having trouble with the **OAuth**, see the OAuth section below!
+
+### vignettes
+
 There are vignettes for each TCGA data type, and more elaborate examples
 involving analyzing genomic data, correlating gene expression and methylation,
 and correlating protein and mRNA levels.
