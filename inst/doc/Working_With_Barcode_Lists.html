@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<title>Working with barcode lists</title>
+
+<script type="text/javascript">
+window.onload = function() {
+  var imgs = document.getElementsByTagName('img'), i, img;
+  for (i = 0; i < imgs.length; i++) {
+    img = imgs[i];
+    // center an image if it is the only element of its parent
+    if (img.parentElement.childElementCount === 1)
+      img.parentElement.style.textAlign = 'center';
+  }
+};
+</script>
+
+<!-- Styles for R syntax highlighter -->
+<style type="text/css">
+   pre .operator,
+   pre .paren {
+     color: rgb(104, 118, 135)
+   }
+
+   pre .literal {
+     color: #990073
+   }
+
+   pre .number {
+     color: #099;
+   }
+
+   pre .comment {
+     color: #998;
+     font-style: italic
+   }
+
+   pre .keyword {
+     color: #900;
+     font-weight: bold
+   }
+
+   pre .identifier {
+     color: rgb(0, 0, 0);
+   }
+
+   pre .string {
+     color: #d14;
+   }
+</style>
+
+<!-- R syntax highlighter -->
+<script type="text/javascript">
+var hljs=new function(){function m(p){return p.replace(/&/gm,"&amp;").replace(/</gm,"&lt;")}function f(r,q,p){return RegExp(q,"m"+(r.cI?"i":"")+(p?"g":""))}function b(r){for(var p=0;p<r.childNodes.length;p++){var q=r.childNodes[p];if(q.nodeName=="CODE"){return q}if(!(q.nodeType==3&&q.nodeValue.match(/\s+/))){break}}}function h(t,s){var p="";for(var r=0;r<t.childNodes.length;r++){if(t.childNodes[r].nodeType==3){var q=t.childNodes[r].nodeValue;if(s){q=q.replace(/\n/g,"")}p+=q}else{if(t.childNodes[r].nodeName=="BR"){p+="\n"}else{p+=h(t.childNodes[r])}}}if(/MSIE [678]/.test(navigator.userAgent)){p=p.replace(/\r/g,"\n")}return p}function a(s){var r=s.className.split(/\s+/);r=r.concat(s.parentNode.className.split(/\s+/));for(var q=0;q<r.length;q++){var p=r[q].replace(/^language-/,"");if(e[p]){return p}}}function c(q){var p=[];(function(s,t){for(var r=0;r<s.childNodes.length;r++){if(s.childNodes[r].nodeType==3){t+=s.childNodes[r].nodeValue.length}else{if(s.childNodes[r].nodeName=="BR"){t+=1}else{if(s.childNodes[r].nodeType==1){p.push({event:"start",offset:t,node:s.childNodes[r]});t=arguments.callee(s.childNodes[r],t);p.push({event:"stop",offset:t,node:s.childNodes[r]})}}}}return t})(q,0);return p}function k(y,w,x){var q=0;var z="";var s=[];function u(){if(y.length&&w.length){if(y[0].offset!=w[0].offset){return(y[0].offset<w[0].offset)?y:w}else{return w[0].event=="start"?y:w}}else{return y.length?y:w}}function t(D){var A="<"+D.nodeName.toLowerCase();for(var B=0;B<D.attributes.length;B++){var C=D.attributes[B];A+=" "+C.nodeName.toLowerCase();if(C.value!==undefined&&C.value!==false&&C.value!==null){A+='="'+m(C.value)+'"'}}return A+">"}while(y.length||w.length){var v=u().splice(0,1)[0];z+=m(x.substr(q,v.offset-q));q=v.offset;if(v.event=="start"){z+=t(v.node);s.push(v.node)}else{if(v.event=="stop"){var p,r=s.length;do{r--;p=s[r];z+=("</"+p.nodeName.toLowerCase()+">")}while(p!=v.node);s.splice(r,1);while(r<s.length){z+=t(s[r]);r++}}}}return z+m(x.substr(q))}function j(){function q(x,y,v){if(x.compiled){return}var u;var s=[];if(x.k){x.lR=f(y,x.l||hljs.IR,true);for(var w in x.k){if(!x.k.hasOwnProperty(w)){continue}if(x.k[w] instanceof Object){u=x.k[w]}else{u=x.k;w="keyword"}for(var r in u){if(!u.hasOwnProperty(r)){continue}x.k[r]=[w,u[r]];s.push(r)}}}if(!v){if(x.bWK){x.b="\\b("+s.join("|")+")\\s"}x.bR=f(y,x.b?x.b:"\\B|\\b");if(!x.e&&!x.eW){x.e="\\B|\\b"}if(x.e){x.eR=f(y,x.e)}}if(x.i){x.iR=f(y,x.i)}if(x.r===undefined){x.r=1}if(!x.c){x.c=[]}x.compiled=true;for(var t=0;t<x.c.length;t++){if(x.c[t]=="self"){x.c[t]=x}q(x.c[t],y,false)}if(x.starts){q(x.starts,y,false)}}for(var p in e){if(!e.hasOwnProperty(p)){continue}q(e[p].dM,e[p],true)}}function d(B,C){if(!j.called){j();j.called=true}function q(r,M){for(var L=0;L<M.c.length;L++){if((M.c[L].bR.exec(r)||[null])[0]==r){return M.c[L]}}}function v(L,r){if(D[L].e&&D[L].eR.test(r)){return 1}if(D[L].eW){var M=v(L-1,r);return M?M+1:0}return 0}function w(r,L){return L.i&&L.iR.test(r)}function K(N,O){var M=[];for(var L=0;L<N.c.length;L++){M.push(N.c[L].b)}var r=D.length-1;do{if(D[r].e){M.push(D[r].e)}r--}while(D[r+1].eW);if(N.i){M.push(N.i)}return f(O,M.join("|"),true)}function p(M,L){var N=D[D.length-1];if(!N.t){N.t=K(N,E)}N.t.lastIndex=L;var r=N.t.exec(M);return r?[M.substr(L,r.index-L),r[0],false]:[M.substr(L),"",true]}function z(N,r){var L=E.cI?r[0].toLowerCase():r[0];var M=N.k[L];if(M&&M instanceof Array){return M}return false}function F(L,P){L=m(L);if(!P.k){return L}var r="";var O=0;P.lR.lastIndex=0;var M=P.lR.exec(L);while(M){r+=L.substr(O,M.index-O);var N=z(P,M);if(N){x+=N[1];r+='<span class="'+N[0]+'">'+M[0]+"</span>"}else{r+=M[0]}O=P.lR.lastIndex;M=P.lR.exec(L)}return r+L.substr(O,L.length-O)}function J(L,M){if(M.sL&&e[M.sL]){var r=d(M.sL,L);x+=r.keyword_count;return r.value}else{return F(L,M)}}function I(M,r){var L=M.cN?'<span class="'+M.cN+'">':"";if(M.rB){y+=L;M.buffer=""}else{if(M.eB){y+=m(r)+L;M.buffer=""}else{y+=L;M.buffer=r}}D.push(M);A+=M.r}function G(N,M,Q){var R=D[D.length-1];if(Q){y+=J(R.buffer+N,R);return false}var P=q(M,R);if(P){y+=J(R.buffer+N,R);I(P,M);return P.rB}var L=v(D.length-1,M);if(L){var O=R.cN?"</span>":"";if(R.rE){y+=J(R.buffer+N,R)+O}else{if(R.eE){y+=J(R.buffer+N,R)+O+m(M)}else{y+=J(R.buffer+N+M,R)+O}}while(L>1){O=D[D.length-2].cN?"</span>":"";y+=O;L--;D.length--}var r=D[D.length-1];D.length--;D[D.length-1].buffer="";if(r.starts){I(r.starts,"")}return R.rE}if(w(M,R)){throw"Illegal"}}var E=e[B];var D=[E.dM];var A=0;var x=0;var y="";try{var s,u=0;E.dM.buffer="";do{s=p(C,u);var t=G(s[0],s[1],s[2]);u+=s[0].length;if(!t){u+=s[1].length}}while(!s[2]);if(D.length>1){throw"Illegal"}return{r:A,keyword_count:x,value:y}}catch(H){if(H=="Illegal"){return{r:0,keyword_count:0,value:m(C)}}else{throw H}}}function g(t){var p={keyword_count:0,r:0,value:m(t)};var r=p;for(var q in e){if(!e.hasOwnProperty(q)){continue}var s=d(q,t);s.language=q;if(s.keyword_count+s.r>r.keyword_count+r.r){r=s}if(s.keyword_count+s.r>p.keyword_count+p.r){r=p;p=s}}if(r.language){p.second_best=r}return p}function i(r,q,p){if(q){r=r.replace(/^((<[^>]+>|\t)+)/gm,function(t,w,v,u){return w.replace(/\t/g,q)})}if(p){r=r.replace(/\n/g,"<br>")}return r}function n(t,w,r){var x=h(t,r);var v=a(t);var y,s;if(v){y=d(v,x)}else{return}var q=c(t);if(q.length){s=document.createElement("pre");s.innerHTML=y.value;y.value=k(q,c(s),x)}y.value=i(y.value,w,r);var u=t.className;if(!u.match("(\\s|^)(language-)?"+v+"(\\s|$)")){u=u?(u+" "+v):v}if(/MSIE [678]/.test(navigator.userAgent)&&t.tagName=="CODE"&&t.parentNode.tagName=="PRE"){s=t.parentNode;var p=document.createElement("div");p.innerHTML="<pre><code>"+y.value+"</code></pre>";t=p.firstChild.firstChild;p.firstChild.cN=s.cN;s.parentNode.replaceChild(p.firstChild,s)}else{t.innerHTML=y.value}t.className=u;t.result={language:v,kw:y.keyword_count,re:y.r};if(y.second_best){t.second_best={language:y.second_best.language,kw:y.second_best.keyword_count,re:y.second_best.r}}}function o(){if(o.called){return}o.called=true;var r=document.getElementsByTagName("pre");for(var p=0;p<r.length;p++){var q=b(r[p]);if(q){n(q,hljs.tabReplace)}}}function l(){if(window.addEventListener){window.addEventListener("DOMContentLoaded",o,false);window.addEventListener("load",o,false)}else{if(window.attachEvent){window.attachEvent("onload",o)}else{window.onload=o}}}var e={};this.LANGUAGES=e;this.highlight=d;this.highlightAuto=g;this.fixMarkup=i;this.highlightBlock=n;this.initHighlighting=o;this.initHighlightingOnLoad=l;this.IR="[a-zA-Z][a-zA-Z0-9_]*";this.UIR="[a-zA-Z_][a-zA-Z0-9_]*";this.NR="\\b\\d+(\\.\\d+)?";this.CNR="\\b(0[xX][a-fA-F0-9]+|(\\d+(\\.\\d*)?|\\.\\d+)([eE][-+]?\\d+)?)";this.BNR="\\b(0b[01]+)";this.RSR="!|!=|!==|%|%=|&|&&|&=|\\*|\\*=|\\+|\\+=|,|\\.|-|-=|/|/=|:|;|<|<<|<<=|<=|=|==|===|>|>=|>>|>>=|>>>|>>>=|\\?|\\[|\\{|\\(|\\^|\\^=|\\||\\|=|\\|\\||~";this.ER="(?![\\s\\S])";this.BE={b:"\\\\.",r:0};this.ASM={cN:"string",b:"'",e:"'",i:"\\n",c:[this.BE],r:0};this.QSM={cN:"string",b:'"',e:'"',i:"\\n",c:[this.BE],r:0};this.CLCM={cN:"comment",b:"//",e:"$"};this.CBLCLM={cN:"comment",b:"/\\*",e:"\\*/"};this.HCM={cN:"comment",b:"#",e:"$"};this.NM={cN:"number",b:this.NR,r:0};this.CNM={cN:"number",b:this.CNR,r:0};this.BNM={cN:"number",b:this.BNR,r:0};this.inherit=function(r,s){var p={};for(var q in r){p[q]=r[q]}if(s){for(var q in s){p[q]=s[q]}}return p}}();hljs.LANGUAGES.cpp=function(){var a={keyword:{"false":1,"int":1,"float":1,"while":1,"private":1,"char":1,"catch":1,"export":1,virtual:1,operator:2,sizeof:2,dynamic_cast:2,typedef:2,const_cast:2,"const":1,struct:1,"for":1,static_cast:2,union:1,namespace:1,unsigned:1,"long":1,"throw":1,"volatile":2,"static":1,"protected":1,bool:1,template:1,mutable:1,"if":1,"public":1,friend:2,"do":1,"return":1,"goto":1,auto:1,"void":2,"enum":1,"else":1,"break":1,"new":1,extern:1,using:1,"true":1,"class":1,asm:1,"case":1,typeid:1,"short":1,reinterpret_cast:2,"default":1,"double":1,register:1,explicit:1,signed:1,typename:1,"try":1,"this":1,"switch":1,"continue":1,wchar_t:1,inline:1,"delete":1,alignof:1,char16_t:1,char32_t:1,constexpr:1,decltype:1,noexcept:1,nullptr:1,static_assert:1,thread_local:1,restrict:1,_Bool:1,complex:1},built_in:{std:1,string:1,cin:1,cout:1,cerr:1,clog:1,stringstream:1,istringstream:1,ostringstream:1,auto_ptr:1,deque:1,list:1,queue:1,stack:1,vector:1,map:1,set:1,bitset:1,multiset:1,multimap:1,unordered_set:1,unordered_map:1,unordered_multiset:1,unordered_multimap:1,array:1,shared_ptr:1}};return{dM:{k:a,i:"</",c:[hljs.CLCM,hljs.CBLCLM,hljs.QSM,{cN:"string",b:"'\\\\?.",e:"'",i:"."},{cN:"number",b:"\\b(\\d+(\\.\\d*)?|\\.\\d+)(u|U|l|L|ul|UL|f|F)"},hljs.CNM,{cN:"preprocessor",b:"#",e:"$"},{cN:"stl_container",b:"\\b(deque|list|queue|stack|vector|map|set|bitset|multiset|multimap|unordered_map|unordered_set|unordered_multiset|unordered_multimap|array)\\s*<",e:">",k:a,r:10,c:["self"]}]}}}();hljs.LANGUAGES.r={dM:{c:[hljs.HCM,{cN:"number",b:"\\b0[xX][0-9a-fA-F]+[Li]?\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\b\\d+(?:[eE][+\\-]?\\d*)?L\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\b\\d+\\.(?!\\d)(?:i\\b)?",e:hljs.IMMEDIATE_RE,r:1},{cN:"number",b:"\\b\\d+(?:\\.\\d*)?(?:[eE][+\\-]?\\d*)?i?\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\.\\d+(?:[eE][+\\-]?\\d*)?i?\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"keyword",b:"(?:tryCatch|library|setGeneric|setGroupGeneric)\\b",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\.\\.\\.",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\.\\.\\d+(?![\\w.])",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\b(?:function)",e:hljs.IMMEDIATE_RE,r:2},{cN:"keyword",b:"(?:if|in|break|next|repeat|else|for|return|switch|while|try|stop|warning|require|attach|detach|source|setMethod|setClass)\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"literal",b:"(?:NA|NA_integer_|NA_real_|NA_character_|NA_complex_)\\b",e:hljs.IMMEDIATE_RE,r:10},{cN:"literal",b:"(?:NULL|TRUE|FALSE|T|F|Inf|NaN)\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"identifier",b:"[a-zA-Z.][a-zA-Z0-9._]*\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"operator",b:"<\\-(?!\\s*\\d)",e:hljs.IMMEDIATE_RE,r:2},{cN:"operator",b:"\\->|<\\-",e:hljs.IMMEDIATE_RE,r:1},{cN:"operator",b:"%%|~",e:hljs.IMMEDIATE_RE},{cN:"operator",b:">=|<=|==|!=|\\|\\||&&|=|\\+|\\-|\\*|/|\\^|>|<|!|&|\\||\\$|:",e:hljs.IMMEDIATE_RE,r:0},{cN:"operator",b:"%",e:"%",i:"\\n",r:1},{cN:"identifier",b:"`",e:"`",r:0},{cN:"string",b:'"',e:'"',c:[hljs.BE],r:0},{cN:"string",b:"'",e:"'",c:[hljs.BE],r:0},{cN:"paren",b:"[[({\\])}]",e:hljs.IMMEDIATE_RE,r:0}]}};
+hljs.initHighlightingOnLoad();
+</script>
+
+
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 13px;
+}
+
+body {
+  max-width: 800px;
+  margin: auto;
+  padding: 1em;
+  line-height: 20px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 {
+   font-size:2.2em;
+}
+
+h2 {
+   font-size:1.8em;
+}
+
+h3 {
+   font-size:1.4em;
+}
+
+h4 {
+   font-size:1.0em;
+}
+
+h5 {
+   font-size:0.9em;
+}
+
+h6 {
+   font-size:0.8em;
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre, img {
+  max-width: 100%;
+}
+pre {
+  overflow-x: auto;
+}
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code {
+  font-size: 92%;
+  border: 1px solid #ccc;
+}
+
+code[class] {
+  background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * {
+      background: transparent !important;
+      color: black !important;
+      filter:none !important;
+      -ms-filter: none !important;
+   }
+
+   body {
+      font-size:12pt;
+      max-width:100%;
+   }
+
+   a, a:visited {
+      text-decoration: underline;
+   }
+
+   hr {
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote {
+      padding-right: 1em;
+      page-break-inside: avoid;
+   }
+
+   tr, img {
+      page-break-inside: avoid;
+   }
+
+   img {
+      max-width: 100% !important;
+   }
+
+   @page :left {
+      margin: 15mm 20mm 15mm 10mm;
+   }
+
+   @page :right {
+      margin: 15mm 10mm 15mm 20mm;
+   }
+
+   p, h2, h3 {
+      orphans: 3; widows: 3;
+   }
+
+   h2, h3 {
+      page-break-after: avoid;
+   }
+}
+</style>
+
+
+
+</head>
+
+<body>
+<h1>Working with barcode lists</h1>
+
+<p>As part of working with the ISB-CGC web app, you will have created cohorts, represented by lists
+of barcodes. This short tutorial shows how to retrieve your cohorts, query for sample details,
+and compose a BigQuery, all from within the R environment.</p>
+
+<p>The isb-cgc project has a collection of web services called &#39;endpoints&#39;, which accept
+and return information. The endpoints allow the user to interact with the isb-cgc system programmatically,
+or for a client application to do so on behalf of the user.</p>
+
+<p>The ISBCGCExamples package contains a number of &ldquo;wrapper&rdquo; functions, that make calling
+the endpoints possible from the R environment. These are just examples, and much
+more is possible. See the documentation to get more ideas:</p>
+
+<p><a href="http://isb-cancer-genomics-cloud.readthedocs.io/en/latest/sections/progapi/Programmatic-API.html#isb-cgc-api">http://isb-cancer-genomics-cloud.readthedocs.io/en/latest/sections/progapi/Programmatic-API.html#isb-cgc-api</a></p>
+
+<p>To get started, we load up R, and import the ISBCGCExamples library.</p>
+
+<pre><code class="r">library(ISBCGCExamples)
+library(bigrquery)
+</code></pre>
+
+<h3>Creating a token</h3>
+
+<p>The first step is creating a token. This token contains your authentication
+status, and lets the service know about what information is available to you.</p>
+
+<pre><code class="r">my_token &lt;- isb_init()
+</code></pre>
+
+<p>Calling the isb_init function is going to open a browser window that lets you
+authenticate with Google.</p>
+
+<h3>Listing cohorts</h3>
+
+<p>To get a listing of the previously created cohorts, we can use the list_cohorts
+function that takes a token, and returns a list with items including &#39;count&#39;,
+&#39;items&#39;, &#39;kind&#39;, and &#39;etag&#39;. The count shows the number of saved cohorts and
+the items contains information about the cohorts.</p>
+
+<pre><code class="r">my_cohorts &lt;- list_cohorts(my_token)
+names(my_cohorts)
+</code></pre>
+
+<pre><code>## [1] &quot;count&quot; &quot;items&quot; &quot;kind&quot;  &quot;etag&quot;
+</code></pre>
+
+<p>If there is a count of four, then the my_cohorts$items list will have length four.
+Each item has a name. We can use the lapply function (list-apply) to get the
+names out of each list element.</p>
+
+<pre><code class="r">lapply(my_cohorts$items, function(x) x$name)
+</code></pre>
+
+<pre><code>## [[1]]
+## [1] &quot;All TCGA Data&quot;
+## 
+## [[2]]
+## [1] &quot;brain_age_10_to_39&quot;
+## 
+## [[3]]
+## [1] &quot;new_cohort&quot;
+## 
+## [[4]]
+## [1] &quot;HPV_cohort&quot;
+</code></pre>
+
+<p>Also, importantly, each element in &#39;items&#39; has an &#39;id&#39;, which is used when we
+do further queries on the cohort.</p>
+
+<pre><code class="r">lapply(my_cohorts$items, function(x) x$id)
+</code></pre>
+
+<pre><code>## [[1]]
+## [1] &quot;1&quot;
+## 
+## [[2]]
+## [1] &quot;69&quot;
+## 
+## [[3]]
+## [1] &quot;106&quot;
+## 
+## [[4]]
+## [1] &quot;403&quot;
+</code></pre>
+
+<h3>Getting barcode lists from a cohorts</h3>
+
+<p>Now that we have the cohort IDs, we can collect the various barcodes contained
+in the cohort. These include patient barcodes, sample barcodes, and platform
+specific aliquot barcodes. To do this, we can use the barcodes_from_cohort function.</p>
+
+<pre><code class="r">my_cohort_id &lt;- lapply(my_cohorts$items, function(x) x$id)[[4]]
+my_barcodes &lt;- barcodes_from_cohort(my_cohort_id, my_token)
+names(my_barcodes)
+</code></pre>
+
+<pre><code>## [1] &quot;cohort_id&quot;     &quot;patients&quot;      &quot;sample_count&quot;  &quot;patient_count&quot;
+## [5] &quot;samples&quot;       &quot;kind&quot;          &quot;etag&quot;
+</code></pre>
+
+<p>The object returned from barcodes_from_cohort is again a list, this time with
+elements &#39;cohort_id&#39;, &#39;sample_count&#39;, &#39;patient_count&#39;, &#39;patients&#39;, and &#39;samples&#39;.
+The patients and samples elements are also lists, but lists of patients or
+sample barcodes.</p>
+
+<pre><code class="r">my_barcodes$patients[1:5]
+</code></pre>
+
+<pre><code>## [[1]]
+## [1] &quot;TCGA-2W-A8YY&quot;
+## 
+## [[2]]
+## [1] &quot;TCGA-4J-AA1J&quot;
+## 
+## [[3]]
+## [1] &quot;TCGA-4P-AA8J&quot;
+## 
+## [[4]]
+## [1] &quot;TCGA-BA-4074&quot;
+## 
+## [[5]]
+## [1] &quot;TCGA-BA-4075&quot;
+</code></pre>
+
+<pre><code class="r">my_barcodes$samples[1:5]
+</code></pre>
+
+<pre><code>## [[1]]
+## [1] &quot;TCGA-2W-A8YY-01A&quot;
+## 
+## [[2]]
+## [1] &quot;TCGA-4J-AA1J-01A&quot;
+## 
+## [[3]]
+## [1] &quot;TCGA-4P-AA8J-01A&quot;
+## 
+## [[4]]
+## [1] &quot;TCGA-BA-4074-01A&quot;
+## 
+## [[5]]
+## [1] &quot;TCGA-BA-4075-01A&quot;
+</code></pre>
+
+<h3>Getting details on a sample</h3>
+
+<p>Suppose you have a particular sample of interest. We can use the endpoints to
+get details about the sample.</p>
+
+<pre><code class="r">my_sample_barcode &lt;- my_barcodes$samples[1]
+my_sample_details &lt;- sample_details(a_sample_barcode)
+
+names(my_sample_details)
+</code></pre>
+
+<pre><code>## [1] &quot;data_details&quot;       &quot;patient&quot;            &quot;data_details_count&quot;
+## [4] &quot;aliquots&quot;           &quot;biospecimen_data&quot;   &quot;kind&quot;              
+## [7] &quot;etag&quot;
+</code></pre>
+
+<pre><code class="r">my_sample_details$data_details_count
+</code></pre>
+
+<pre><code>## [1] &quot;18&quot;
+</code></pre>
+
+<pre><code class="r">length(my_sample_details$data_details)
+</code></pre>
+
+<pre><code>## [1] 18
+</code></pre>
+
+<p>Here the data_details_count list element tells us that there are 18 &ldquo;data details&rdquo;
+which contain information like data platforms, file names, paths to cloud storage,
+the TCGA data level.</p>
+
+<p>For example, let&#39;s see what platforms are represented.</p>
+
+<pre><code class="r">lapply(my_sample_details$data_details, function(x) x$Platform)
+</code></pre>
+
+<pre><code>## [[1]]
+## [1] &quot;IlluminaHiSeq_RNASeqV2&quot;
+## 
+## [[2]]
+## [1] &quot;IlluminaHiSeq_None&quot;
+## 
+## [[3]]
+## [1] &quot;IlluminaHiSeq_DNASeq&quot;
+## 
+## [[4]]
+## [1] &quot;MDA_RPPA_Core&quot;
+## 
+## [[5]]
+## [1] &quot;HumanMethylation450&quot;
+## 
+## [[6]]
+## [1] &quot;IlluminaHiSeq_RNASeqV2&quot;
+## 
+## [[7]]
+## [1] &quot;IlluminaHiSeq_RNASeqV2&quot;
+## 
+## [[8]]
+## [1] &quot;Genome_Wide_SNP_6&quot;
+## 
+## [[9]]
+## [1] &quot;IlluminaHiSeq_miRNASeq&quot;
+## 
+## [[10]]
+## [1] &quot;IlluminaHiSeq_miRNASeq&quot;
+## 
+## [[11]]
+## [1] &quot;IlluminaHiSeq_RNASeqV2&quot;
+## 
+## [[12]]
+## [1] &quot;IlluminaHiSeq_RNASeqV2&quot;
+## 
+## [[13]]
+## [1] &quot;IlluminaHiSeq_RNASeq&quot;
+## 
+## [[14]]
+## [1] &quot;IlluminaHiSeq_RNASeqV2&quot;
+## 
+## [[15]]
+## [1] &quot;IlluminaHiSeq_RNASeqV2&quot;
+## 
+## [[16]]
+## [1] &quot;IlluminaHiSeq_miRNASeq&quot;
+## 
+## [[17]]
+## [1] &quot;Genome_Wide_SNP_6&quot;
+## 
+## [[18]]
+## [1] &quot;Genome_Wide_SNP_6&quot;
+</code></pre>
+
+<p>So we see that some platforms are listed more than once. What&#39;s the difference?
+If we bring in the data type, we can see some differences.</p>
+
+<pre><code class="r">lapply(my_sample_details$data_details, function(x) paste(x$Platform, &quot;__&quot;, x$Datatype))[6:7]
+</code></pre>
+
+<pre><code>## [[1]]
+## [1] &quot;IlluminaHiSeq_RNASeqV2 __ exon_quantification&quot;
+## 
+## [[2]]
+## [1] &quot;IlluminaHiSeq_RNASeqV2 __ RSEM_isoforms&quot;
+</code></pre>
+
+<p>So, for example, list elements 6 and 7 are both IlluminaHiSeq_RNASeqV2 but
+one represents exon_quantification while the other represents RSEM_isoforms.
+The file names and cloud storage locations are found within the lists of each.</p>
+
+<h3>Moving from the endpoints API to BigQuery</h3>
+
+<p>If we have a list of barcodes, then we can programmatically construct a BigQuery.</p>
+
+<p>First let&#39;s flatten the list of sample barcodes to a character vector.</p>
+
+<pre><code class="r"># get the character vector of samples
+samples &lt;- unlist(my_barcodes$samples)
+
+# SQL strings need to be surrounded by single quotes
+samples_with_quotes &lt;- sapply(samples, function(x) paste(&quot;&#39;&quot;,x,&quot;&#39;&quot;, sep=&quot;&quot;))
+
+# then the samples need to be surrounded by parenthesis.
+query_samples &lt;- paste(&quot;( &quot;, paste(samples_with_quotes, collapse=&quot;,&quot;), &quot; )&quot;)
+
+bq &lt;- paste(&quot;
+SELECT
+   Study,
+   AVG(LOG2(normalized_count+1)) as mean_log2_expression
+FROM
+   [isb-cgc:tcga_201510_alpha.mRNA_UNC_HiSeq_RSEM]
+WHERE
+   HGNC_gene_symbol = &#39;EGFR&#39; AND
+   SampleBarcode IN &quot;, query_samples,&quot;
+GROUP BY
+   Study&quot;
+)
+
+results &lt;- query_exec(bq, project)
+results
+</code></pre>
+
+<pre><code>##   Study mean_log2_expression
+## 1  CESC             9.631475
+## 2  HNSC            11.394739
+</code></pre>
+
+<p>At this point, if this is your first query, a browser window will pop-up, and
+you will need to authenticate for BigQuery.</p>
+
+<p>Since we&#39;re working in R, we can take advantage of the great visualization libraries.</p>
+
+<pre><code class="r">ggplot(data=results, aes(x=Study, y=mean_log2_expression)) + geom_bar(stat=&quot;identity&quot;)
+</code></pre>
+
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAfgAAAH4CAYAAACmKP9/AAAEDWlDQ1BJQ0MgUHJvZmlsZQAAOI2NVV1oHFUUPrtzZyMkzlNsNIV0qD8NJQ2TVjShtLp/3d02bpZJNtoi6GT27s6Yyc44M7v9oU9FUHwx6psUxL+3gCAo9Q/bPrQvlQol2tQgKD60+INQ6Ium65k7M5lpurHeZe58853vnnvuuWfvBei5qliWkRQBFpquLRcy4nOHj4g9K5CEh6AXBqFXUR0rXalMAjZPC3e1W99Dwntf2dXd/p+tt0YdFSBxH2Kz5qgLiI8B8KdVy3YBevqRHz/qWh72Yui3MUDEL3q44WPXw3M+fo1pZuQs4tOIBVVTaoiXEI/MxfhGDPsxsNZfoE1q66ro5aJim3XdoLFw72H+n23BaIXzbcOnz5mfPoTvYVz7KzUl5+FRxEuqkp9G/Ajia219thzg25abkRE/BpDc3pqvphHvRFys2weqvp+krbWKIX7nhDbzLOItiM8358pTwdirqpPFnMF2xLc1WvLyOwTAibpbmvHHcvttU57y5+XqNZrLe3lE/Pq8eUj2fXKfOe3pfOjzhJYtB/yll5SDFcSDiH+hRkH25+L+sdxKEAMZahrlSX8ukqMOWy/jXW2m6M9LDBc31B9LFuv6gVKg/0Szi3KAr1kGq1GMjU/aLbnq6/lRxc4XfJ98hTargX++DbMJBSiYMIe9Ck1YAxFkKEAG3xbYaKmDDgYyFK0UGYpfoWYXG+fAPPI6tJnNwb7ClP7IyF+D+bjOtCpkhz6CFrIa/I6sFtNl8auFXGMTP34sNwI/JhkgEtmDz14ySfaRcTIBInmKPE32kxyyE2Tv+thKbEVePDfW/byMM1Kmm0XdObS7oGD/MypMXFPXrCwOtoYjyyn7BV29/MZfsVzpLDdRtuIZnbpXzvlf+ev8MvYr/Gqk4H/kV/G3csdazLuyTMPsbFhzd1UabQbjFvDRmcWJxR3zcfHkVw9GfpbJmeev9F08WW8uDkaslwX6avlWGU6NRKz0g/SHtCy9J30o/ca9zX3Kfc19zn3BXQKRO8ud477hLnAfc1/G9mrzGlrfexZ5GLdn6ZZrrEohI2wVHhZywjbhUWEy8icMCGNCUdiBlq3r+xafL549HQ5jH+an+1y+LlYBifuxAvRN/lVVVOlwlCkdVm9NOL5BE4wkQ2SMlDZU97hX86EilU/lUmkQUztTE6mx1EEPh7OmdqBtAvv8HdWpbrJS6tJj3n0CWdM6busNzRV3S9KTYhqvNiqWmuroiKgYhshMjmhTh9ptWhsF7970j/SbMrsPE1suR5z7DMC+P/Hs+y7ijrQAlhyAgccjbhjPygfeBTjzhNqy28EdkUh8C+DU9+z2v/oyeH791OncxHOs5y2AtTc7nb/f73TWPkD/qwBnjX8BoJ98VVBg/m8AADBZSURBVHgB7d0LsB11fQfwX94JeUOeEoSRKIIEeQShiaIiMkAEsU2B1AdJdWKHjlQQpELHKiU6KFCajKWAhRYUplIbGCpgyoAvpgYHBAJoIJUCah6NQBIeSS5J6n+n9/be5OSwHPaes3vOZ2cuOWf3nP/+/p//Xb539+zZHbDj91OYCBAgQIAAgbYSGNhWvdEZAgQIECBAIBMQ8H4RCBAgQIBAGwoI+DYcVF0iQIAAAQIC3u8AAQIECBBoQ4HBrerTpk2bWrVq622xwKBBg2Lbtm0trsLqCbSPwMCBA2P79u3t0yE9eV0CQ4cOjWHDhu3ynpYF/IsvvrhLMWZ0hsDkyZNj/fr1Qr4zhlsvmyAwceLEeOGFF6Krq6sJa7OKsgmMGjWqZsA7RF+2kVIPAQIECBAoQEDAF4CoCQIECBAgUDYBAV+2EVEPAQIECBAoQEDAF4CoCQIECBAgUDYBAV+2EVEPAQIECBAoQEDAF4CoCQIECBAgUDYBAV+2EVEPAQIECBAoQEDAF4CoCQIECBAgUDYBAV+2EVEPAQIECBAoQEDAF4CoCQIECBAgUDYBAV+2EVEPAQIECBAoQEDAF4CoCQIECBAgUDYBAV+2EVEPAQIECBAoQEDAF4CoCQIECBAgUDYBAV+2EVEPAQIECBAoQEDAF4CoCQIECBAgUDYBAV+2EVEPAQIECBAoQEDAF4CoCQIECBAgUDYBAV+2EVEPAQIECBAoQEDAF4CoCQIECBAgUDaBwWUrSD0ECFRTYMGCBdUsXNUEChC4/vrrC2il2CbswRfrqTUCBAgQIFAKAQFfimFQBAECBAgQKFZAwBfrqTUCBAgQIFAKAQFfimFQBAECBAgQKFZAwBfrqTUCBAgQIFAKAQFfimFQBAECBAgQKFZAwBfrqTUCBAgQIFAKAQFfimFQBAECBAgQKFZAwBfrqTUCBAgQIFAKAQFfimFQBAECBAgQKFZAwBfrqTUCBAgQIFAKAQFfimFQBAECBAgQKFZAwBfrqTUCBAgQIFAKAQFfimFQBAECBAgQKFZAwBfrqTUCBAgQIFAKAQFfimFQBAECBAgQKFZAwBfrqTUCBAgQIFAKAQFfimFQBAECBAgQKFZAwBfrqTUCBAgQIFAKAQFfimFQBAECBAgQKFZAwBfrqTUCBAgQIFAKAQFfimFQBAECBAgQKFZAwBfrqTUCBAgQIFAKAQFfimFQBAECBAgQKFZAwBfrqTUCBAgQIFAKAQFfimFQBAECBAgQKFZAwBfrqTUCBAgQIFAKAQFfimFQBAECBAgQKFZAwBfrqTUCBAgQIFAKAQFfimFQBAECBAgQKFZAwBfrqTUCBAgQIFAKgcGtqmLw4JatulVdtt5eAoMGDYoBAwb0muMhAQIEqitQxkxrWcqWEaO6v1rVqzyN//bt26tXuIoJECBQQ6CVmba7naWWBfzmzZtrEJnVCQJjx46NLVu2xLZt2zqhu/pIgEAHCLQy03b3x4XP4DvgF08XCRAgQKDzBAR85425HhMgQIBABwgI+A4YZF0kQIAAgc4TEPCdN+Z6TIAAAQIdICDgO2CQdZEAAQIEOk9AwHfemOsxAQIECHSAgIDvgEHWRQIECBDoPAEB33ljrscECBAg0AECAr4DBlkXCRAgQKDzBAR85425HhMgQIBABwgI+A4YZF0kQIAAgc4TEPCdN+Z6TIAAAQIdICDgO2CQdZEAAQIEOk9AwHfemOsxAQIECHSAgIDvgEHWRQIECBDoPAEB33ljrscECBAg0AECAr4DBlkXCRAgQKDzBAR85425HhMgQIBABwgI+A4YZF0kQIAAgc4TEPCdN+Z6TIAAAQIdICDgO2CQdZEAAQIEOk9AwHfemOsxAQIECHSAgIDvgEHWRQIECBDoPAEB33ljrscECBAg0AECAr4DBlkXCRAgQKDzBAR85425HhMgQIBABwgI+A4YZF0kQIAAgc4TEPCdN+Z6TIAAAQIdICDgO2CQdZEAAQIEOk9AwHfemOsxAQIECHSAwOAO6GPNLi5YsKDmfDMJtLvA9ddf3+5d1D8CBH4vYA/erwEBAgQIEGhDAQHfhoOqSwQIECBAQMD7HSBAgAABAm0oIODbcFB1iQABAgQICHi/AwQIECBAoA0FBHwbDqouESBAgAABAe93gAABAgQItKGAgG/DQdUlAgQIECAg4P0OECBAgACBNhQQ8G04qLpEgAABAgQEvN8BAgQIECDQhgICvg0HVZcIECBAgICA9ztAgAABAgTaUEDAt+Gg6hIBAgQIEBDwfgcIECBAgEAbCgj4NhxUXSJAgAABAgLe7wABAgQIEGhDAQHfhoOqSwQIECBAQMD7HSBAgAABAm0oIODbcFB1iQABAgQI9EvAr1+/PlauXBk7duwgTIAAAQIECLRAoPCAX7ZsWSxevDjuv//+uOyyy1rQJaskQIAAAQIEBhdNcMcdd8SiRYti5MiRcf7558eGDRti7Nix2Wr+7u/+LrZv3x7Tpk2LE044oehVa48AgRwCo0aNyvEqLyFA4PUItHK7GjBgQM1SCw/4CRMmxK9//evYb7/94je/+U320x3wW7ZsyQK+q6srdldQzSrNJECgMAHbXmGUGiLQI1DG7arwgJ8/f35cd911sW3btizke/9V8/nPf74HY/Xq1T2PPSBAoHkCmzZtat7KrIlAhwi0crvqnbO9uQsP+FWrVsV5550Xe+yxR5xzzjkxderU3uvzmAABAgQIEGiCQOEBn/6S+MpXvhLDhw+PE088MYYMGdKEblgFAQIECBAg0Fug8ICfOXNmHHroodk6Bg8uvPnetXtMgAABAgQI7EagXxJYsO9G22wCBAgQINAkgcK/B9+kuq2GAAECBAgQqCMg4OvgWESAAAECBKoqIOCrOnLqJkCAAAECdQQEfB0ciwgQIECAQFUFBHxVR07dBAgQIECgjoCAr4NjEQECBAgQqKqAgK/qyKmbAAECBAjUERDwdXAsIkCAAAECVRUQ8FUdOXUTIECAAIE6AgK+Do5FBAgQIECgqgICvqojp24CBAgQIFBHQMDXwbGIAAECBAhUVUDAV3Xk1E2AAAECBOoICPg6OBYRIECAAIGqCgj4qo6cugkQIECAQB0BAV8HxyICBAgQIFBVAQFf1ZFTNwECBAgQqCMg4OvgWESAAAECBKoqIOCrOnLqJkCAAAECdQQEfB0ciwgQIECAQFUFBHxVR07dBAgQIECgjoCAr4NjEQECBAgQqKqAgK/qyKmbAAECBAjUERDwdXAsIkCAAAECVRUQ8FUdOXUTIECAAIE6AgK+Do5FBAgQIECgqgICvqojp24CBAgQIFBHQMDXwbGIAAECBAhUVUDAV3Xk1E2AAAECBOoICPg6OBYRIECAAIGqCgj4qo6cugkQIECAQB0BAV8HxyICBAgQIFBVAQFf1ZFTNwECBAgQqCMg4OvgWESAAAECBKoqIOCrOnLqJkCAAAECdQQEfB0ciwgQIECAQFUFBHxVR07dBAgQIECgjoCAr4NjEQECBAgQqKqAgK/qyKmbAAECBAjUERDwdXAsIkCAAAECVRUQ8FUdOXUTIECAAIE6AgK+Do5FBAgQIECgqgICvqojp24CBAgQIFBHQMDXwbGIAAECBAhUVUDAV3Xk1E2AAAECBOoICPg6OBYRIECAAIGqCgj4qo6cugkQIECAQB0BAV8HxyICBAgQIFBVAQFf1ZFTNwECBAgQqCMwuM6yfl00fPjwfm1f4wQI1Baw7dV2MZfAGxFo5XY1YMCAmqW3LOC3bdtWsyAzCRDoXwHbXv/6ar0zBVq5XQ0eXDvKa89twvh0dXU1YS1WQYDAzgK2vZ1FPCfwxgVauV0NGzasZgd8Bl+TxUwCBAgQIFBtAQFf7fFTPQECBAgQqCkg4GuymEmAAAECBKotIOCrPX6qJ0CAAAECNQUEfE0WMwkQIECAQLUFBHy1x0/1BAgQIECgpoCAr8liJgECBAgQqLaAgK/2+KmeAAECBAjUFBDwNVnMJECAAAEC1RbIfSW7NWvWxE9+8pPYvHlzT48POeSQSD8mAgQIECBAoFwCuQJ+/fr18c53vjNmz54de+21V08Pxo4dK+B7NDwgQIAAAQLlEcgV8A888ECceuqpcfXVV5encpUQIECAAAECuxXI9Rn8O97xjnjyySejlRfT320PLCBAgAABAgR2Eci1B59ug7du3bqYOHFizJo1K4YMGZI1NG/evDjjjDN2adQMAgQIECBAoLUCuQJ+/PjxccUVV+xS6f7777/LPDMIECBAgACB1gvkOkQ/ZsyYeM973hMbNmyIb33rW3HPPffEhAkTQsC3fgBVQIAAAQIEagnkCvj0xpNPPjnuvPPOOP7442PHjh1x+umnx4oVK2q1aR4BAgQIECDQYoFch+ifeOKJGDduXFx33XU95R544IFxyy23xIwZM3rmeUCAAAECBAiUQyDXHvzAgQPjlVde6VNxej5lypQ+8zwhQIAAAQIEyiGQaw9++vTp8dJLL8WHP/zheP/73x+PPfZYLFu2LB555JFy9EIVBAgQIECAQB+BXHvw6R133HFHfOADH4hVq1bFscceG48++mikK9mZCBAgQIAAgfIJ1N2DT2fL33vvvXHmmWfGueee21P9M888EzfffHOk78GnHxMBAgQIECBQLoG6AZ9OpEsn102aNCnOPvvsXSp/y1vesss8MwgQIECAAIHWC9QN+KlTp0b6SdNxxx3XU+2rr74agwfXfWvPaz0gQIAAAQIEmi+Q+zP4iy++OO6+++7s5Lo999wzDj744Ozytc0v2RoJECBAgACB1xLIFfDphLp0kZvDDjssvv71r8e1114bZ511VlxzzTWv1b7lBAgQIECAQAsEcgX8008/He973/uym8ykW8emr8u9/e1vj40bN7agZKskQIAAAQIEXksgV8AfeuihsXTp0li4cGHMmTMn1qxZExdeeGGfz+Vfa0WWEyBAgAABAs0TyHWm3N577x033nhjLF++PD7+8Y/Hs88+G1/+8pez69I3r1RrIkCAAAECBPIK5NqDT42lz+DTYfkU8ume8J/73OecZJdX2esIECBAgECTBXIFvJPsmjwqVkeAAAECBN6gQK6Ad5LdG1T2dgIECBAg0GSBXAHvJLsmj4rVESBAgACBNyjQ0El2q1evdpLdG4T3dgIECBAg0J8CuQI+FXDkkUdmP+lxuotcOuHORIAAAQIECJRTINch+lR6V1dX3HXXXXHRRRdlt4x96KGHytkjVREgQIAAAQKRO+BPOeWULOBvvfXW2LZtW8ydOzfSVe1MBAgQIECAQPkEcgX8ypUrs8PyV155Zeyxxx5xwAEHxJIlS+K2224rX49URIAAAQIECOTbgx85cmR2iL6316pVq2LfffftPctjAgQIECBAoCQCuU6ymzZtWgwbNiy7Dv3atWtj/vz5cc8998Tjjz9ekm4ogwABAgQIEOgtkCvgn3nmmWxvPX3ufvvtt8eMGTPiqquuihEjRvRuy2MCBAgQIECgJAK5Aj7ttd97772xaNGiOOKII0pSujIIECBAgACB3QnkCvjJkydn935PJ9el778PGTIka+/000+P9GMiQIAAAQIEyiWQK+DHjRsXl19++S6Vv/Wtb91lnhkECBAgQIBA6wVyfU1uzJgx2S1iV6xYEf/yL/8S999/f0yfPj37aX0XVECAAAECBAjsLJAr4Ldu3Rrvfve744knnoj3vve9sWHDhkgXvkm3kTURIECAAAEC5RPIdYj+pz/9aRx99NFx7bXX9vQgnWx30003xVe+8pWeeR4QIECAAAEC5RDItQf/pje9KdLV7LZv395TdfrqXDr5zkSAAAECBAiUTyDXHnw6a/63v/1tTJo0KY455ph48skn47HHHosTTzwxu+BN2rv/whe+UL7eqYgAAQIECHSoQK6AHz9+fPz93//9bolS8JsIECBAgACB8gjkCvjBgwfHcccdFwMH9j2i//TTT7sefXnGUiUECBAgQKBHoG9i98zu+yB9/p4CfvXq1dmCNWvWxEknnRTf+c53+r7w/55t2bIlO8M+3VbWRIAAAQIECDRfIFfAH3bYYfHRj340Zs+enZ01/wd/8AfZ5+/nnXfeLhX//Oc/j69//evxi1/8Ii688MJdlptBgAABAgQI9L9ArkP0qYx58+bF3XffHZdcckm2975gwYIYMGDALhWmr8598YtfjOHDh8chhxwSr776aqRD/Gk699xzY8eOHfGWt7wlPvWpT+3yXjMIEOh/gXRlShMBAsUKtHK76v0Nt969yhXw6Qz6dIGbOXPmxLp16+LSSy+NtFefwvzII4/s3V48//zz2R58OkyfLmWbrl/fPR111FHZV+3SSXnp4jkmAgSaL2Dba765Nba/QCu3q0GDBtUEzhXwL7/8cnYW/Qc/+MGskb/5m7/JDtGn+8HvHPAbN26ML33pS5HuIX/BBRdkgZ/Owk9T7xvTdH+eny3wHwIEmiaQtmcTAQLFCrRyuxo1alTNzuQK+HTd+X333Tfuuuuu+PGPfxzp8Pwee+wRZ5555i6N7rfffj13m0sn2bXyr5pdijODAAECBAh0iECuk+ySRbr2fAr4W2+9NVJwz507Nx544IFdmBYuXBg33HBDthefwt7V7nYhMoMAAQIECPS7QK49+PQ1ubFjx8aVV16ZHZJPn6svWbIkbrvttkjXpO89pb39888/P9Jn8MOGDeu9yGMCBAgQIECgSQK59uBHjhwZXV1dfUpatWpV3YvcCPc+XJ4QIECAAIGmCuTag08nzKXATmfRr127NubPn59dgz6dZGciQIAAAQIEyieQK+BT2ekrcekz99tvvz1mzJgRV111VYwYMSLrUQr6gw46qHy9UxEBAgQIEOhQgdwBn3zS5+07f+aeTri76KKLYunSpR1KqNsECBAgQKB8Ark+gy9f2SoiQIAAAQIE6gkI+Ho6lhEgQIAAgYoKCPiKDpyyCRAgQIBAPQEBX0/HMgIECBAgUFEBAV/RgVM2AQIECBCoJ/CaAf/SSy/FN7/5zfj2t7+dXaK2u7H77rsvu31suovN4sWLu2f7lwABAgQIECiBQN2AT/eYnTlzZvzsZz+La665Jrtl7KZNm7KyH3zwwUghn6Z99tkn+9d/CBAgQIAAgXII1A34H/7wh3HCCSfE1VdfHenxhz/84eymM+k68yYCBAgQIECgvAJ1Az5dqa73PW7TTWTS/d8/9rGP9TlcX97uqYwAAQIECHSmQN2AP+qooyIdip83b16Pzte+9rUYN25cXHzxxT3zPCBAgAABAgTKJVD3UrUDBgyI5cuXx7333tun6muvvTaOPfbYnmvR91noCQECBAgQINBygboBn6obOHBgHHrooXH99df3KTaF/4QJE2L16tUxderUPss8IUCAAAECBFor8JoBn8pLJ9UtWrQohg4dGsccc0w8/PDDsXLlyjjppJPiRz/6Udx4443ZGfat7Yq1EyBAgAABAt0CuQL+hRdeiHRP+B/84Afd74u/+Iu/iE9+8pORTrz76le/KuB7ZDwgQIAAAQKtF6h7kl13ec8//3xMnjy5+2n271577ZXtve+9996R/gAwESBAgAABAuURyLUHn86mX7VqVfzJn/xJzJ49Ox566KHsKnbpu/ELFy6MOXPmlKdHKiFAgAABAgQi1x784MGD48c//nHMmjUrHn/88exz+PT1uTe/+c1xwQUXxGc+8xmUBAgQIECAQIkEcgV8qjedNZ8O06dL1T722GPx1FNPZd1Ie/cmAgQIECBAoFwCuQP+5JNPjjvvvDOOP/742LFjR5x++umxYsWKcvVGNQQIECBAgEAmkOsz+CeeeCK7et11113Xw3bggQfGLbfcEjNmzOiZ5wEBAgQIECBQDoFce/DpYjevvPJKn4rT8ylTpvSZ5wkBAgQIECBQDoFce/DTp0+PdF/4dDe597///dln8MuWLYtHHnmkHL1QBQECBAgQINBHINcefHrHHXfcER/4wAeyr8ul69A/+uijMXbs2D6NeUKAAAECBAiUQyDXHnwqdY899oizzz67HFWrggABAgQIEKgrUDfg06Vpv/GNb+y2gdNOOy3++I//eLfLLSBAgAABAgRaI1A34NNn7/Pnz99tZW9729uyZeniNwcddNBuX2cBAQIECBAg0FyBugGfbjCTfupN27Zti4suuiiWLl1a72WWESBAgAABAk0UyH2SXRNrsioCBAgQIEDgDQoI+DcI6O0ECBAgQKCMAgK+jKOiJgIECBAg8AYFBPwbBPR2AgQIECBQRgEBX8ZRURMBAgQIEHiDAnXPou/d9po1a+InP/lJbN68uWf2IYccEuln8eLFPfM8IECAAAECBFovkCvg169fH+985ztj9uzZsddee/VUnS5VmwJ+n3326ZnnAQECBAgQINB6gVwB/8ADD8Spp54aV199desrVgEBAgQIECDwmgK5PoN/xzveEU8++WR0dXW9ZoNeQIAAAQIECLReINcefLpa3bp162LixIkxa9asGDJkSFb5vHnz4owzzmh9L1RAgAABAgQI9BHIFfDjx4+PK664os8b05P9999/l3lmECBAgAABAq0XyBXwY8aMiQMPPDDuv//+7DD9jh074uWXX470r5Bv/SCqgAABAgQI7CyQK+DTWfQzZ86MQw89NH75y19md4677777YtmyZTu35zkBAgQIECBQAoFcJ9k9+OCD8aEPfSjuuuuumDp1atx5552xaNGieOqpp0rQBSUQIECAAAECOwvkCviRI0fG8OHDY8CAATF06NB47rnnspPt/vM//3Pn9jwnQIAAAQIESiCQ6xD94YcfHp/+9Kfj5ptvjmOPPTYWLlwYGzZsiDPPPLMEXVACAQIECBAgsLNAroAfMWJE/OhHP8q+Kjd37tz427/925gwYUKcdtppO7fnOQECBAgQIFACgVwBn+ocPXp0dhb9jTfeGAsWLIgXX3wxO1xfgj4ogQABAgQIENhJINdn8Ok9p5xySnaS3a233hrpwjdpTz5dwtZEgAABAgQIlE8g1x78ypUrI91Y5sorr4wjjzwyDjjggFiyZEncdtttccQRRzTUq3TinokAgeYL2Paab26N7S/Qyu0qnQBfa8oV8Knwna9Dv2rVqth3331rtZlrXrpQjokAgeYL2Paab26N7S/Qyu1qd39c5Ar4adOmxbBhw2LOnDmxdu3amD9/ftxzzz3x+OOPNzxq6Sp4JgIEmi9g22u+uTW2v0AZt6tcAZ+G5qabbso+c7/99ttjxowZcdVVV0U6u95EgAABAgQIlE8gd8Cn0tPn7Y1+5l6+rquIAAECBAi0r0DugH/22WezS9Ru3LixRyPdOjb9mAgQIECAAIFyCeT6mtzzzz8f73rXu7IbzWzatCm6f7Zu3Vqu3qiGAAECBAgQyARy7cE/9NBD8ZGPfKTmPeE5EiBAgAABAuUTyLUHf/TRR8fTTz8d3/ve97LL1abbx6afVn4toHyUKiJAgAABAuURyLUHv3379vjd734XZ5xxRowfP76n+nPOOSfSj4kAAQIECBAol0CugF++fHlMmTIl7rvvvhg0aFC5eqAaAgQIECBAYBeBXIfop0+fnl1/fneXw9ulVTMIECBAgACBlgrk2oNPFf7qV7/KrkH/1re+NYYMGZIVPW/evOywfUt7YOUECBAgQIDALgK5An7cuHHZPeB3fvf++++/8yzPCRAgQIAAgRII5Ar4MWPGxPHHH1+CcpVAgAABAgQI5BHI9Rl8noa8hgABAgQIECiPgIAvz1iohAABAgQIFCYg4Auj1BABAgQIECiPgIAvz1iohAABAgQIFCYg4Auj1BABAgQIECiPgIAvz1iohAABAgQIFCYg4Auj1BABAgQIECiPgIAvz1iohAABAgQIFCYg4Auj1BABAgQIECiPgIAvz1iohAABAgQIFCYg4Auj1BABAgQIECiPgIAvz1iohAABAgQIFCYg4Auj1BABAgQIECiPgIAvz1iohAABAgQIFCYg4Auj1BABAgQIECiPgIAvz1iohAABAgQIFCYg4Auj1BABAgQIECiPgIAvz1iohAABAgQIFCYg4Auj1BABAgQIECiPgIAvz1iohAABAgQIFCYg4Auj1BABAgQIECiPgIAvz1iohAABAgQIFCYg4Auj1BABAgQIECiPgIAvz1iohAABAgQIFCYg4Auj1BABAgQIECiPgIAvz1iohAABAgQIFCYg4Auj1BABAgQIECiPgIAvz1iohAABAgQIFCYg4Auj1BABAgQIECiPgIAvz1iohAABAgQIFCYg4Auj1BABAgQIECiPgIAvz1iohAABAgQIFCYg4Auj1BABAgQIECiPgIAvz1iohAABAgQIFCYg4Auj1BABAgQIECiPgIAvz1iohAABAgQIFCYg4Auj1BABAgQIECiPgIAvz1iohAABAgQIFCbQLwG/evXqWLFiRWzfvr2wQjVEgAABAgQI5BcoPOC///3vxz/90z/Fgw8+GJdddln+SrySAAECBAgQKExgcGEt/V9D48aNi3PPPTfbe//z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" alt="plot of chunk unnamed-chunk-12"/></p>
+
+<h3>Wrap up</h3>
+
+<p>To reiterate, using the endpoints API, we got the list of previously created cohorts, retrieved the
+list of sample barcodes, examined data associated with the samples, and constructed
+a BigQuery.</p>
+
+<p>More information on the endpoints API and R package example functions can be found at:</p>
+
+<p><a href="http://isb-cancer-genomics-cloud.readthedocs.io/en/latest/sections/progapi/Programmatic-API.html#isb-cgc-api">http://isb-cancer-genomics-cloud.readthedocs.io/en/latest/sections/progapi/Programmatic-API.html#isb-cgc-api</a></p>
+
+<p><a href="https://github.com/Gibbsdavidl/examples-R/blob/master/inst/doc/Working_With_Barcode_Lists.md">https://github.com/Gibbsdavidl/examples-R/blob/master/inst/doc/Working_With_Barcode_Lists.md</a></p>
+
+<pre><code class="r">sessionInfo()
+</code></pre>
+
+<pre><code>## R version 3.2.4 (2016-03-10)
+## Platform: x86_64-apple-darwin13.4.0 (64-bit)
+## Running under: OS X 10.11.5 (El Capitan)
+## 
+## locale:
+## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+## 
+## attached base packages:
+## [1] stats     graphics  grDevices utils     datasets  methods   base     
+## 
+## other attached packages:
+## [1] knitr_1.13           ggplot2_2.1.0        httr_1.1.0          
+## [4] bigrquery_0.2.0      ISBCGCExamples_0.1.1
+## 
+## loaded via a namespace (and not attached):
+##  [1] Rcpp_0.12.5      magrittr_1.5     munsell_0.4.3    colorspace_1.2-6
+##  [5] R6_2.1.2         stringr_1.0.0    plyr_1.8.3       dplyr_0.4.3     
+##  [9] tools_3.2.4      parallel_3.2.4   grid_3.2.4       gtable_0.2.0    
+## [13] DBI_0.4-1        openssl_0.9.4    assertthat_0.1   formatR_1.4     
+## [17] curl_0.9.7       evaluate_0.9     labeling_0.3     stringi_1.1.1   
+## [21] scales_0.4.0     jsonlite_0.9.21  httpuv_1.3.3     markdown_0.7.7
+</code></pre>
+
+</body>
+
+</html>

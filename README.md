@@ -45,9 +45,7 @@ found in the file of the same name in [examples-R/R](R).
 
 [Creating TCGA cohorts part 2](inst/doc/Creating_TCGA_cohorts_part_2.md)
 
-[Working with barcode lists](inst/doc/Working_With_Barcode_Lists.md)
-
-[API Endpoints Interface](R/api_interface.R)
+[Using the API endpoints to work with barcode lists](inst/doc/Working_With_Barcode_Lists.md)
 
 [Constructing small matrices](inst/doc/creating_cohort_gene_expression_matrices.md)
 
