@@ -245,6 +245,6 @@ datafiles_from_cohort <- function(cohort_id, platform=NULL, a_token) {
 #' @export
 barcodes_from_cohort <- function(cohort_id, a_token) {
   require(httr)
-  b <- "https://api-dot-isb-cgc.appspot.com/_ah/api/isb_cgc_api/v2/cohorts/"
-  content(GET(b, query=list(cohort_id=cohort_id), config(token = a_token)))
+  b <- paste("https://api-dot-isb-cgc.appspot.com/_ah/api/isb_cgc_api/v2/cohorts/",cohort_id,sep="")
+  content(GET(b, config(token = a_token)))
 }
