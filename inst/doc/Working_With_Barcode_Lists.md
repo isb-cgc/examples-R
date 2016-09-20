@@ -64,13 +64,13 @@ lapply(my_cohorts$items, function(x) x$name)
 ```
 ## [[1]]
 ## [1] "All TCGA Data"
-## 
+##
 ## [[2]]
 ## [1] "brain_age_10_to_39"
-## 
+##
 ## [[3]]
 ## [1] "new_cohort"
-## 
+##
 ## [[4]]
 ## [1] "HPV_cohort"
 ```
@@ -86,13 +86,13 @@ lapply(my_cohorts$items, function(x) x$id)
 ```
 ## [[1]]
 ## [1] "1"
-## 
+##
 ## [[2]]
 ## [1] "69"
-## 
+##
 ## [[3]]
 ## [1] "106"
-## 
+##
 ## [[4]]
 ## [1] "403"
 ```
@@ -111,8 +111,10 @@ names(my_barcodes)
 ```
 
 ```
-## [1] "cohort_id"     "patients"      "sample_count"  "patient_count"
-## [5] "samples"       "kind"          "etag"
+## [1] "name"            "sample_count"    "permission"      "source_type"
+## [5] "samples"         "comments"        "id"              "parent_id"
+## [9] "patients"        "source_notes"    "filters"         "last_date_saved"
+## [13] "email"           "patient_count"   "kind"            "etag"
 ```
 
 The object returned from barcodes_from_cohort is again a list, this time with
@@ -128,16 +130,16 @@ my_barcodes$patients[1:5]
 ```
 ## [[1]]
 ## [1] "TCGA-2W-A8YY"
-## 
+##
 ## [[2]]
 ## [1] "TCGA-4J-AA1J"
-## 
+##
 ## [[3]]
 ## [1] "TCGA-4P-AA8J"
-## 
+##
 ## [[4]]
 ## [1] "TCGA-BA-4074"
-## 
+##
 ## [[5]]
 ## [1] "TCGA-BA-4075"
 ```
@@ -149,16 +151,16 @@ my_barcodes$samples[1:5]
 ```
 ## [[1]]
 ## [1] "TCGA-2W-A8YY-01A"
-## 
+##
 ## [[2]]
 ## [1] "TCGA-4J-AA1J-01A"
-## 
+##
 ## [[3]]
 ## [1] "TCGA-4P-AA8J-01A"
-## 
+##
 ## [[4]]
 ## [1] "TCGA-BA-4074-01A"
-## 
+##
 ## [[5]]
 ## [1] "TCGA-BA-4075-01A"
 ```
@@ -170,15 +172,15 @@ get details about the sample.
 
 
 ```r
-my_sample_barcode <- my_barcodes$samples[1]
-my_sample_details <- sample_details(a_sample_barcode)
+my_sample_barcode <- my_barcodes$samples[[1]]
+my_sample_detail  <- sample_get(my_sample_barcode)
 
-names(my_sample_details)
+names(my_sample_detail)
 ```
 
 ```
 ## [1] "data_details"       "patient"            "data_details_count"
-## [4] "aliquots"           "biospecimen_data"   "kind"              
+## [4] "aliquots"           "biospecimen_data"   "kind"
 ## [7] "etag"
 ```
 
@@ -187,7 +189,7 @@ my_sample_details$data_details_count
 ```
 
 ```
-## [1] "18"
+## [1] "19"
 ```
 
 ```r
@@ -195,7 +197,7 @@ length(my_sample_details$data_details)
 ```
 
 ```
-## [1] 18
+## [1] 19
 ```
 
 Here the data_details_count list element tells us that there are 18 "data details"
@@ -212,55 +214,55 @@ lapply(my_sample_details$data_details, function(x) x$Platform)
 ```
 ## [[1]]
 ## [1] "IlluminaHiSeq_RNASeqV2"
-## 
+##
 ## [[2]]
 ## [1] "IlluminaHiSeq_None"
-## 
+##
 ## [[3]]
 ## [1] "IlluminaHiSeq_DNASeq"
-## 
+##
 ## [[4]]
 ## [1] "MDA_RPPA_Core"
-## 
+##
 ## [[5]]
 ## [1] "HumanMethylation450"
-## 
+##
 ## [[6]]
 ## [1] "IlluminaHiSeq_RNASeqV2"
-## 
+##
 ## [[7]]
 ## [1] "IlluminaHiSeq_RNASeqV2"
-## 
+##
 ## [[8]]
 ## [1] "Genome_Wide_SNP_6"
-## 
+##
 ## [[9]]
 ## [1] "IlluminaHiSeq_miRNASeq"
-## 
+##
 ## [[10]]
 ## [1] "IlluminaHiSeq_miRNASeq"
-## 
+##
 ## [[11]]
 ## [1] "IlluminaHiSeq_RNASeqV2"
-## 
+##
 ## [[12]]
 ## [1] "IlluminaHiSeq_RNASeqV2"
-## 
+##
 ## [[13]]
 ## [1] "IlluminaHiSeq_RNASeq"
-## 
+##
 ## [[14]]
 ## [1] "IlluminaHiSeq_RNASeqV2"
-## 
+##
 ## [[15]]
 ## [1] "IlluminaHiSeq_RNASeqV2"
-## 
+##
 ## [[16]]
 ## [1] "IlluminaHiSeq_miRNASeq"
-## 
+##
 ## [[17]]
 ## [1] "Genome_Wide_SNP_6"
-## 
+##
 ## [[18]]
 ## [1] "Genome_Wide_SNP_6"
 ```
@@ -276,7 +278,7 @@ lapply(my_sample_details$data_details, function(x) paste(x$Platform, "__", x$Dat
 ```
 ## [[1]]
 ## [1] "IlluminaHiSeq_RNASeqV2 __ exon_quantification"
-## 
+##
 ## [[2]]
 ## [1] "IlluminaHiSeq_RNASeqV2 __ RSEM_isoforms"
 ```
@@ -360,22 +362,22 @@ sessionInfo()
 ## R version 3.2.4 (2016-03-10)
 ## Platform: x86_64-apple-darwin13.4.0 (64-bit)
 ## Running under: OS X 10.11.5 (El Capitan)
-## 
+##
 ## locale:
 ## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
-## 
+##
 ## attached base packages:
-## [1] stats     graphics  grDevices utils     datasets  methods   base     
-## 
+## [1] stats     graphics  grDevices utils     datasets  methods   base
+##
 ## other attached packages:
-## [1] knitr_1.13           ggplot2_2.1.0        httr_1.1.0          
+## [1] knitr_1.13           ggplot2_2.1.0        httr_1.1.0
 ## [4] bigrquery_0.2.0      ISBCGCExamples_0.1.1
-## 
+##
 ## loaded via a namespace (and not attached):
 ##  [1] Rcpp_0.12.5      magrittr_1.5     munsell_0.4.3    colorspace_1.2-6
-##  [5] R6_2.1.2         stringr_1.0.0    plyr_1.8.3       dplyr_0.4.3     
-##  [9] tools_3.2.4      parallel_3.2.4   grid_3.2.4       gtable_0.2.0    
-## [13] DBI_0.4-1        openssl_0.9.4    assertthat_0.1   formatR_1.4     
-## [17] curl_0.9.7       evaluate_0.9     labeling_0.3     stringi_1.1.1   
+##  [5] R6_2.1.2         stringr_1.0.0    plyr_1.8.3       dplyr_0.4.3
+##  [9] tools_3.2.4      parallel_3.2.4   grid_3.2.4       gtable_0.2.0
+## [13] DBI_0.4-1        openssl_0.9.4    assertthat_0.1   formatR_1.4
+## [17] curl_0.9.7       evaluate_0.9     labeling_0.3     stringi_1.1.1
 ## [21] scales_0.4.0     jsonlite_0.9.21  httpuv_1.3.3     markdown_0.7.7
 ```
