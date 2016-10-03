@@ -38,7 +38,7 @@ q <- "select
          MAX(end) as end,
          gene_name
       from
-         [isb-cgc:genome_reference.GENCODE_r19]
+         [isb-cgc:genome_reference.GENCODE_v19]
       where
          gene_name = 'TP53'
       group by
