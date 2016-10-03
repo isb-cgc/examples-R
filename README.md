@@ -18,7 +18,7 @@ To view and run the vignettes.
 
 If you are having trouble with the **OAuth**, see the OAuth section below!
 
-### vignettes
+### Vignettes
 
 There are vignettes for each TCGA data type, and more elaborate examples
 involving analyzing genomic data, correlating gene expression and methylation,
