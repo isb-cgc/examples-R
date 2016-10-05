@@ -18,6 +18,10 @@ To view and run the vignettes.
 
 If you are having trouble with the **OAuth**, see the OAuth section below!
 
+### Authentication on a remote server
+
+To authenticate on a remote server, you need to use out-of-band authentication (OOB). The httr package has an option for this. Set "options(httr_oob_default=TRUE)" after loading bigrquery, but before calling query_exec(), and you should be good to go. [citation: https://support.rstudio.com/hc/en-us/articles/217952868-Generating-OAuth-tokens-from-a-server]
+
 ### Vignettes
 
 There are vignettes for each TCGA data type, and more elaborate examples
