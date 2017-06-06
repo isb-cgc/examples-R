@@ -81,7 +81,7 @@ datafile_filter <- function(filelist, filterby) {
 }
 
 
-#' Get sample files
+#' Get cloud file paths
 #'
 #' Get file locations using sample barcode
 #'
@@ -91,16 +91,16 @@ datafile_filter <- function(filelist, filterby) {
 #' @return List of files across platforms.
 #' @examples
 #' \dontrun{
-#'   fs <- sample_files("TCGA-A7-A6VV-10A")
+#'   fs <- sample_cloud_storage_file_paths("TCGA-A7-A6VV-10A")
 #'  }
 #' @export
-sample_paths <- function(sample_barcode) {
-	b <- paste("https://api-dot-isb-cgc.appspot.com/_ah/api/isb_cgc_api/v2/samples/",sample_barcode,"/cloud_storage_file_paths", sep="")
+sample_cloud_storage_file_paths <- function(sample_barcode) {
+  b <- paste("https://api-dot-isb-cgc.appspot.com/_ah/api/isb_cgc_tcga_api/v3/samples/",sample_barcode,"/cloud_storage_file_paths", sep="")
 	content(GET(url=b))
 }
 
 
-#' Get sample details
+#' sample_get
 #'
 #' Get details on a particular sample, given a sample barcode
 #'
@@ -110,31 +110,30 @@ sample_paths <- function(sample_barcode) {
 #'
 #' @examples
 #' \dontrun{
-#'   sample_details("TCGA-A7-A6VV-10A")
+#'   sample_get("TCGA-A7-A6VV-10A")
 #' }
 #' @export
 sample_get <- function(sample_barcode) {
-	b <- paste("https://api-dot-isb-cgc.appspot.com/_ah/api/isb_cgc_api/v2/samples/", sample_barcode, sep="")
+	b <- paste("https://api-dot-isb-cgc.appspot.com/_ah/api/isb_cgc_tcga_api/v3/samples/", sample_barcode, sep="")
 	content(GET(b))
 }
 
 
-#' Get patient details
+#' case_annotations
 #'
 #' Get details on a particular patient, given a sample barcode
 #'
 #' @param sample_barcode A TCGA patient barcode like "TCGA-02-0001"
 #'
-#' @returns List Details on a given sample_details
+#' @returns List Details on a given case
 #'
 #' @examples
 #' \dontrun{
-#'   patient_details("TCGA-A7-A6VV")
+#'   case_annotations("TCGA-A7-A6VV")
 #'  }
 #' @export
-patient_annotations <- function(patient_barcode) {
-	# TCGA-44-7670
-	b = paste("https://api-dot-isb-cgc.appspot.com/_ah/api/isb_cgc_api/v2/patients/", patient_barcode, "/annotations", sep="")
+case_annotations <- function(patient_barcode) {
+  b = paste("https://api-dot-isb-cgc.appspot.com/_ah/api/isb_cgc_tcga_api/v3/cases/", patient_barcode, "/annotations", sep="")
 	content(GET(b))
 }
 
@@ -153,7 +152,7 @@ patient_annotations <- function(patient_barcode) {
 #'  }
 #' @export
 list_cohorts <- function(a_token) {
-	req <- GET("https://api-dot-isb-cgc.appspot.com/_ah/api/isb_cgc_api/v2/cohorts", config(token = a_token))
+  req <- GET("https://api-dot-isb-cgc.appspot.com/_ah/api/isb_cgc_api/v3/cohorts", config(token = a_token))
 	stop_for_status(req)
 	content(req)
 }
@@ -170,11 +169,11 @@ list_cohorts <- function(a_token) {
 #'
 #' @examples
 #' \dontrun{
-#'   create_cohorts(mytoken, "new_cohort", list(Study="BRCA"))
+#'   create_cohorts(token, "new_cohort_jun7", list(project_short_name="TCGA-UCS", vital_status="alive"))
 #' }
 #' @export
 create_cohorts <- function(a_token, cohort_name, filter_list) {
-	b <- paste0("https://api-dot-isb-cgc.appspot.com/_ah/api/isb_cgc_api/v2/cohorts/create?name=",cohort_name)
+	b <- paste0("https://api-dot-isb-cgc.appspot.com/_ah/api/isb_cgc_tcga_api/v3/cohorts/create?name=",cohort_name)
 	req <- POST(b, query=filter_list, config(token = a_token))
 	stop_for_status(req)
 	content(req)
@@ -191,7 +190,7 @@ create_cohorts <- function(a_token, cohort_name, filter_list) {
 #'
 #' @examples
 #' \dontrun{
-#'   preview_cohort(list(Study="BRCA", vital_status="alive"))
+#'   preview_cohort(list(project_short_name="TCGA-UCS", vital_status="alive"))
 #' }
 #' @export
 preview_cohort <- function(filter_list) {
@@ -199,7 +198,7 @@ preview_cohort <- function(filter_list) {
 	require(httr)
 	q1 <- sapply(1:length(filter_list), function(i) paste(names(filter_list)[i], filter_list[[i]], sep="="))
 	q2 <- paste(q1, collapse="&")
-	b  <- paste("https://api-dot-isb-cgc.appspot.com/_ah/api/isb_cgc_api/v2/cohorts/preview?", q2, sep="")
+  b  <- paste("https://api-dot-isb-cgc.appspot.com/_ah/api/isb_cgc_tcga_api/v3/cohorts/preview?", q2, sep="")
 	content(GET(b))
 }
 
@@ -209,20 +208,19 @@ preview_cohort <- function(filter_list) {
 #' Using a defined cohort, get file paths to a Google bucket
 #'
 #' @param cohort_id The list of filter parameters defining the cohort
-#' @param pipeline The pipeline used in data generation
 #' @param platform The platform used for data generation
 #' @param token Your auth token
 #'
-#' @returns List with count and datafilenamekeys
+#' @returns List with count and file paths
 #'
 #' @examples
 #' \dontrun{
-#'   datafiles_from_cohort("69", NULL, "IlluminaHiSeq_RNASeqV2", mytoken)
+#'   datafiles_from_cohort("69", a_token=mytoken)
 #' }
 #' @export
-datafiles_from_cohort <- function(cohort_id, platform=NULL, a_token) {
+cohort_cloud_storage_file_paths <- function(cohort_id, platform=NULL, a_token) {
 	require(httr)
-	b <- paste("https://api-dot-isb-cgc.appspot.com/_ah/api/isb_cgc_api/v2/cohorts/", cohort_id, "/cloud_storage_file_paths", sep="")
+	b <- paste("https://api-dot-isb-cgc.appspot.com/_ah/api/isb_cgc_api/v3/cohorts/", cohort_id, "/cloud_storage_file_paths", sep="")
 	if (!is.null(platform)) {
 		b <- paste(b, "?platform=", platform, sep="")
 	}
@@ -243,8 +241,8 @@ datafiles_from_cohort <- function(cohort_id, platform=NULL, a_token) {
 #'   sample_list_cohort(list("29"), mytoken)
 #' }
 #' @export
-barcodes_from_cohort <- function(cohort_id, a_token) {
+cohort_barcodes <- function(cohort_id, a_token) {
   require(httr)
-  b <- paste("https://api-dot-isb-cgc.appspot.com/_ah/api/isb_cgc_api/v2/cohorts/",cohort_id,sep="")
+  b <- paste("https://api-dot-isb-cgc.appspot.com/_ah/api/isb_cgc_api/v3/cohorts/",cohort_id,sep="")
   content(GET(b, config(token = a_token)))
 }
