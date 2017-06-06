@@ -62,20 +62,20 @@ lapply(my_cohorts$items, function(x) x$name)
 ```
 
 ```
-[[1]]
-[1] "All TCGA Data"
+##[[1]]
+##[1] "All TCGA Data"
 
-[[2]]
-[1] "HPV_cohort"
+##[[2]]
+##[1] "HPV_cohort"
 
-[[3]]
-[1] "GBM_Adult_TP"
+##[[[3]]
+##[[1] "GBM_Adult_TP"
 
-[[4]]
-[1] "BRCA_Adult_TP"
+##[[[4]]
+##[[1] "BRCA_Adult_TP"
 
-[[5]]
-[1] "HNSC_Adult_TP_and_NT"
+##[[[5]]
+##[[1] "HNSC_Adult_TP_and_NT"
 ```
 
 Also, importantly, each element in 'items' has an 'id', which is used when we
@@ -87,20 +87,20 @@ lapply(my_cohorts$items, function(x) x$id)
 ```
 
 ```
-[[1]]
-[1] "1"
+##[[[1]]
+##[[1] "1"
 
-[[2]]
-[1] "403"
+##[[[2]]
+##[[1] "403"
 
-[[3]]
-[1] "847"
+##[[[3]]
+##[[1] "847"
 
-[[4]]
-[1] "848"
+##[[[4]]
+##[[1] "848"
 
-[[5]]
-[1] "849"
+##[[[5]]
+##[[1] "849"
 ```
 
 ### Getting barcode lists from a cohorts
@@ -134,11 +134,11 @@ my_barcodes$cases[1:5]
 ```
 
 ```
-[[1]]
-[1] "TCGA-E2-A10C"
+##[[[1]]
+##[[1] "TCGA-E2-A10C"
 
-[[2]]
-[1] "TCGA-B6-A0I8"
+##[[[2]]
+##[[1] "TCGA-B6-A0I8"
 
 [[3]]
 [1] "TCGA-C8-A278"
@@ -218,32 +218,32 @@ lapply(my_sample_details$data_details, function(x) paste(x$platform, ", ", x$exp
 ```
 
 ```
-[[1]]
-[1] "Clinical,"
+##[[1]]
+##[[1] "Clinical,"
 
-[[2]]
-[1] "Clinical,"
+##[[2]]
+##[[1] "Clinical,"
 
-[[3]]
-[1] "Illumina GA,miRNA-Seq"
+##[[3]]
+##[[1] "Illumina GA,miRNA-Seq"
 
-[[4]]
-[1] "Illumina GA,WXS"
+##[[4]]
+##[[1] "Illumina GA,WXS"
 
-[[5]]
-[1] "Illumina HiSeq,RNA-Seq"
+##[[5]]
+##[[1] "Illumina HiSeq,RNA-Seq"
 
-[[6]]
-[1] "Illumina GA,miRNA-Seq"
+##[[6]]
+##[[1] "Illumina GA,miRNA-Seq"
 
-[[7]]
-[1] "Illumina,miRNA-Seq"
+##[[7]]
+##[[1] "Illumina,miRNA-Seq"
 
-[[8]]
-[1] "Illumina,WXS"
+##[[8]]
+##[[1] "Illumina,WXS"
 
-[[9]]
-[1] "Illumina,RNA-Seq"
+##[[9]]
+##[[1] "Illumina,RNA-Seq"
 ```
 
 
@@ -282,8 +282,8 @@ results
 ```
 
 ```
-project_short_name mean_log2_expression
-1          TCGA-BRCA             6.668811
+##project_short_name mean_log2_expression
+##1          TCGA-BRCA             6.668811
 ```
 
 At this point, if this is your first query, a browser window will pop-up, and
@@ -311,21 +311,21 @@ sessionInfo()
 ```
 
 ```
-R version 3.3.2 (2016-10-31)
-Platform: x86_64-apple-darwin13.4.0 (64-bit)
-Running under: OS X El Capitan 10.11.6
-
-locale:
-[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
-
-attached base packages:
-[1] stats     graphics  grDevices utils     datasets  methods   base
-
-other attached packages:
-[1] httr_1.2.1           bigrquery_0.3.0.9000 ISBCGCExamples_0.1.3
-
-loaded via a namespace (and not attached):
- [1] magrittr_1.5   R6_2.2.0       assertthat_0.1 tools_3.3.2    DBI_0.6
- [6] dplyr_0.5.0    curl_2.4       tibble_1.2     Rcpp_0.12.11   jsonlite_1.3
-[11] httpuv_1.3.3   openssl_0.9.6
+##R version 3.3.2 (2016-10-31)
+##Platform: x86_64-apple-darwin13.4.0 (64-bit)
+##Running under: OS X El Capitan 10.11.6
+##
+##locale:
+##[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+##
+##attached base packages:
+##[1] stats     graphics  grDevices utils     datasets  methods   base
+##
+##other attached packages:
+##[1] httr_1.2.1           bigrquery_0.3.0.9000 ISBCGCExamples_0.1.3
+##
+##loaded via a namespace (and not attached):
+## [1] magrittr_1.5   R6_2.2.0       assertthat_0.1 tools_3.3.2    DBI_0.6
+## [6] dplyr_0.5.0    curl_2.4       tibble_1.2     Rcpp_0.12.11   jsonlite_1.3
+##[11] httpuv_1.3.3   openssl_0.9.6
 ```
