@@ -17,7 +17,7 @@ To view and run the vignettes.
 ### Alpha tables are no longer available!
 
 Please move to the "tcga_201607_beta" dataset, or even better, the newest
-GDC datasets "TCGA_hg19_data_v0", TCGA_hg38_data_v0, and "TCGA_bioclin_v0".
+GDC datasets "TCGA_hg19_data_v0", "TCGA_hg38_data_v0", and "TCGA_bioclin_v0".
 
 Some of these examples are using the alpha dataset that is now unavailble. If you see
 a dataset that begins with "tcga_201510_alpha", then try "tcga_201607_beta", and
