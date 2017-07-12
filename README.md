@@ -14,6 +14,21 @@ To view and run the vignettes.
   help(package="ISBCGCExamples")
 ```
 
+### Alpha tables are no longer available!
+
+Please move to the "tcga_201607_beta" dataset, or even better, the newest
+GDC datasets "TCGA_hg19_data_v0", TCGA_hg38_data_v0, and "TCGA_bioclin_v0".
+
+Some of these examples are using the alpha dataset that is now unavailble. If you see
+a dataset that begins with "tcga_201510_alpha", then try "tcga_201607_beta", and
+it's likely to work. We will be updating these over time.
+
+If you want to move to the newest datasets (recommended), be aware that some of
+the most common column names have changed to match the GDC's schemas. For example,
+"Study" is now "project_short_name". "ParticipantBarcode" is not "case_barcode".
+"SampleBarcode" is now "sample_barcode". Overall the column names have become
+all lower case. Please get in touch if you're having trouble.
+
 ### OAuth
 
 If you are having trouble with the **OAuth**, see the OAuth section below!
