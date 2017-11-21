@@ -1,0 +1,65 @@
+#################################################################################
+
+# How to run a custom script with
+# Google Genomics Pipelines
+# David L Gibbs
+# dgibbs@systemsbiology.org
+# November 7, 2017
+
+# https://cloud.google.com/genomics/overview
+
+#################################################################################
+
+# In this example, I'm going to be fitting Bayesian models for logistic Regression
+# using Stan. (http://mc-stan.org/) Each job will process a single file,
+# but we could also have each job represent a parameter set, or model, all
+# processing the same data.
+
+# 1. I searched for 'docker and RStan' and found some docker images.
+# https://github.com/jburos/rstan-docker
+# https://hub.docker.com/r/jackinovik/rstan-complete/
+
+# 2. Then I made some edits to the example pipeline file from Google (.yaml).
+# https://cloud.google.com/genomics/v1alpha2/pipelines
+# see standocker-pipeline.yaml
+
+# 3. The script and data needs to be available on the web. I use google
+# buckets, but I've seen people use github as well.
+
+# 4. Now we call the genomics pipeline to run it.
+# https://cloud.google.com/genomics/install-genomics-tools
+# I'm going to be using a script that generates the commands given a file list.
+# You can find that in 'cmd_generator.R', which writes out a table with one command
+# per row.
+#
+# You can run it as: sh cmds.txt
+
+# Some notes:
+# In the cmd, we name the files as we wish them to appear.
+# In the .yaml, we name the files as the script will see them.
+# For example, the script outputs "stan_output_plot.png",
+# but our command will have the file copied to the bucket as
+# stan_test_plot1.png.
+# SO! We can reuse the same .yaml repeatedly for different inputs and outputs!!
+# We only need different command line parameter sets.
+
+# the commands are in the form:
+gcloud alpha genomics pipelines run \
+--pipeline-file standocker-pipeline.yaml \
+--inputs INPUT_FILE=gs://gibbs_bucket_nov162016/data/data_file_1.csv \
+--inputs INPUT_SCRIPT=gs://gibbs_bucket_nov162016/logistic_regression_ref_man.R \
+--outputs OUTPUT_PLOT=gs://gibbs_bucket_nov162016/stan_output/stan_test_plot1.png \
+--outputs OUTPUT_FILE=gs://gibbs_bucket_nov162016/stan_output/stan_test_table1.txt \
+--logging gs://gibbs_bucket_nov162016/logs/
+
+# OK, it returns saying:
+Running [operations/ENGopaL5KxiThuH18PenvxAg6YmPu4QUKg9wcm9kdWN0aW9uUXVldWU].
+
+# 5. We can check it's status with:
+gcloud alpha genomics operations describe operations/ENGopaL5KxiThuH18PenvxAg6YmPu4QUKg9wcm9kdWN0aW9uUXVldWU
+
+# and if we/I forget the job ID, we can check using:
+gcloud alpha genomics operations list | less
+
+# Now, we can check our bucket for the output. If there's a problem, read the logs!
+# DONE!

@@ -1,0 +1,4 @@
+--env SAMPLE_ID	--input DATA_FILE	--output OUTPUT_TABLE	--output OUTPUT_PLOT
+1	gs://gibbs_bucket_nov162016/data/data_file_1.csv	gs://gibbs_bucket_nov162016/stan_table1.txt	gs://gibbs_bucket_nov162016/stan_plot1.png
+2	gs://gibbs_bucket_nov162016/data/data_file_2.csv	gs://gibbs_bucket_nov162016/stan_table2.txt	gs://gibbs_bucket_nov162016/stan_plot2.png
+3	gs://gibbs_bucket_nov162016/data/data_file_3.csv	gs://gibbs_bucket_nov162016/stan_table3.txt	gs://gibbs_bucket_nov162016/stan_plot3.png

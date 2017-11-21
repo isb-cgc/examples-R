@@ -1,0 +1,60 @@
+#################################################################################
+
+# How to run a custom R script with dsub
+# David L Gibbs
+# dgibbs@systemsbiology.org
+# November 7, 2017
+
+# https://cloud.google.com/genomics/overview
+
+#################################################################################
+
+# In this example, I'm going to be fitting Bayesian models for logistic Regression
+# using Stan. (http://mc-stan.org/) Each job will process a single file,
+# but we could also have each job represent a parameter set, or model, all
+# processing the same data.
+
+# 1. I searched for 'docker and RStan' and found some docker images.
+# https://github.com/jburos/rstan-docker
+# https://hub.docker.com/r/jackinovik/rstan-complete/
+
+# 2. The data needs to be available in a google bucket.
+
+# 3. Then we can call dsub using a task list, containing all the variables we
+# need, including input and output paths. You can find that in 'cmd_generator.R',
+# which writes out a table with the variables needed in each row.
+# see this example: https://github.com/googlegenomics/dsub/tree/master/examples/custom_scripts
+
+# If you're on a mac, there's a conflict with
+# the apple system version of the python library 'six',
+# https://github.com/pypa/pip/issues/3165
+# (You can do this in a directory of your choosing.)
+# virtualenv dsub_libs
+# source dsub_libs/bin/activate
+# pip install dsub
+
+dsub \
+  --project isb-cgc-02-0001 \
+  --zones "us-west-*" \
+  --logging gs://gibbs_bucket_nov162016/logs/ \
+  --image jackinovik/rstan-complete \
+  --script ./stan_logistic_regression.R \
+  --tasks task_matrix.txt \
+  --wait
+
+# OK, it returns saying:
+Job: stan-logis--davidlgibbs--171107-193915-44
+Launched job-id: stan-logis--davidlgibbs--171107-193915-44
+3 task(s)
+To check the status, run:
+  dstat --project isb-cgc-02-0001 --jobs 'stan-logis--davidlgibbs--171107-193915-44' --status '*'
+To cancel the job, run:
+  ddel --project isb-cgc-02-0001 --jobs 'stan-logis--davidlgibbs--171107-193915-44'
+Waiting for job to complete...
+Waiting for: stan-logis--davidlgibbs--171107-193915-44.
+stan-logis--davidlgibbs--171107-193915-44: FAILURE
+[u'Error in job task-2 - code 5: 9: Failed to localize files: failed to copy the following files: "gs://your-google-bucket-name/data_file_2.csv -> /mnt/datadisk/input/gs/your-google-bucket-name/data_file_2.csv (cp failed: gsutil -q -m cp gs://your-google-bucket-name/data_file_2.csv /mnt/datadisk/input/gs/your-google-bucket-name/data_file_2.csv, command failed: BucketNotFoundException: 404 gs://your-google-bucket-name bucket does not exist.\\nCommandException: 1 file/object could not be transferred.\\n)"']
+JobExecutionError: One or more jobs finished with status FAILURE or CANCELED during wait.
+
+# Now, we can check our bucket for the output. If there's a problem, read the logs!
+# DONE!
