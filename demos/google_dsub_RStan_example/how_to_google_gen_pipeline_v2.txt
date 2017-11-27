@@ -1,0 +1,156 @@
+#################################################################################
+
+# How to build a custom docker image, and run a custom script with
+# Google Genomics Pipelines
+# David L Gibbs
+# dgibbs@systemsbiology.org
+# November 6, 2017
+
+# https://cloud.google.com/genomics/overview
+
+#################################################################################
+
+# 1. I searched for 'docker and R stan' and found some docker recipes.
+jackinovik/rstan-complete
+
+# 2. Now I'm going to edit the example pipeline file
+# https://cloud.google.com/genomics/v1alpha2/pipelines
+# see standocker-pipeline.yaml
+
+# 3. Then I put my script and data into my google bucket.
+
+# 4. Now we call the genomics pipeline to run it.
+# https://cloud.google.com/genomics/install-genomics-tools
+
+gcloud alpha genomics pipelines run \
+--pipeline-file standocker-pipeline.yaml \
+--inputs INPUT_FILE=gs://gibbs_bucket_nov162016/data/data_file_1.txt \
+--inputs INPUT_SCRIPT=gs://gibbs_bucket_nov162016/logistic_regression_ref_man.R \
+--outputs OUTPUT_FILE=gs://gibbs_bucket_nov162016/output_files/ \
+--logging gs://gibbs_bucket_nov162016/logs/
+
+# OK, it returns saying:
+Running [operations/ENGRyN6LKxib783r--jChQcg6YmPu4QUKg9wcm9kdWN0aW9uUXVldWU].
+
+# We can check it's status with:
+gcloud alpha genomics operations describe operations/ENGRyN6LKxib783r--jChQcg6YmPu4QUKg9wcm9kdWN0aW9uUXVldWU
+
+davidgibbs@pear ~/C/DockerExpr> gcloud alpha genomics operations describe operations/ENGRyN6LKxib783r--jChQcg6YmPu4QUKg9wcm9kdWN0aW9uUXVldWU
+done: true
+metadata:
+  '@type': type.googleapis.com/google.genomics.v1.OperationMetadata
+  clientId: ''
+  createTime: '2016-12-01T19:17:34Z'
+  endTime: '2016-12-01T19:20:01Z'
+  events:
+  - description: start
+    startTime: '2016-12-01T19:18:29.065757712Z'
+  - description: pulling-image
+    startTime: '2016-12-01T19:18:29.065941848Z'
+  - description: localizing-files
+    startTime: '2016-12-01T19:19:50.417652444Z'
+  - description: running-docker
+    startTime: '2016-12-01T19:19:53.651192477Z'
+  - description: delocalizing-files
+    startTime: '2016-12-01T19:19:58.412800592Z'
+  - description: copied 1 file(s) to "gs://gibbs_bucket_nov162016/"
+    startTime: '2016-12-01T19:19:59.641193405Z'
+  - description: ok
+    startTime: '2016-12-01T19:20:01.470516512Z'
+  labels: {}
+  projectId: isb-cgc-xx-xxxx
+  request:
+    '@type': type.googleapis.com/google.genomics.v1alpha2.RunPipelineRequest
+    ephemeralPipeline:
+      description: Run a catter plots script to produce a figure
+      docker:
+        cmd: cd /mnt/data && Rscript run_catterplots.R
+        imageName: gibbsdavidl/gibbsdocker
+      inputParameters:
+      - localCopy:
+          disk: datadisk
+          path: catter_input.txt
+        name: INPUT_FILE
+      - localCopy:
+          disk: datadisk
+          path: run_catterplots.R
+        name: INPUT_SCRIPT
+      name: catterplot_pipeline
+      outputParameters:
+      - localCopy:
+          disk: datadisk
+          path: catter_out.png
+        name: OUTPUT_FILE
+      projectId: isb-cgc-xx-xxxx
+      resources:
+        disks:
+        - mountPoint: /mnt/data
+          name: datadisk
+          sizeGb: 100
+          type: PERSISTENT_HDD
+        minimumCpuCores: 1
+        minimumRamGb: 1
+        zones:
+        - us-central1-a
+        - us-central1-b
+        - us-central1-c
+        - us-central1-f
+    pipelineArgs:
+      clientId: ''
+      inputs:
+        INPUT_FILE: gs://gibbs_bucket_nov162016/catter_input.txt
+        INPUT_SCRIPT: gs://gibbs_bucket_nov162016/run_catterplots.R
+      labels: {}
+      logging:
+        gcsPath: gs://gibbs_bucket_nov162016/logs/
+      outputs:
+        OUTPUT_FILE: gs://gibbs_bucket_nov162016/
+      projectId: isb-cgc-xx-xxxx
+      resources:
+        bootDiskSizeGb: 0
+        disks: []
+        minimumCpuCores: 0
+        minimumRamGb: 0
+        noAddress: false
+        preemptible: false
+        zones: []
+      serviceAccount:
+        email: default
+        scopes: []
+  runtimeMetadata:
+    '@type': type.googleapis.com/google.genomics.v1alpha2.RuntimeMetadata
+    computeEngine:
+      diskNames:
+      - datadisk-507511785758357403
+      instanceName: ggp-507511785758357403
+      machineType: us-central1-c/g1-small
+      zone: us-central1-c
+  startTime: '2016-12-01T19:18:01Z'
+name: operations/ENGRyN6LKxib783r--jChQcg6YmPu4QUKg9wcm9kdWN0aW9uUXVldWU
+
+
+# Now, we can check our bucket for the output.
+# DONE!
+
+
+
+# 2. I'm going to revise this docker file:
+# https://github.com/jburos/rstan-docker/blob/master/Dockerfile
+# I'm going to edit that file, by:
+# -- changing the Maintainer.
+# -- adding my own script from my github repo
+# See the Dockerfile in this repo.
+
+# 3. Then I'm going to build the image
+# https://docs.docker.com/engine/getstarted/step_four/
+docker build -t gibbsstandocker ~/Code/DockerExpr/
+
+# this builds the image called gibbsdocker from the Dockerfile found in the
+# Code/DockerExpr directory.
+
+
+# 6. Make a repo, and push it to the docker repo.
+docker tag dockerexpr gibbsdavidl/gibbsdocker:latest
+docker images
+docker login
+docker push gibbsdavidl/gibbsdocker

@@ -1,0 +1,36 @@
+name: stan_pipeline
+description: fit a bayesian model using stan
+inputParameters:
+- name: INPUT_FILE
+  localCopy:
+    disk: datadisk
+    path: data.csv
+- name: INPUT_SCRIPT
+  localCopy:
+    disk: datadisk
+    path: logistic_regression_ref_man.R
+outputParameters:
+- name: OUTPUT_PLOT
+  localCopy:
+    disk: datadisk
+    path: stan_output_plot.png
+- name: OUTPUT_FILE
+  localCopy:
+    disk: datadisk
+    path: stan_output_table.txt
+resources:
+  minimumCpuCores: 1
+  minimumRamGb: 2
+  zones:
+  - us-central1-a
+  - us-central1-b
+  - us-central1-c
+  - us-central1-f
+  disks:
+  - name: datadisk
+    type: PERSISTENT_HDD
+    sizeGb: 100
+    mountPoint: /mnt/data
+docker:
+  imageName: jackinovik/rstan-complete
+  cmd: "cd /mnt/data && Rscript logistic_regression_ref_man.R"
